@@ -29,7 +29,10 @@ jobs:
           docker push europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook/let-them-cook:${{ github.sha }}
       - name: Deploy to Google Cloud Run
         run: |
+          echo ${{ secrets.GCP_SA_KEY }} > service-account.json
+          gcloud auth activate-service-account --key-file=service-account.json
           gcloud run deploy let-them-cook \
+            --project sopra-fs24-group-22 \
             --image europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook/let-them-cook:${{ github.sha }} \
             --platform managed \
             --region europe-west1 \

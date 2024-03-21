@@ -36,4 +36,4 @@ npm run build
 
 ### Server
 
-Open the project in your IDE and run the com.letthemcook.app application in debug mode.
+Open the project in your IDE and run the com.letthemcook application in debug mode.

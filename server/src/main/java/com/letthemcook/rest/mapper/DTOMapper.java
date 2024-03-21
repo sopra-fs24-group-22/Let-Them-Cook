@@ -1,10 +1,10 @@
-package com.letthemcook.app.rest.mapper;
+package com.letthemcook.rest.mapper;
 
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
-import com.letthemcook.app.entity.User;
-import com.letthemcook.app.rest.dto.UserGetDTO;
+import com.letthemcook.entity.User;
+import com.letthemcook.rest.dto.UserGetDTO;
 
 @Mapper
 public interface DTOMapper {

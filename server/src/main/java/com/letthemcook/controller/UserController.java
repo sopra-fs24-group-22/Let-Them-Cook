@@ -1,12 +1,12 @@
-package com.letthemcook.app.controller;
+package com.letthemcook.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.letthemcook.app.entity.User;
-import com.letthemcook.app.rest.dto.UserGetDTO;
-import com.letthemcook.app.rest.mapper.DTOMapper;
-import com.letthemcook.app.service.UserService;
+import com.letthemcook.entity.User;
+import com.letthemcook.rest.dto.UserGetDTO;
+import com.letthemcook.rest.mapper.DTOMapper;
+import com.letthemcook.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;

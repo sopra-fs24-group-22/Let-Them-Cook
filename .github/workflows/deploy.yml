@@ -1,0 +1,17 @@
+name: Deploy to GCP
+run-name: ${{ github.actor }} has triggered a deployment 🚀
+on: [push]
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - run: sh scripts/init.sh
+      - run: sh scripts/build.sh

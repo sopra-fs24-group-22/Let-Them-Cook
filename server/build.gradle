@@ -28,7 +28,7 @@ repositories {
 }
 
 springBoot {
-    mainClass.set('com.letthemcook.app.Application')
+    mainClass.set('com.letthemcook.Application')
 }
 
 dependencies {

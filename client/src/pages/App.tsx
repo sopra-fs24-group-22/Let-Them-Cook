@@ -9,6 +9,9 @@ const AppPage = () => {
       App Page
       <br />
       App State: {JSON.stringify(appState)}
+      <br />
+      <br />
+      Group: sopra-fs24-group-22
     </Layout>
   );
 };

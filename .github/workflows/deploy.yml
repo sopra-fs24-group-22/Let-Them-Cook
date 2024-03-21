@@ -1,6 +1,12 @@
 name: Deploy to GCP
 run-name: ${{ github.actor }} has triggered a deployment 🚀
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 jobs:
   Deploy:
     runs-on: ubuntu-latest
@@ -27,10 +33,12 @@ jobs:
         run: |
           docker tag let-them-cook:latest europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook/let-them-cook:${{ github.sha }}
           docker push europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook/let-them-cook:${{ github.sha }}
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
       - name: Deploy to Google Cloud Run
         run: |
-          echo ${{ secrets.GCP_SA_KEY }} > service-account.json
-          gcloud auth activate-service-account --key-file=service-account.json
           gcloud run deploy let-them-cook \
             --project sopra-fs24-group-22 \
             --image europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook/let-them-cook:${{ github.sha }} \

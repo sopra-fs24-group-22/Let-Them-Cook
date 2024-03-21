@@ -20,7 +20,7 @@ jobs:
       - name: Configure Docker credentials
         uses: docker/login-action@v1
         with:
-          registry: gcr.io
+          registry: europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook
           username: _json_key
           password: ${{ secrets.GCP_SA_KEY }}
       - name: Push Docker image
@@ -30,7 +30,7 @@ jobs:
       - name: Deploy to Google Cloud Run
         run: |
           gcloud run deploy let-them-cook \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-image:${{ github.sha }} \
+            --image europe-west1-docker.pkg.dev/sopra-fs24-group-22/let-them-cook/let-them-cook:${{ github.sha }} \
             --platform managed \
             --region europe-west1 \
             --allow-unauthenticated

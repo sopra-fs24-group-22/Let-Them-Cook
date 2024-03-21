@@ -14,9 +14,9 @@ jobs:
         with:
           node-version: "18"
       - name: Install dependencies
-      - run: sh scripts/init.sh
+        run: sh scripts/init.sh
       - name: Build and dockerize
-      - run: sh scripts/build.sh
+        run: sh scripts/build.sh
       - name: Configure Docker credentials
         uses: docker/login-action@v1
         with:

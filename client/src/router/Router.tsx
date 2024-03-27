@@ -6,6 +6,7 @@ import { AppGuard } from "./protectors/AppGuard";
 // Pages
 import AppPage from "../pages/App";
 import LoginPage from "../pages/Login";
+import SessionsPage from "../pages/Sessions";
 
 const Router = () => {
   return (
@@ -20,6 +21,11 @@ const Router = () => {
         /* Dashboard */
         <Route path="/home" element={<AppGuard />}>
           <Route path="/home" element={<AppPage />} />
+        </Route>
+
+        /* Sessions */
+        <Route path="/sessions" element={<AppGuard />}>
+          <Route path="/sessions" element={<SessionsPage />} />
         </Route>
 
         /* Empty redirection */

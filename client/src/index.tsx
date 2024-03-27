@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import Router from "./router";
+import Router from "./router/Router";
 import { Provider } from "react-redux";
 import store from "./features";
 import "./assets/css/globals.css";

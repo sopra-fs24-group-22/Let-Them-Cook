@@ -1,4 +1,4 @@
-package com.letthemcook.User;
+package com.letthemcook.user;
 
 public class UserGetDTO {
 

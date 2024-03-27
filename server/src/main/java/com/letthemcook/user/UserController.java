@@ -1,12 +1,9 @@
-package com.letthemcook.User;
+package com.letthemcook.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import com.letthemcook.User.User;
-import com.letthemcook.User.UserGetDTO;
 import com.letthemcook.rest.mapper.DTOMapper;
-import com.letthemcook.User.UserService;
 
 import java.util.ArrayList;
 import java.util.List;

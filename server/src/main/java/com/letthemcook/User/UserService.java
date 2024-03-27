@@ -1,11 +1,9 @@
-package com.letthemcook.service;
+package com.letthemcook.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.letthemcook.entity.User;
-import com.letthemcook.repository.UserRepository;
 
 import java.util.List;
 

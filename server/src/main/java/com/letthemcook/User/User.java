@@ -1,4 +1,4 @@
-package com.letthemcook.entity;
+package com.letthemcook.User;
 
 import javax.persistence.*;
 import java.io.Serializable;

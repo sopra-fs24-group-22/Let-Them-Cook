@@ -3,6 +3,7 @@ package com.letthemcook.user;
 public class UserDTO {
 
   private Long id;
+  private String username;
   private String email;
   private String password;
 
@@ -13,6 +14,10 @@ public class UserDTO {
   public void setId(Long id) {
     this.id = id;
   }
+
+  public String getUsername(){ return this.username; }
+
+  public void setUsername(String username) { this.username = username; }
 
   public String getEmail() {
     return email;

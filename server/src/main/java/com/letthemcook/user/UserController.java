@@ -34,7 +34,16 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public void loginUser(@RequestBody UserDTO userDTO) {
-    User user = DTOMapper.INSTANCE.convertUserDTOToEntity(userDTO);
+    User user = DTOMapper.INSTANCE.convertUserPostDTOToEntity(userDTO);
     userService.loginUser(user);
+  }
+
+  @PostMapping("/api/auth/register")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public UserDTO createUser(@RequestBody UserDTO userPostDTO) {
+    User userInput = DTOMapper.INSTANCE.convertUserPostDTOToEntity(userPostDTO);
+    User createdUser = userService.createUser(userInput);
+    return DTOMapper.INSTANCE.convertEntityToUserPostDTO(createdUser);
   }
 }

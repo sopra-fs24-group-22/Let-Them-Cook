@@ -20,13 +20,21 @@ public class UserController {
   @GetMapping("/api/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public List<UserGetDTO> getAllUsers() {
+  public List<UserDTO> getAllUsers() {
     List<User> users = userService.getUsers();
-    List<UserGetDTO> userGetDTOs = new ArrayList<>();
+    List<UserDTO> userDTOs = new ArrayList<>();
 
     for (User user : users) {
-      userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
+      userDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
     }
-    return userGetDTOs;
+    return userDTOs;
+  }
+
+  @PostMapping("/auth/login")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public void loginUser(@RequestBody UserDTO userDTO) {
+    User user = DTOMapper.INSTANCE.convertUserDTOToEntity(userDTO);
+    userService.loginUser(user);
   }
 }

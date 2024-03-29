@@ -1,5 +1,6 @@
 package com.letthemcook.user;
 
+import com.letthemcook.auth.UserAuthenticationProvider;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,13 +24,15 @@ import java.util.Objects;
 public class UserService {
 
   private final UserRepository userRepository;
+  private final UserAuthenticationProvider userAuthenticationProvider;
 
   @Autowired
   private SequenceGeneratorService sequenceGeneratorService;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, UserAuthenticationProvider userAuthenticationProvider) {
     this.userRepository = userRepository;
+    this.userAuthenticationProvider = userAuthenticationProvider;
   }
 
   public List<User> getUsers() {
@@ -46,16 +49,13 @@ public class UserService {
     return encryptedUser;
   }
 
-  public void loginUser(User checkUser) {
-    User user = userRepository.findByEmail(checkUser.getEmail());
-    //TODO: Returns 404 instead of 401 UNAUTHORIZED
-    if (user == null) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The email is incorrect.");
-    }
-    if (!Objects.equals(user.getPassword(), checkUser.getPassword())) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The password is incorrect.");
-    }
+  public User loginUser(User checkUser) {
+    User user = new User();
+    user.setToken(userAuthenticationProvider.createToken(checkUser.getEmail()));
+    return user;
   }
+
+// ######################################### Util #########################################
 
   public User hashUserPassword(User hashUser) {
     // create a random salt

@@ -1,6 +1,9 @@
 package com.letthemcook.user;
 
+import io.jsonwebtoken.Jwt;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import com.letthemcook.rest.mapper.DTOMapper;
@@ -30,12 +33,13 @@ public class UserController {
     return userDTOs;
   }
 
-  @PostMapping("/auth/login")
+  @PostMapping("/api/auth/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public void loginUser(@RequestBody UserDTO userDTO) {
-    User user = DTOMapper.INSTANCE.convertUserPostDTOToEntity(userDTO);
-    userService.loginUser(user);
+  public UserDTO loginUser(@AuthenticationPrincipal UserDTO userDTO) {
+    User user = DTOMapper.INSTANCE.convertUserLoginDTOToEntity(userDTO);
+    User loggedInUser = userService.loginUser(user);
+    return DTOMapper.INSTANCE.convertEntityToUserLoginDTO(loggedInUser);
   }
 
   @PostMapping("/api/auth/register")

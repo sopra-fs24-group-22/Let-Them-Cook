@@ -25,14 +25,13 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserAuthenticationProvider userAuthenticationProvider;
+  private final SequenceGeneratorService sequenceGeneratorService;
 
   @Autowired
-  private SequenceGeneratorService sequenceGeneratorService;
-
-  @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, UserAuthenticationProvider userAuthenticationProvider) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, UserAuthenticationProvider userAuthenticationProvider, SequenceGeneratorService sequenceGeneratorService) {
     this.userRepository = userRepository;
     this.userAuthenticationProvider = userAuthenticationProvider;
+    this.sequenceGeneratorService = sequenceGeneratorService;
   }
 
   public List<User> getUsers() {
@@ -51,7 +50,9 @@ public class UserService {
   }
 
   public User loginUser(User checkUser) {
-    User user = new User();
+    User user = userRepository.findByEmail(checkUser.getEmail());
+    user.setPassword(null);
+    user.setSalt(null);
     user.setToken(userAuthenticationProvider.createToken(checkUser.getEmail()));
     return user;
   }

@@ -70,7 +70,6 @@ public class UserAuthenticationProvider {
     return new UsernamePasswordAuthenticationToken(userDTO, null, Collections.emptyList());
   }
 
-
 // ######################################### Password Hashing #########################################
 
   public User hashNewPassword(User user) {

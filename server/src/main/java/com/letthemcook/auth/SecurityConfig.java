@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -32,14 +33,11 @@ public class SecurityConfig  {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests(requests -> requests.antMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll().anyRequest().authenticated());
-
     return http.build();
   }
 
-  protected void configure(HttpSecurity http) throws Exception {
-    http.csrf().disable()
-            .authorizeRequests()
-            .antMatchers("/api/auth/login", "/api/auth/register").permitAll() // Exclude login and token endpoints from authentication
-            .anyRequest().authenticated();
+  @Bean
+  public WebSecurityCustomizer webSecurityCustomizer() {
+    return (web) -> web.ignoring().antMatchers("/api/auth/login", "/api/auth/register");
   }
 }

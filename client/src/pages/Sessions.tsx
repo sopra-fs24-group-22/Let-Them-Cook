@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { useSelector } from "react-redux";
 import { State } from "../features";
 import Layout from "../components/Layout/MainLayout";
@@ -6,6 +6,8 @@ import { PrimaryButton, SecondaryButton } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
 import { getAllRecipesAPI, postSessionAPI } from "../api/app.api";
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { SecondaryIconButton } from '../components/ui/Icon';
 
 
 const SessionsPage = () => {
@@ -26,13 +28,27 @@ const SessionsPage = () => {
   const [start, setStart] = useState<Date>();
   const [duration, setDuration] = useState<number>();
   const [participants, setParticipants] = useState<number>();
+  const [singleSteps, setSingleSteps] = useState<string[]>(['']);
 
   // Function to create a new session
   const saveNewSession = () => {
     // TODO: API call
-    // postSessionAPI({ recipe, start, duration, participants });
-    console.log([recipe, start, duration, participants]); //! DEV ONLY
+    // postSessionAPI({ recipe, start, duration, participants, singleSteps });
+    console.log([recipe, start, duration, participants, singleSteps]); //! DEV ONLY
     handleClose();
+  };
+
+  // Functions for single steps
+  const addSingleStep = () => setSingleSteps([...singleSteps, '']);
+  const handleSingleStepsInputChange = (index: number, event: ChangeEvent<HTMLInputElement>) => {
+    const values = [...singleSteps];
+    values[index] = event.target.value;
+    setSingleSteps(values);
+  };
+  const removeSingleStep = (index: number) => {
+    const values = [...singleSteps];
+    values.splice(index, 1);
+    setSingleSteps(values);
   };
 
   // Return
@@ -71,6 +87,27 @@ const SessionsPage = () => {
           <Label htmlFor="participants">Max. number of participants</Label>
           <Input id="participants" type="number" placeholder="10"
             onChange={(e) => setParticipants(Number(e.target.value))} />
+
+          <Label htmlFor="singleSteps">Single steps</Label>
+          {singleSteps.map((input, index) => (
+            <div key={index}>
+              <Input
+                type="text"
+                value={input}
+                onChange={(event) => handleSingleStepsInputChange(index, event)}
+                style = {{width: '85%', marginBottom: '0'}}
+                placeholder="Chop the carrots"
+              />
+              <SecondaryIconButton
+                icon={faTrashCan}
+                style={{cursor: 'pointer', marginLeft: '5px'}}
+                onClick={() => removeSingleStep(index)}
+              />
+            </div>
+          ))}
+          <SecondaryButton onClick={addSingleStep} style={{margin: '10px 5px'}}>
+            Add step
+          </SecondaryButton>
         </Modal.Body>
         <Modal.Footer>
           <SecondaryButton onClick={handleClose}>

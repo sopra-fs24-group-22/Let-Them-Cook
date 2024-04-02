@@ -42,9 +42,10 @@ public class UserService {
   public User createUser(User newUser) {
     newUser.setId(sequenceGeneratorService.getSequenceNumber(User.SEQUENCE_NAME));
     checkIfUserExists(newUser);
+    newUser.setToken(userAuthenticationProvider.createToken(newUser.getEmail()));
 
     // hash the password and store the hashed password as well as the salt inside the database
-    User encryptedUser = hashUserPassword(newUser);
+    User encryptedUser = userAuthenticationProvider.hashNewPassword(newUser);
     userRepository.save(encryptedUser);
     return encryptedUser;
   }
@@ -55,39 +56,16 @@ public class UserService {
     return user;
   }
 
-// ######################################### Util #########################################
-
-  public User hashUserPassword(User hashUser) {
-    // create a random salt
-    SecureRandom random = new SecureRandom();
-    byte[] hashSalt = new byte[16];
-    random.nextBytes(hashSalt);
-
-    // Encrypt the input password
-    String hashPassword = hashUser.getPassword();
-    KeySpec spec = new PBEKeySpec(hashPassword.toCharArray(), hashSalt, 65536, 128);
-      SecretKeyFactory factory = null;
-      try {
-          factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-      } catch (NoSuchAlgorithmException e) {
-          throw new RuntimeException(e);
-      }
-      byte[] hash = new byte[0];
-      try {
-          hash = factory.generateSecret(spec).getEncoded();
-      } catch (InvalidKeySpecException e) {
-          throw new RuntimeException(e);
-      }
-
-    // Convert salt and password to string and store them
-    String password = Base64.getEncoder().encodeToString(hash);
-    String salt = Base64.getEncoder().encodeToString(hashSalt);
-
-    hashUser.setPassword(password);
-    hashUser.setSalt(salt);
-
-    return hashUser;
+  public User logoutUser(User logoutUser) {
+    checkIfUserExists(logoutUser);
+    User user = userRepository.findByEmail(logoutUser.getEmail());
+    user.setToken(null);
+    userRepository.save(user);
+    return user;
   }
+
+
+// ######################################### Util #########################################
 
   private void checkIfUserExists(User userToBeCreated) {
     User userByEmail = userRepository.findByEmail(userToBeCreated.getEmail());

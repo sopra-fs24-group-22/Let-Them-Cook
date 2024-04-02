@@ -14,6 +14,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
@@ -62,5 +68,63 @@ public class UserAuthenticationProvider {
   public Authentication validateCredentials(UserDTO userDTO) {
     authenticationService.authenticateUser(DTOMapper.INSTANCE.convertUserLoginDTOToEntity(userDTO));
     return new UsernamePasswordAuthenticationToken(userDTO, null, Collections.emptyList());
+  }
+
+
+// ######################################### Password Hashing #########################################
+
+  public User hashNewPassword(User user) {
+    String password = user.getPassword();
+    String[] hashedPasswordAndSalt = hashPassword(new String[] {password});
+
+    user.setPassword(hashedPasswordAndSalt[0]);
+    user.setSalt(hashedPasswordAndSalt[1]);
+    return user;
+  }
+
+  public static Boolean checkUserPassword(User checkUser, User storedUser) {
+    // Retrieve salt from user
+    String stringSalt = storedUser.getSalt();
+    String checkPassword = checkUser.getPassword();
+
+    // Encrypt the input password with the salt and compare it to the stored password
+    String[] checkPasswordAndSalt = {checkPassword, stringSalt};
+    String[] checkHashPasswordAndSalt = hashPassword(checkPasswordAndSalt);
+    return checkHashPasswordAndSalt[0].equals(storedUser.getPassword());
+  }
+
+  public static String[] hashPassword(String[] args) {
+    String password = args[0];
+    byte[] hashSalt;
+
+    // Generate salt if there is none
+    if (args.length > 1) {
+      String stringSalt = args[1];
+      hashSalt = Base64.getDecoder().decode(stringSalt);
+    } else {
+      SecureRandom random = new SecureRandom();
+      hashSalt = new byte[16];
+      random.nextBytes(hashSalt);
+    }
+
+    // Hash password
+    KeySpec spec = new PBEKeySpec(password.toCharArray(), hashSalt, 65536, 128);
+    SecretKeyFactory factory;
+    try {
+      factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+    byte[] hash;
+    try {
+      hash = factory.generateSecret(spec).getEncoded();
+    } catch (InvalidKeySpecException e) {
+      throw new RuntimeException(e);
+    }
+
+    // Convert salt and password to strings and return them
+    String hashedPassword = Base64.getEncoder().encodeToString(hash);
+    String salt = Base64.getEncoder().encodeToString(hashSalt);
+    return new String[] {hashedPassword, salt};
   }
 }

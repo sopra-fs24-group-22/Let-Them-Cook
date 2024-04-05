@@ -1,0 +1,1 @@
+export const eMailIsValid = (email: string): boolean => /\S+@\S+\.\S\S+/.test(email);

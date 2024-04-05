@@ -16,10 +16,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
 export default MainLayout;
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
+  min-height: 100%;
   background: rgb(253, 153, 29);
   background: linear-gradient(
     90deg,

@@ -3,6 +3,7 @@ package com.letthemcook.user;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.SecurityConfig;
+import com.letthemcook.auth.UserAuthenticationEntryPoint;
 import com.letthemcook.auth.UserAuthenticationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

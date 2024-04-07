@@ -15,7 +15,6 @@ export const PrimaryButton = styled.button`
   &:disabled {
     cursor: default;
     opacity: 0.7;
-    cursor: auto;
   }
 `;
 
@@ -34,6 +33,5 @@ export const SecondaryButton = styled.button`
   &:disabled {
     cursor: default;
     opacity: 0.7;
-    cursor: auto;
 }
 `;

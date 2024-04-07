@@ -1,12 +1,12 @@
 import axios from "axios";
 
-// Things
-export const getThingsAPI = async () => {
-  const { data } = await axios.get("./api/things");
+// Login
+export const postLoginAPI = async (login: any) => {
+  const { data } = await axios.post("./api/auth/login", { login });
   return data;
 };
-export const postThingAPI = async (thing: any) => {
-  const { data } = await axios.post("./api/thing", { thing });
+export const postRegisterAPI = async (register: any) => {
+  const { data } = await axios.post("./api/auth/register", { register });
   return data;
 };
 

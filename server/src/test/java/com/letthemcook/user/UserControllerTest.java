@@ -2,38 +2,29 @@ package com.letthemcook.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.letthemcook.auth.SecurityConfig;
+import com.letthemcook.auth.UserAuthenticationEntryPoint;
 import com.letthemcook.auth.UserAuthenticationProvider;
-import com.letthemcook.user.UserController;
-import com.letthemcook.user.UserService;
-import com.letthemcook.user.User;
-import com.letthemcook.user.UserDTO;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.MongoDatabaseFactory;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.server.ResponseStatusException;
-import org.hamcrest.core.IsNull;
-
-import java.util.Collections;
-import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,17 +36,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This tests if the UserController works.
  */
 @WebMvcTest(UserController.class)
+@ContextConfiguration(classes = SecurityConfig.class)
+@WebAppConfiguration
 public class UserControllerTest {
 
+
   @Autowired
+  private WebApplicationContext context;
   private MockMvc mockMvc;
   @MockBean
   private UserRepository userRepository;
   @MockBean
   private UserService userService;
+  @MockBean
+  private UserAuthenticationProvider userAuthenticationProvider;
+  @MockBean
+  private UserAuthenticationEntryPoint userAuthenticationEntryPoint;
 
   @BeforeEach
   public void setup() {
+    mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+
     // Save test User
     User user = new User();
     user.setId(1L);
@@ -70,7 +71,7 @@ public class UserControllerTest {
 
   // ######################################### Login Route #########################################
   @Test
-  @WithMockUser
+  //@WithMockUser
   public void loginUser_validInput() throws Exception {
     // Setup environment
     User user = userRepository.findById(1L);

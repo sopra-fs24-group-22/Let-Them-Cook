@@ -1,23 +1,29 @@
-import axios from "axios";
+import { axiosAuth, axiosPublic } from "./axios";
 
 // Login
 export const postLoginAPI = async (login: any) => {
-  const { data } = await axios.post("./api/auth/login", { login });
-  return data;
+  const { data } = await axiosPublic.post("./api/auth/login", { login });
+  return data.accessToken;
 };
 export const postRegisterAPI = async (register: any) => {
-  const { data } = await axios.post("./api/auth/register", { register });
-  return data;
+  const { data } = await axiosPublic.post("./api/auth/register", { register });
+  return data.accessToken;
+};
+
+// Refresh
+export const refreshAccessTokenAPI = async () => {
+  const { data } = await axiosPublic.get("./api/refresh", { withCredentials: true });
+  return data.accessToken;
 };
 
 // Recipes
 export const getAllRecipesAPI = async () => {
-  const { data } = await axios.get("./api/recipes");
+  const { data } = await axiosAuth.get("./api/recipes");
   return data;
 };
 
 // Sessions
 export const postSessionAPI = async (session: any) => {
-  const { data } = await axios.post("./api/session", { session });
+  const { data } = await axiosAuth.post("./api/session", { session });
   return data;
 };

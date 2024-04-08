@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/LoginLayout";
 import { Title, Input, Button, HLine, BorderlessButton } from "../components/ui/Login";
 import { eMailIsValid } from "../helpers/eMailIsValid";
+import { postRegisterAPI } from "../api/app.api";
+import { setAccessToken } from "../api/axios";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -12,6 +16,7 @@ const RegisterPage = () => {
   const [email, setEmail] = useState<string>();
   const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
   const [password, setPassword] = useState<string>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const changeMail = (email: string) => {
     setEmail(email);
@@ -19,7 +24,8 @@ const RegisterPage = () => {
   };
 
   const doRegistration = () => {
-    // TODO: API call
+    setIsLoading(true);
+    
     const data = {
       firstname: firstname,
       lastname: lastname,
@@ -27,10 +33,28 @@ const RegisterPage = () => {
       email: email,
       password: password
     };
-    // postRegisterAPI(data);
+
+    // TODO: API call
+    // try {
+    //   const accessToken = postRegisterAPI(data);
+    //   if (typeof accessToken === "string") {
+    //     setAccessToken(accessToken);
+    //     navigate("/home");
+    //   } else {
+    //     alert("Something went wrong. Please try again.");
+    //   }
+    // } catch (error) {
+    //   if(error !== undefined && error !== null && (error as Error).message !== undefined) {
+    //     alert("Something went wrong: " + (error as Error).message);
+    //   } else {
+    //     alert("Something went wrong. Please try again.");
+    //   }
+    // }
+
     console.log(data); //! DEV ONLY
-    // TODO: Save token
-    navigate("/home");
+    
+    // setIsLoading(false);
+    setTimeout(() => { setIsLoading(false) }, 3000); //! DEV ONLY
   };
 
   return (
@@ -65,8 +89,13 @@ const RegisterPage = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <Button onClick={doRegistration}
-        disabled={!(firstname && lastname && username && email && eMailIsValid(email) && password)}>
-        Register
+        disabled={!(firstname && lastname && username && email && eMailIsValid(email) && password) || isLoading}>
+        { !isLoading ? "Register" : (
+          <FontAwesomeIcon
+            icon={faSpinner}
+            spin={true}
+          />
+        ) }
       </Button>
       <HLine />
       <BorderlessButton onClick={() => navigate("/login")} style={{cursor: 'pointer'}}>

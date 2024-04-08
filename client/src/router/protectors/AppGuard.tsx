@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
 
 /**
- * Checks if user is not logged in
+ * Checks if user is logged in
  * @Guard
  * @param props
  */

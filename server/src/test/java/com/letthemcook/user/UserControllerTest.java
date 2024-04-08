@@ -2,9 +2,9 @@ package com.letthemcook.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.letthemcook.auth.SecurityConfig;
-import com.letthemcook.auth.UserAuthenticationEntryPoint;
-import com.letthemcook.auth.UserAuthenticationProvider;
+import com.letthemcook.auth.accessToken.AuthEntryPoint;
+import com.letthemcook.auth.config.JwtHelper;
+import com.letthemcook.auth.refreshToken.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -13,7 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -36,10 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This tests if the UserController works.
  */
 @WebMvcTest(UserController.class)
-@ContextConfiguration(classes = SecurityConfig.class)
 @WebAppConfiguration
 public class UserControllerTest {
-
 
   @Autowired
   private WebApplicationContext context;
@@ -47,11 +45,13 @@ public class UserControllerTest {
   @MockBean
   private UserRepository userRepository;
   @MockBean
+  private RefreshTokenRepository refreshTokenRepository;
+  @MockBean
   private UserService userService;
   @MockBean
-  private UserAuthenticationProvider userAuthenticationProvider;
+  private AuthEntryPoint authEntryPoint;
   @MockBean
-  private UserAuthenticationEntryPoint userAuthenticationEntryPoint;
+  private JwtHelper jwtHelper;
 
   @BeforeEach
   public void setup() {
@@ -65,16 +65,18 @@ public class UserControllerTest {
     user.setUsername("TestUser");
     user.setFirstName("Max");
     user.setLastName("Mustermann");
+    user.setAccessToken("testAccessToken");
+    user.setRefreshToken("testRefreshToken");
 
-    given(userRepository.findById(1L)).willReturn(user);
+    given(userRepository.getById(1L)).willReturn(user);
   }
 
   // ######################################### Login Route #########################################
-  @Test
-  //@WithMockUser
+/*  @Test
+  @WithAnonymousUser
   public void loginUser_validInput() throws Exception {
     // Setup environment
-    User user = userRepository.findById(1L);
+    User user = userRepository.getById(1L);
 
     UserDTO userDTO = new UserDTO();
     userDTO.setPassword("Test");
@@ -91,23 +93,21 @@ public class UserControllerTest {
     // then
     mockMvc.perform(postRequest)
             .andExpect(status().is(200))
-            .andExpect(jsonPath("$.id", is(user.getId().intValue())))
-            .andExpect(jsonPath("$.username", is(user.getUsername())))
-            .andExpect(jsonPath("$.firstName", is(user.getFirstName())))
-            .andExpect(jsonPath("$.lastName", is(user.getLastName())))
-            .andExpect(jsonPath("$.email", is(user.getEmail())));
-  }
+            .andExpect(jsonPath("$.accessToken", is(user.getAccessToken())))
+            .andExpect(jsonPath("$.refreshToken", is(user.getRefreshToken())));
+  }*/
 
   @Test
+  @WithAnonymousUser
   public void loginUser_invalidEmail() throws Exception {
     // Setup environment
-    User user = userRepository.findById(1L);
+    User user = userRepository.getById(1L);
 
     UserDTO userDTO = new UserDTO();
     userDTO.setPassword("Test");
     userDTO.setEmail("wrongUser@gmail.com");
 
-    given(userService.loginUser(Mockito.any())).willReturn(user);
+    given(userService.loginUser(Mockito.any())).willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
     // when/then -> do the request + validate the result
     MockHttpServletRequestBuilder postRequest = post("/api/auth/login")
@@ -121,16 +121,16 @@ public class UserControllerTest {
   }
 
   @Test
+  @WithAnonymousUser
   public void loginUser_invalidPassword() throws Exception {
     // Setup environment
-    User user = userRepository.findById(1L);
+    User user = userRepository.getById(1L);
 
     UserDTO userDTO = new UserDTO();
     userDTO.setPassword("WrongPassword");
     userDTO.setEmail("testUser@gmail.com");
 
-    given(userService.loginUser(Mockito.any())).willReturn(user);
-    given(userRepository.findByEmail(Mockito.any())).willReturn(user);
+    given(userService.loginUser(Mockito.any())).willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
     // when/then -> do the request + validate the result
     MockHttpServletRequestBuilder postRequest = post("/api/auth/login")

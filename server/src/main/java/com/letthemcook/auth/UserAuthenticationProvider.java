@@ -1,3 +1,4 @@
+/*
 package com.letthemcook.auth;
 
 import com.auth0.jwt.JWT;
@@ -60,7 +61,7 @@ public class UserAuthenticationProvider {
 
     DecodedJWT decoded = verifier.verify(token);
 
-    User user = userRepository.findByEmail(decoded.getIssuer());
+    User user = userRepository.getByEmail(decoded.getIssuer());
 
     return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
   }
@@ -127,3 +128,4 @@ public class UserAuthenticationProvider {
     return new String[] {hashedPassword, salt};
   }
 }
+*/

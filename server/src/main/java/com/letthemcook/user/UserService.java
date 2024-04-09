@@ -1,10 +1,9 @@
 package com.letthemcook.user;
 
-import com.letthemcook.auth.config.GlobalExceptionHandler;
-import com.letthemcook.auth.config.JwtHelper;
-import com.letthemcook.auth.refreshToken.RefreshToken;
-import com.letthemcook.auth.refreshToken.RefreshTokenRepository;
+import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.auth.token.Token;
 import com.letthemcook.util.SequenceGeneratorService;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -12,14 +11,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.security.Signature;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -29,17 +28,15 @@ public class UserService {
   private final UserRepository userRepository;
   private final SequenceGeneratorService sequenceGeneratorService;
   private final AuthenticationManager authenticationManager;
-  private final RefreshTokenRepository refreshTokenRepository;
-  private final JwtHelper jwtHelper;
   private final PasswordEncoder passwordEncoder;
+  @Autowired
+  private JwtService jwtService;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, RefreshTokenRepository refreshTokenRepository, JwtHelper jwtHelper, PasswordEncoder passwordEncoder) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.authenticationManager = authenticationManager;
-    this.refreshTokenRepository = refreshTokenRepository;
-    this.jwtHelper = jwtHelper;
     this.passwordEncoder = passwordEncoder;
   }
 
@@ -47,40 +44,41 @@ public class UserService {
     return this.userRepository.findAll();
   }
 
-  public User createUser(User newUser) {
+  public Token createUser(User newUser) {
     checkIfUserExists(newUser);
+
+    // Set user data
     newUser.setId(sequenceGeneratorService.getSequenceNumber(User.SEQUENCE_NAME));
-
-    // Generate token
-    RefreshToken refreshToken = new RefreshToken();
-    refreshToken.setUser(newUser);
-    refreshTokenRepository.save(refreshToken);
-
-    newUser.setAccessToken(jwtHelper.generateAccessToken(newUser));
-    newUser.setRefreshToken(jwtHelper.generateRefreshToken(newUser, refreshToken));
-
-    // hash the password and store the hashed password as well as the salt inside the database
-    // User encryptedUser = userAuthenticationProvider.hashNewPassword(newUser);
+    newUser.setRole(UserRole.USER);
     newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+
+    // Create token
+    Token token = new Token();
+
+    token.setAccessToken(jwtService.generateAccessToken(newUser));
+    token.setRefreshToken(jwtService.generateRefreshToken(new HashMap<>(), newUser));
+
     userRepository.save(newUser);
-    return newUser;
+    return token;
   }
 
-  public User loginUser(User checkUser) {
+  public Token loginUser(User checkUser) {
+    try {
       Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(checkUser.getEmail(), checkUser.getPassword()));
-      SecurityContextHolder.getContext().setAuthentication(authentication);
-      User user = (User) authentication.getPrincipal();
 
-      // Generate token
-      RefreshToken refreshToken = new RefreshToken();
-      refreshToken.setUser(user);
-      refreshTokenRepository.save(refreshToken);
+      if (authentication.isAuthenticated()) {
+        Token token = new Token();
 
-      user.setAccessToken(jwtHelper.generateAccessToken(user));
-      user.setRefreshToken(jwtHelper.generateRefreshToken(user, refreshToken));
-      userRepository.save(user);
-
-      return user;
+        token.setAccessToken(jwtService.generateAccessToken(checkUser));
+        token.setRefreshToken(jwtService.generateRefreshToken(new HashMap<>(), checkUser));
+        return token;
+      }
+      else {
+        throw new UsernameNotFoundException("invalid user request!");
+      }
+    } catch (BadCredentialsException e){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
   }
 
   public User logoutUser(User logoutUser) {
@@ -91,38 +89,41 @@ public class UserService {
     return user;
   }
 
-  public User refreshToken(String refreshTokenString) {
-    // Token valid and exists in DB
-    if(jwtHelper.validateRefreshToken(refreshTokenString) && refreshTokenRepository.existsById(jwtHelper.getTokenIdFromRefreshToken(refreshTokenString))) {
-      refreshTokenRepository.deleteById(jwtHelper.getTokenIdFromRefreshToken(refreshTokenString));
+  public Token refreshToken(String refreshTokenString) {
+    try {
+      User user = userRepository.getByUsername(jwtService.extractUsername(refreshTokenString));
 
-      User user = userRepository.getById(jwtHelper.getUserIdFromRefreshToken(refreshTokenString));
+      // Token valid and exists in DB
+      if (jwtService.isTokenValid(refreshTokenString, user)) {
+        // Generate new token
+        String accessToken = jwtService.generateAccessToken(user);
 
-      // Generate new token
-      RefreshToken refreshToken = new RefreshToken();
-      refreshToken.setUser(user);
-      refreshTokenRepository.save(refreshToken);
+        Token token = new Token();
+        token.setAccessToken(accessToken);
+        token.setRefreshToken(refreshTokenString);
 
-      String accessToken = jwtHelper.generateAccessToken(user);
-      String newRefreshTokenString = jwtHelper.generateRefreshToken(user, refreshToken);
-
-      user.setAccessToken(accessToken);
-      user.setRefreshToken(newRefreshTokenString);
-
-      return user;
+        return token;
+      } else {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
+      }
+    } catch (SignatureException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
     }
-    throw new BadCredentialsException("invalid token");
   }
 
 // ######################################### Util #########################################
 
   private void checkIfUserExists(User userToBeCreated) {
     User userByEmail = userRepository.getByEmail(userToBeCreated.getEmail());
+    User userByUsername = userRepository.getByUsername(userToBeCreated.getUsername());
 
-    String baseErrorMessage = "add user failed because email already exists";
+    String baseErrorMessage = "add user failed because %s already exists";
     if (userByEmail != null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
-              String.format(baseErrorMessage, "email", "is"));
+              String.format(baseErrorMessage, "email"));
+    } else if (userByUsername != null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+              String.format(baseErrorMessage, "username"));
     }
   }
 }

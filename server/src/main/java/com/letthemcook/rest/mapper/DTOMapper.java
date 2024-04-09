@@ -1,7 +1,10 @@
 package com.letthemcook.rest.mapper;
 
-import com.letthemcook.user.UserDTO;
-import com.letthemcook.auth.refreshToken.TokenDTO;
+import com.letthemcook.auth.token.Token;
+import com.letthemcook.auth.token.dto.TokenResponseDTO;
+import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.RegisterRequestDTO;
+import com.letthemcook.user.dto.UserDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -19,31 +22,23 @@ public interface DTOMapper {
 
   // ######################################### Login #########################################
 
-  @Mapping(source = "email", target = "email")
+  @Mapping(source = "username", target = "username")
   @Mapping(source = "password", target = "password")
-  User convertUserLoginDTOToEntity(UserDTO userDTO);
+  User convertUserLoginDTOToEntity(LoginRequestDTO loginRequestDTO);
+
+  // ######################################### Token #########################################
 
   @Mapping(source = "accessToken", target = "accessToken")
-  TokenDTO convertEntityToTokenDTO(User user);
-
-  // ######################################### Refresh Token #########################################
-
   @Mapping(source = "refreshToken", target = "refreshToken")
-  User convertTokenDTOToRefresh(TokenDTO tokenDTO);
-
-  @Mapping(source = "refreshToken", target = "refreshToken")
-  TokenDTO convertRefreshToTokenDTO(User user);
+  TokenResponseDTO convertEntityToTokenDTO(Token token);
 
   // ######################################### Register #########################################
 
   @Mapping(source = "username", target = "username")
   @Mapping(source = "email", target = "email")
+  @Mapping(source = "firstName", target = "firstName")
+  @Mapping(source = "lastName", target = "lastName")
   @Mapping(source = "password", target = "password")
-  User convertUserPostDTOToEntity(UserDTO userPostDTO);
+  User convertRegisterDTOtoEntity(RegisterRequestDTO registerRequestDTO);
 
-  @Mapping(source = "id", target = "id")
-  @Mapping(source = "username", target = "username")
-  @Mapping(source = "email", target = "email")
-  @Mapping(source = "password", target = "password")
-  UserDTO convertEntityToUserPostDTO(User user);
 }

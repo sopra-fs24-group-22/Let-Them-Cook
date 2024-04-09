@@ -2,11 +2,13 @@ package com.letthemcook.user;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.letthemcook.auth.accessToken.AuthEntryPoint;
-import com.letthemcook.auth.config.JwtHelper;
-import com.letthemcook.auth.refreshToken.RefreshTokenRepository;
+import com.letthemcook.auth.config.JwtAuthFilter;
+import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.auth.token.Token;
+import com.letthemcook.user.dto.UserDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,16 +18,19 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.server.ResponseStatusException;
 
-import static org.hamcrest.Matchers.*;
+import java.util.HashMap;
+
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,19 +50,17 @@ public class UserControllerTest {
   @MockBean
   private UserRepository userRepository;
   @MockBean
-  private RefreshTokenRepository refreshTokenRepository;
-  @MockBean
   private UserService userService;
   @MockBean
-  private AuthEntryPoint authEntryPoint;
+  private JwtAuthFilter jwtAuthFilter;
   @MockBean
-  private JwtHelper jwtHelper;
+  private JwtService jwtService;
 
   @BeforeEach
   public void setup() {
     mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
-    // Save test User
+    // Save test user
     User user = new User();
     user.setId(1L);
     user.setPassword("Test");
@@ -65,10 +68,8 @@ public class UserControllerTest {
     user.setUsername("TestUser");
     user.setFirstName("Max");
     user.setLastName("Mustermann");
-    user.setAccessToken("testAccessToken");
-    user.setRefreshToken("testRefreshToken");
 
-    given(userRepository.getById(1L)).willReturn(user);
+    given(userRepository.getById(Mockito.any())).willReturn(user);
   }
 
   // ######################################### Login Route #########################################
@@ -78,23 +79,28 @@ public class UserControllerTest {
     // Setup environment
     User user = userRepository.getById(1L);
 
+    // Generate test token
+    Token token = new Token();
+    token.setAccessToken(jwtService.generateAccessToken(user));
+    token.setRefreshToken(jwtService.generateRefreshToken(new HashMap<>(), user));
+
+    given(userService.loginUser(Mockito.any())).willReturn(token);
+
     UserDTO userDTO = new UserDTO();
     userDTO.setPassword("Test");
     userDTO.setEmail("testUser@gmail.com");
-
-    given(userService.loginUser(Mockito.any())).willReturn(user);
 
     // when/then -> do the request + validate the result
     MockHttpServletRequestBuilder postRequest = post("/api/auth/login")
             .contentType(MediaType.APPLICATION_JSON)
             .with(csrf())
             .content(asJsonString(userDTO));
-
     // then
     mockMvc.perform(postRequest)
+            .andDo(print())
             .andExpect(status().is(200))
-            .andExpect(jsonPath("$.accessToken", is(user.getAccessToken())))
-            .andExpect(jsonPath("$.refreshToken", is(user.getRefreshToken())));
+            .andExpect(jsonPath("$.accessToken").value(token.getAccessToken()))
+            .andExpect(jsonPath("$.refreshToken").value(token.getRefreshToken()));
   }*/
 
   @Test
@@ -108,6 +114,7 @@ public class UserControllerTest {
     userDTO.setEmail("wrongUser@gmail.com");
 
     given(userService.loginUser(Mockito.any())).willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
 
     // when/then -> do the request + validate the result
     MockHttpServletRequestBuilder postRequest = post("/api/auth/login")

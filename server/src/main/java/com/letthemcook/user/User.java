@@ -1,18 +1,14 @@
 package com.letthemcook.user;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Document("users")
@@ -27,10 +23,13 @@ public class User implements Serializable, UserDetails {
   private String firstName;
   private String lastName;
   private String email;
-  private String accessToken;
-  private String refreshToken;
   private String password;
   private String salt;
+  private UserRole userRole;
+
+  public String getUsername() {
+    return username;
+  }
 
   @Override
   public boolean isAccountNonExpired() {
@@ -52,9 +51,8 @@ public class User implements Serializable, UserDetails {
     return true;
   }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Collections.EMPTY_LIST;
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public Long getId() {
@@ -65,12 +63,9 @@ public class User implements Serializable, UserDetails {
     this.id = id;
   }
 
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(userRole.name()));
   }
 
   public String getPassword() {
@@ -113,19 +108,11 @@ public class User implements Serializable, UserDetails {
     this.lastName = lastName;
   }
 
-  public String getAccessToken() {
-    return accessToken;
+  public UserRole getRole() {
+    return userRole;
   }
 
-  public void setAccessToken(String accessToken) {
-    this.accessToken = accessToken;
-  }
-
-  public String getRefreshToken() {
-    return refreshToken;
-  }
-
-  public void setRefreshToken(String refreshToken) {
-    this.refreshToken = refreshToken;
+  public void setRole(UserRole userRole) {
+    this.userRole = userRole;
   }
 }

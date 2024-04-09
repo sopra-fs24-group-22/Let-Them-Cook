@@ -1,13 +1,16 @@
 package com.letthemcook.user;
 
-import com.letthemcook.auth.config.JwtHelper;
-import com.letthemcook.auth.refreshToken.RefreshTokenRepository;
-import com.letthemcook.auth.refreshToken.TokenDTO;
+import com.letthemcook.auth.token.Token;
+import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.RegisterRequestDTO;
+import com.letthemcook.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.letthemcook.rest.mapper.DTOMapper;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -19,15 +22,11 @@ import java.util.List;
 public class UserController {
 
   private final UserService userService;
-  private final JwtHelper jwtHelper;
-  private final RefreshTokenRepository refreshTokenRepository;
   @Value("${refreshTokenExpirationMs}")
   private long refreshTokenExpirationMs;
 
-  UserController(UserService userService, JwtHelper jwtHelper, RefreshTokenRepository refreshTokenRepository) {
+  UserController(UserService userService) {
     this.userService = userService;
-    this.jwtHelper = jwtHelper;
-    this.refreshTokenRepository = refreshTokenRepository;
   }
 
   @GetMapping("/api/users")
@@ -46,37 +45,58 @@ public class UserController {
   @PostMapping("/api/auth/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public TokenDTO loginUser(@RequestBody UserDTO userDTO, HttpServletResponse response) throws IOException {
-    User user = DTOMapper.INSTANCE.convertUserLoginDTOToEntity(userDTO);
-    user = userService.loginUser(user);
-    Cookie cookie = new Cookie("refreshToken", user.getRefreshToken());
-    cookie.setSecure(true);
-    cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
-    response.addCookie(cookie);
+  public ResponseEntity loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) throws IOException {
+    try {
+      User user = DTOMapper.INSTANCE.convertUserLoginDTOToEntity(loginRequestDTO);
+      Token token = userService.loginUser(user);
 
-    return DTOMapper.INSTANCE.convertEntityToTokenDTO(user);
+      Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
+      cookie.setSecure(true);
+      cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
+      response.addCookie(cookie);
+
+      return ResponseEntity.ok(DTOMapper.INSTANCE.convertEntityToTokenDTO(token));
+    } catch (ResponseStatusException e) {
+      return ResponseEntity
+              .status(e.getStatus())
+              .body(e.getMessage());
+    }
   }
 
   @PostMapping("/api/auth/register")
-  @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public TokenDTO createUser(@RequestBody UserDTO userPostDTO, HttpServletResponse response) {
-    User userInput = DTOMapper.INSTANCE.convertUserPostDTOToEntity(userPostDTO);
-    User createdUser = userService.createUser(userInput);
+  public ResponseEntity createUser(@RequestBody RegisterRequestDTO registerRequestDTO, HttpServletResponse response) {
+    try {
+      User userInput = DTOMapper.INSTANCE.convertRegisterDTOtoEntity(registerRequestDTO);
+      Token token = userService.createUser(userInput);
 
-    Cookie cookie = new Cookie("refreshToken", createdUser.getRefreshToken());
-    cookie.setSecure(true);
-    cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
-    response.addCookie(cookie);
+      Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
+      cookie.setSecure(true);
+      cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
+      response.addCookie(cookie);
 
-    return DTOMapper.INSTANCE.convertEntityToTokenDTO(createdUser);
+      return ResponseEntity.ok(DTOMapper.INSTANCE.convertEntityToTokenDTO(token));
+    } catch (ResponseStatusException e) {
+      return ResponseEntity
+              .status(e.getStatus())
+              .body(e.getMessage());
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
   }
 
   @PostMapping("/api/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public TokenDTO refreshToken(@CookieValue String refreshToken) {
-    User user = userService.refreshToken(refreshToken);
-    return DTOMapper.INSTANCE.convertRefreshToTokenDTO(user);
+  public ResponseEntity refreshToken(@CookieValue String refreshToken) {
+    try {
+      Token token = userService.refreshToken(refreshToken);
+      return ResponseEntity.ok(DTOMapper.INSTANCE.convertEntityToTokenDTO(token));
+    } catch (ResponseStatusException e) {
+      return ResponseEntity
+              .status(e.getStatus())
+              .body(e.getMessage());
+    }
   }
 }

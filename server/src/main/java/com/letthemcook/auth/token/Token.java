@@ -1,6 +1,6 @@
-package com.letthemcook.auth.refreshToken;
+package com.letthemcook.auth.token;
 
-public class TokenDTO {
+public class Token {
   private String accessToken;
   private String refreshToken;
 

@@ -29,15 +29,15 @@ public class UserService {
   private final SequenceGeneratorService sequenceGeneratorService;
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
-  @Autowired
   private JwtService jwtService;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
     this.userRepository = userRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.authenticationManager = authenticationManager;
     this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
   }
 
   public List<User> getUsers() {

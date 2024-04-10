@@ -1,80 +1,129 @@
 package com.letthemcook.user;
 
-import com.letthemcook.auth.UserAuthenticationProvider;
+import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.auth.token.Token;
 import com.letthemcook.util.SequenceGeneratorService;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
-import java.util.Base64;
+import java.security.Signature;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @Transactional
 public class UserService {
-
+  @Autowired
   private final UserRepository userRepository;
-  private final UserAuthenticationProvider userAuthenticationProvider;
   private final SequenceGeneratorService sequenceGeneratorService;
+  private final AuthenticationManager authenticationManager;
+  private final PasswordEncoder passwordEncoder;
+  @Autowired
+  private JwtService jwtService;
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, UserAuthenticationProvider userAuthenticationProvider, SequenceGeneratorService sequenceGeneratorService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
-    this.userAuthenticationProvider = userAuthenticationProvider;
     this.sequenceGeneratorService = sequenceGeneratorService;
+    this.authenticationManager = authenticationManager;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public List<User> getUsers() {
     return this.userRepository.findAll();
   }
 
-  public User createUser(User newUser) {
-    newUser.setId(sequenceGeneratorService.getSequenceNumber(User.SEQUENCE_NAME));
+  public Token createUser(User newUser) {
     checkIfUserExists(newUser);
-    newUser.setToken(userAuthenticationProvider.createToken(newUser.getEmail()));
 
-    // hash the password and store the hashed password as well as the salt inside the database
-    User encryptedUser = userAuthenticationProvider.hashNewPassword(newUser);
-    userRepository.save(encryptedUser);
-    return encryptedUser;
+    // Set user data
+    newUser.setId(sequenceGeneratorService.getSequenceNumber(User.SEQUENCE_NAME));
+    newUser.setRole(UserRole.USER);
+    newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+
+    // Create token
+    Token token = new Token();
+
+    token.setAccessToken(jwtService.generateAccessToken(newUser));
+    token.setRefreshToken(jwtService.generateRefreshToken(new HashMap<>(), newUser));
+
+    userRepository.save(newUser);
+    return token;
   }
 
-  public User loginUser(User checkUser) {
-    User user = userRepository.findByEmail(checkUser.getEmail());
-    user.setPassword(null);
-    user.setSalt(null);
-    user.setToken(userAuthenticationProvider.createToken(checkUser.getEmail()));
-    return user;
+  public Token loginUser(User checkUser) {
+    try {
+      Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(checkUser.getEmail(), checkUser.getPassword()));
+
+      if (authentication.isAuthenticated()) {
+        Token token = new Token();
+
+        token.setAccessToken(jwtService.generateAccessToken(checkUser));
+        token.setRefreshToken(jwtService.generateRefreshToken(new HashMap<>(), checkUser));
+        return token;
+      }
+      else {
+        throw new UsernameNotFoundException("invalid user request!");
+      }
+    } catch (BadCredentialsException e){
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
   }
 
   public User logoutUser(User logoutUser) {
     checkIfUserExists(logoutUser);
-    User user = userRepository.findByEmail(logoutUser.getEmail());
-    user.setToken(null);
+    User user = userRepository.getByEmail(logoutUser.getEmail());
+    // user.setToken(null);
     userRepository.save(user);
     return user;
   }
 
+  public Token refreshToken(String refreshTokenString) {
+    try {
+      User user = userRepository.getByUsername(jwtService.extractUsername(refreshTokenString));
+
+      // Token valid and exists in DB
+      if (jwtService.isTokenValid(refreshTokenString, user)) {
+        // Generate new token
+        String accessToken = jwtService.generateAccessToken(user);
+
+        Token token = new Token();
+        token.setAccessToken(accessToken);
+        token.setRefreshToken(refreshTokenString);
+
+        return token;
+      } else {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
+      }
+    } catch (SignatureException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
+    }
+  }
 
 // ######################################### Util #########################################
 
   private void checkIfUserExists(User userToBeCreated) {
-    User userByEmail = userRepository.findByEmail(userToBeCreated.getEmail());
+    User userByEmail = userRepository.getByEmail(userToBeCreated.getEmail());
+    User userByUsername = userRepository.getByUsername(userToBeCreated.getUsername());
 
-    String baseErrorMessage = "add user failed because email already exists";
+    String baseErrorMessage = "add user failed because %s already exists";
     if (userByEmail != null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
-              String.format(baseErrorMessage, "email", "is"));
+              String.format(baseErrorMessage, "email"));
+    } else if (userByUsername != null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+              String.format(baseErrorMessage, "username"));
     }
   }
 }

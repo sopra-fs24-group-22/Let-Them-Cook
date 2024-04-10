@@ -3,10 +3,16 @@ package com.letthemcook.user;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.List;
 
 @Document("users")
-public class User implements Serializable {
+public class User implements Serializable, UserDetails {
 
   @Transient
   public static final String SEQUENCE_NAME = "users_sequence";
@@ -17,9 +23,37 @@ public class User implements Serializable {
   private String firstName;
   private String lastName;
   private String email;
-  private String token;
   private String password;
   private String salt;
+  private UserRole userRole;
+
+  public String getUsername() {
+    return username;
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
   public Long getId() {
     return id;
@@ -29,12 +63,9 @@ public class User implements Serializable {
     this.id = id;
   }
 
-  public String getUsername() {
-    return username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(userRole.name()));
   }
 
   public String getPassword() {
@@ -77,11 +108,11 @@ public class User implements Serializable {
     this.lastName = lastName;
   }
 
-  public String getToken() {
-    return token;
+  public UserRole getRole() {
+    return userRole;
   }
 
-  public void setToken(String token) {
-    this.token = token;
+  public void setRole(UserRole userRole) {
+    this.userRole = userRole;
   }
 }

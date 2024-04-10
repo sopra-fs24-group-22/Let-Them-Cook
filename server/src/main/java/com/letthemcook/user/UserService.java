@@ -64,7 +64,7 @@ public class UserService {
 
   public Token loginUser(User checkUser) {
     try {
-      Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(checkUser.getEmail(), checkUser.getPassword()));
+      Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(checkUser.getUsername(), checkUser.getPassword()));
 
       if (authentication.isAuthenticated()) {
         Token token = new Token();

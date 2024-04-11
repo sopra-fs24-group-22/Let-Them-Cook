@@ -3,14 +3,12 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.util.SequenceGeneratorService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,6 +40,8 @@ public class UserServiceTest {
   @InjectMocks
   private UserService userService;
 
+  // ######################################### Setup & Teardown #########################################
+
   @BeforeEach
   public void setup() {
     userService = new UserService(userRepository, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService);
@@ -49,6 +51,8 @@ public class UserServiceTest {
   public void tearDown() {
     userRepository.deleteAll();
   }
+
+  // ######################################### Login Tests #########################################
 
   @Test
   public void testLoginSuccess() {
@@ -112,6 +116,50 @@ public class UserServiceTest {
 
     // Perform test
     Assertions.assertThrows(ResponseStatusException.class, () -> userService.loginUser(user));
+  }
+
+  // ######################################### Refresh Token Tests #########################################
+
+  @Test
+  public void shouldReturnNewTokenWhenRefreshTokenIsValid() {
+    User user = new User();
+    user.setUsername("testUser");
+
+    when(userRepository.getByUsername(anyString())).thenReturn(user);
+    when(jwtService.extractUsername(anyString())).thenReturn("testUser");
+    when(jwtService.isTokenValid(anyString(), any(User.class))).thenReturn(true);
+    when(jwtService.generateAccessToken(any(User.class))).thenReturn("newAccessToken");
+
+    Token result = userService.refreshToken("validRefreshToken");
+
+    assertEquals("newAccessToken", result.getAccessToken());
+    assertEquals("validRefreshToken", result.getRefreshToken());
+  }
+
+  @Test
+  public void shouldThrowExceptionWhenRefreshTokenIsInvalid() {
+    when(userRepository.getByUsername(anyString())).thenReturn(null);
+    when(jwtService.extractUsername(anyString())).thenReturn(null);
+
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.refreshToken("invalidRefreshToken"));
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    assertEquals("invalid refresh token!", exception.getReason());
+  }
+
+  @Test
+  public void shouldThrowExceptionWhenRefreshTokenIsNotValidForUser() {
+    User user = new User();
+    user.setUsername("testUser");
+
+    when(userRepository.getByUsername(anyString())).thenReturn(user);
+    when(jwtService.extractUsername(anyString())).thenReturn("testUser");
+    when(jwtService.isTokenValid(anyString(), any(User.class))).thenReturn(false);
+
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.refreshToken("invalidRefreshTokenForUser"));
+
+    assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
+    assertEquals("invalid refresh token!", exception.getReason());
   }
 }
 

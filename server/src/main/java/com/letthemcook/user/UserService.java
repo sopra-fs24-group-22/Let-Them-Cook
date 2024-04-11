@@ -3,7 +3,6 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.util.SequenceGeneratorService;
-import io.jsonwebtoken.security.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -16,10 +15,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.security.Signature;
 import java.util.HashMap;
-import java.util.List;
 
 @Service
 @Transactional
@@ -30,6 +29,7 @@ public class UserService {
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private JwtService jwtService;
+  Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
   public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
@@ -38,10 +38,6 @@ public class UserService {
     this.authenticationManager = authenticationManager;
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
-  }
-
-  public List<User> getUsers() {
-    return this.userRepository.findAll();
   }
 
   public Token createUser(User newUser) {
@@ -106,7 +102,8 @@ public class UserService {
       } else {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
       }
-    } catch (SignatureException e) {
+    } catch (Exception e) {
+      logger.info("Error generating refreshToken: " + e.getMessage());
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
     }
   }

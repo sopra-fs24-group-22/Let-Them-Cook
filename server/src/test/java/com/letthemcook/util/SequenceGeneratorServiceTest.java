@@ -22,10 +22,14 @@ public class SequenceGeneratorServiceTest {
   @InjectMocks
   private SequenceGeneratorService sequenceGeneratorService;
 
+  // ######################################### Setup & Teardown #########################################
+
   @BeforeEach
   public void setup() {
     MockitoAnnotations.openMocks(this);
   }
+
+  // ######################################### Sequence Number Tests #########################################
 
   @Test
   public void testReturnSequenceNumberWhenSequenceExists() {

@@ -19,6 +19,11 @@ public class JwtService {
   @Value("${security.jwt.token.secret-key}")
   private String SECRET;
 
+  @Value("${accessTokenExpirationMs}")
+  private long ACCESS_TOKEN_EXPIRATION_MS;
+  @Value("${refreshTokenExpirationMs}")
+  private long REFRESH_TOKEN_EXPIRATION_MS;
+
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
   }
@@ -46,15 +51,19 @@ public class JwtService {
   }
 
   public Boolean isTokenValid(String token, UserDetails userDetails) {
-    final String username = extractUsername(token);
-    return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    try {
+      final String username = extractUsername(token);
+      return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    } catch (io.jsonwebtoken.ExpiredJwtException e) {
+      return false;
+    }
   }
 
   public String generateAccessToken(UserDetails userDetails) {
     return Jwts.builder()
             .setSubject(userDetails.getUsername())
             .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + 60000))
+            .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MS))
             .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
   }
 
@@ -63,7 +72,7 @@ public class JwtService {
             .setClaims(extraClaims)
             .setSubject(userDetails.getUsername())
             .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+            .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_MS))
             .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
   }
 

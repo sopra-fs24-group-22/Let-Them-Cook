@@ -1,11 +1,11 @@
 package com.letthemcook.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.Cookie;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(UserController.class)
@@ -111,6 +114,44 @@ public class UserControllerTest {
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
 
+  // ######################################### Refresh Token Tests #########################################
+
+  @Test
+  public void testReturnNewTokenWhenRefreshTokenIsValid() throws Exception {
+    // Setup token
+    Token token = new Token();
+    token.setAccessToken("newAccessToken");
+    token.setRefreshToken("validRefreshToken");
+
+    // Mock userService
+    when(userService.refreshToken(anyString())).thenReturn(token);
+
+    // Perform request
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh")
+                    .cookie(new Cookie("refreshToken", "validRefreshToken")))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").value(token.getRefreshToken()));
+  }
+
+  @Test
+  public void testReturnErrorWhenRefreshTokenIsInvalid() throws Exception {
+    // Mock userService
+    when(userService.refreshToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+
+    // Perform request
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh")
+                    .cookie(new Cookie("refreshToken", "invalidRefreshToken")))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void testReturnErrorWhenRefreshTokenIsMissing() throws Exception {
+    // Perform request
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
   // ######################################### Register Route #########################################
   @Test
   public void registerUser_validInput() throws Exception {
@@ -174,5 +215,26 @@ public class UserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isConflict());
+  }
+
+  // ######################################### Logout Route #########################################
+
+  @Test
+  public void logoutUser() throws Exception {
+    // Setup registration request
+    LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
+    logoutRequestDTO.setUsername("test@other.com");
+    logoutRequestDTO.setEmail("test@other.com");
+
+    // Mock token
+    Token token = new Token();
+    token.setAccessToken("accessToken");
+    token.setRefreshToken("refreshToken");
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/logout")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(logoutRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Cookies").doesNotExist());
   }
 }

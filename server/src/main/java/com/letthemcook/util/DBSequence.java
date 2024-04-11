@@ -9,6 +9,14 @@ public class DBSequence {
   private String id;
   private int seq;
 
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setSeq(int seq) {
+    this.seq = seq;
+  }
+
   public int getSeq() {
     return seq;
   }

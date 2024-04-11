@@ -6,7 +6,7 @@ import { PrimaryButton, SecondaryButton } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
 import { getAllRecipesAPI, postSessionAPI } from "../api/app.api";
-import { faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from '../components/ui/Icon';
 
 

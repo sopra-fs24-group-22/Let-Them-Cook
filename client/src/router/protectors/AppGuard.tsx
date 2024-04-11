@@ -9,18 +9,10 @@ export const AppGuard = () => {
   const { appLoading, isLoggedIn } = useSelector((state: State) => state.app);
   const dispatch: Dispatch<any> = useDispatch();
 
-  /**
-   * Fetch user data on page load
-   */
   useEffect(() => {
     dispatch(loadUser());
   }, [dispatch]);
 
-  /**
-   * If app is loading, show loading page
-   * If user is logged in, show the app
-   * If user is not logged in, redirect to login page
-   */
   if (appLoading) {
     return <LoadingPage />;
   }

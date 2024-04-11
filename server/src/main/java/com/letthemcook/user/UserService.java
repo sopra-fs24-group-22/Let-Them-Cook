@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.security.Signature;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class UserService {
   private final SequenceGeneratorService sequenceGeneratorService;
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
-  private JwtService jwtService;
+  private final JwtService jwtService;
 
   @Autowired
   public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
@@ -81,13 +80,6 @@ public class UserService {
     }
   }
 
-  public User logoutUser(User logoutUser) {
-    checkIfUserExists(logoutUser);
-    User user = userRepository.getByEmail(logoutUser.getEmail());
-    // user.setToken(null);
-    userRepository.save(user);
-    return user;
-  }
 
   public Token refreshToken(String refreshTokenString) {
     try {

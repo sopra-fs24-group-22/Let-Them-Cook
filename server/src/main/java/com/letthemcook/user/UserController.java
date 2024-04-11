@@ -2,6 +2,7 @@ package com.letthemcook.user;
 
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import com.letthemcook.user.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +15,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 public class UserController {
@@ -45,7 +46,7 @@ public class UserController {
   @PostMapping("/api/auth/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) throws IOException {
+  public ResponseEntity loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
     try {
       User user = DTOMapper.INSTANCE.convertUserLoginDTOToEntity(loginRequestDTO);
       Token token = userService.loginUser(user);
@@ -63,7 +64,39 @@ public class UserController {
     }
   }
 
+  @PostMapping("/api/auth/logout")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ResponseBody
+  public ResponseEntity logoutUser(@RequestBody LogoutRequestDTO logoutRequestDTO, HttpServletResponse response) {
+    try {
+      User user = DTOMapper.INSTANCE.convertUserLogoutDTOToEntity(logoutRequestDTO); // for possible future use
+      Token token = new Token();
+
+      token.setAccessToken(UUID.randomUUID().toString());
+      token.setRefreshToken(UUID.randomUUID().toString());
+
+      Cookie accessTokenCookie = new Cookie("accessToken", null);
+      accessTokenCookie.setSecure(true);
+      accessTokenCookie.setMaxAge(0);
+      accessTokenCookie.setPath("/");
+      response.addCookie(accessTokenCookie);
+
+      Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+      refreshTokenCookie.setSecure(true);
+      refreshTokenCookie.setMaxAge(0);
+      refreshTokenCookie.setPath("/");
+      response.addCookie(refreshTokenCookie);
+
+      return ResponseEntity.noContent().build();
+    } catch (ResponseStatusException e) {
+      return ResponseEntity
+              .status(e.getStatus())
+              .body(e.getMessage());
+    }
+  }
+
   @PostMapping("/api/auth/register")
+  @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity createUser(@RequestBody RegisterRequestDTO registerRequestDTO, HttpServletResponse response) {
     try {

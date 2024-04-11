@@ -1,19 +1,56 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { User } from "../types/user";
+import { getMyUser } from "../api/user.api";
 
 // State
 export interface AppState {
-  property: string;
+  appLoading: boolean;
+  isLoggedIn: boolean;
+  user: User | null;
 }
 const initialState: AppState = {
-  property: "Hello World!",
+  appLoading: true,
+  isLoggedIn: false,
+  user: null,
 };
 
-// Slice Config
+// Actions
+/**
+ * The loadUser action is dispatched on page load in the AppGuard component.
+ * It fetches the user data from the server and updates the state with the user data.
+ * If the request fails, the globalError state is updated with the error message
+ * This means that the user is not logged in anymore or has lost permission to access the app.
+ */
+export const loadUser = createAsyncThunk(
+  "app/loadUser",
+  async (_, { dispatch }: any) => {
+    const { user } = await getMyUser();
+    return user as User;
+  }
+);
+
+// Reducers
 const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {},
-  extraReducers: (builder) => {},
+  extraReducers: (builder) => {
+    builder.addCase(loadUser.fulfilled, (state, action) => {
+      /**
+       * Case: User is logged in and fetched successfully
+       */
+      state.appLoading = false;
+      state.isLoggedIn = true;
+      state.user = action.payload;
+    });
+    builder.addCase(loadUser.rejected, (state) => {
+      /**
+       * Case: User is not logged in or lost permission
+       */
+      state.appLoading = false;
+      state.isLoggedIn = false;
+    });
+  },
 });
 
 export default appSlice.reducer;

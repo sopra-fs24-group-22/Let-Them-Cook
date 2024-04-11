@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/LoginLayout";
-import { Title, Input, Button, HLine, BorderlessButton } from "../components/ui/Login";
+import {
+  Title,
+  Input,
+  Button,
+  HLine,
+  BorderlessButton,
+} from "../components/ui/Login";
 import { eMailIsValid } from "../helpers/eMailIsValid";
 import { postRegisterAPI } from "../api/app.api";
 import { setAccessToken } from "../api/axios";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -16,46 +22,42 @@ const RegisterPage = () => {
   const [email, setEmail] = useState<string>();
   const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
   const [password, setPassword] = useState<string>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const changeMail = (email: string) => {
     setEmail(email);
     setEmailIsValid(eMailIsValid(email));
   };
 
-  const doRegistration = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
+
+  const register = async () => {
     setIsLoading(true);
-    
-    const data = {
-      firstname: firstname,
-      lastname: lastname,
-      username: username,
-      email: email,
-      password: password
+    const body = {
+      firstname,
+      lastname,
+      username,
+      email,
+      password,
     };
-
-    // TODO: API call
-    // try {
-    //   const accessToken = postRegisterAPI(data);
-    //   if (typeof accessToken === "string") {
-    //     setAccessToken(accessToken);
-    //     navigate("/home");
-    //   } else {
-    //     alert("Something went wrong. Please try again.");
-    //   }
-    // } catch (error) {
-    //   if(error !== undefined && error !== null && (error as Error).message !== undefined) {
-    //     alert("Something went wrong: " + (error as Error).message);
-    //   } else {
-    //     alert("Something went wrong. Please try again.");
-    //   }
-    // }
-
-    console.log(data); //! DEV ONLY
-    
-    // setIsLoading(false);
-    setTimeout(() => { setIsLoading(false) }, 3000); //! DEV ONLY
+    try {
+      const res = await postRegisterAPI(body);
+      const { accessToken } = res;
+      setAccessToken(accessToken);
+      navigate("/home");
+    } catch (error) {
+      setErrorMessage("Registration failed. Please try again.");
+    }
+    setIsLoading(false);
   };
+
+  const isValid = () =>
+    firstname &&
+    lastname &&
+    username &&
+    email &&
+    eMailIsValid(email) &&
+    password;
 
   return (
     <Layout>
@@ -80,7 +82,7 @@ const RegisterPage = () => {
         type="email"
         value={email}
         onChange={(e) => changeMail(e.target.value)}
-        style={emailIsValid ? {} : {border: '1px solid #f00'}}
+        style={emailIsValid ? {} : { border: "1px solid #f00" }}
       />
       <Input
         placeholder="Password"
@@ -88,17 +90,19 @@ const RegisterPage = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button onClick={doRegistration}
-        disabled={!(firstname && lastname && username && email && eMailIsValid(email) && password) || isLoading}>
-        { !isLoading ? "Register" : (
-          <FontAwesomeIcon
-            icon={faSpinner}
-            spin={true}
-          />
-        ) }
+      <Button onClick={register} disabled={!isValid() || isLoading}>
+        {!isLoading ? (
+          "Register"
+        ) : (
+          <FontAwesomeIcon icon={faSpinner} spin={true} />
+        )}
       </Button>
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       <HLine />
-      <BorderlessButton onClick={() => navigate("/login")} style={{cursor: 'pointer'}}>
+      <BorderlessButton
+        onClick={() => navigate("/login")}
+        style={{ cursor: "pointer" }}
+      >
         Login instead
       </BorderlessButton>
     </Layout>

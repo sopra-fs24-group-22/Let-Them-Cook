@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { State, loadUser } from "../../features";
+import { State, loadAccessTokenAndUser } from "../../features";
 import { Dispatch } from "@reduxjs/toolkit";
 import LoadingPage from "../../pages/Loading";
 
@@ -10,7 +10,7 @@ export const AppGuard = () => {
   const dispatch: Dispatch<any> = useDispatch();
 
   useEffect(() => {
-    dispatch(loadUser());
+    dispatch(loadAccessTokenAndUser());
   }, [dispatch]);
 
   if (appLoading) {

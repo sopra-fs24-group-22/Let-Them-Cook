@@ -51,9 +51,6 @@ axiosAuth.interceptors.response.use(
 
 // To be called after login
 const setAccessToken = (accessToken: string) => {
-  if (!axiosAuth) {
-    throw new Error("Axios hasn't been initialized, call setupAxios() first");
-  }
   axiosAuth.defaults.headers["Authorization"] = "Bearer " + accessToken;
 };
 

@@ -1,28 +1,23 @@
 import { Navigate, Outlet } from "react-router-dom";
-import PropTypes from "prop-types";
+import { State, loadAccessTokenAndUser } from "../../features";
+import { Dispatch } from "@reduxjs/toolkit";
+import LoadingPage from "../../pages/Loading";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-/**
- * Checks if refresh token cookie exits and is valid
- */
-const isAuthenticated = () => {
-  const refreshToken = document.cookie.split(';').find(c => c.trim().startsWith('refreshToken='));
-  return refreshToken ? true : false;
-};
-
-/**
- * Checks if user is not logged in
- * @Guard
- * @param props
- */
 export const LoginGuard = () => {
-  // TODO: login check
-  if (!isAuthenticated()) {
-    return <Outlet />;
+  const { appLoading, isLoggedIn } = useSelector((state: State) => state.app);
+  const dispatch: Dispatch<any> = useDispatch();
+
+  useEffect(() => {
+    dispatch(loadAccessTokenAndUser());
+  }, [dispatch]);
+
+  if (appLoading) {
+    return <LoadingPage />;
   }
-
-  return <Navigate to="/login" replace />;
-};
-
-LoginGuard.propTypes = {
-  children: PropTypes.node
+  if (isLoggedIn) {
+    return <Navigate to="/home" replace />;
+  }
+  return <Outlet />;
 };

@@ -1,6 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { User } from "../types/user";
 import { getMyUser } from "../api/user.api";
+import { refreshAccessTokenAPI } from "../api/app.api";
+import { setAccessToken } from "../api/axios";
 
 // State
 export interface AppState {
@@ -16,14 +18,16 @@ const initialState: AppState = {
 
 // Actions
 /**
- * The loadUser action is dispatched on page load in the AppGuard component.
+ * The loadAccessTokenAndUser action is dispatched on page load in the AppGuard component.
  * It fetches the user data from the server and updates the state with the user data.
  * If the request fails, the globalError state is updated with the error message
  * This means that the user is not logged in anymore or has lost permission to access the app.
  */
-export const loadUser = createAsyncThunk(
-  "app/loadUser",
+export const loadAccessTokenAndUser = createAsyncThunk(
+  "app/loadAccessTokenAndUser",
   async (_, { dispatch }: any) => {
+    const { accessToken } = await refreshAccessTokenAPI();
+    setAccessToken(accessToken);
     const { user } = await getMyUser();
     return user as User;
   }
@@ -35,7 +39,7 @@ const appSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(loadUser.fulfilled, (state, action) => {
+    builder.addCase(loadAccessTokenAndUser.fulfilled, (state, action) => {
       /**
        * Case: User is logged in and fetched successfully
        */
@@ -43,7 +47,7 @@ const appSlice = createSlice({
       state.isLoggedIn = true;
       state.user = action.payload;
     });
-    builder.addCase(loadUser.rejected, (state) => {
+    builder.addCase(loadAccessTokenAndUser.rejected, (state) => {
       /**
        * Case: User is not logged in or lost permission
        */

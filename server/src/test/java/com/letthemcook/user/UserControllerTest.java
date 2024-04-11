@@ -6,6 +6,7 @@ import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,8 @@ public class UserControllerTest {
   private JwtAuthFilter jwtAuthFilter;
   @MockBean
   private JwtService jwtService;
+  @Autowired
+  private UserController userController;
   @MockBean
   private AuthenticationManager authenticationManager;
   @MockBean
@@ -106,5 +109,70 @@ public class UserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(loginRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  // ######################################### Register Route #########################################
+  @Test
+  public void registerUser_validInput() throws Exception {
+    // Setup registration request
+    RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
+    registerRequestDTO.setUsername("test@other.com");
+    registerRequestDTO.setPassword("password");
+    registerRequestDTO.setFirstName("Test");
+    registerRequestDTO.setLastName("User");
+    registerRequestDTO.setEmail("test@other.com");
+
+    // Mock token
+    Token token = new Token();
+    token.setAccessToken("accessToken");
+    token.setRefreshToken("refreshToken");
+
+    // Mock userService
+    when(userService.createUser(any(User.class))).thenReturn(token);
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").value(token.getRefreshToken()));
+  }
+
+  @Test
+  public void registerUser_takenEmail() throws Exception {
+    // Setup registration request
+    RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
+    registerRequestDTO.setUsername("test@other.com");
+    registerRequestDTO.setPassword("password");
+    registerRequestDTO.setFirstName("Test");
+    registerRequestDTO.setLastName("User");
+    registerRequestDTO.setEmail("test@user.com");
+
+    // Mock userService
+    when(userService.createUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isConflict());
+  }
+
+  @Test
+  public void registerUser_takenUsername() throws Exception {
+    // Setup registration request
+    RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
+    registerRequestDTO.setUsername("test@test.com");
+    registerRequestDTO.setPassword("password");
+    registerRequestDTO.setFirstName("Test");
+    registerRequestDTO.setLastName("User");
+    registerRequestDTO.setEmail("test@other.com");
+
+    // Mock userService
+    when(userService.createUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isConflict());
   }
 }

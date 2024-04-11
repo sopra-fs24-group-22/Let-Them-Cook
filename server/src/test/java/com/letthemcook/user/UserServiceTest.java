@@ -3,6 +3,7 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.util.SequenceGeneratorService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,11 @@ public class UserServiceTest {
     userService = new UserService(userRepository, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService);
   }
 
+  @AfterEach
+  public void tearDown() {
+    userRepository.deleteAll();
+  }
+
   @Test
   public void testLoginSuccess() {
     // Setup test user
@@ -73,7 +79,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void testLoginFailureInvalidUsername() throws Exception{
+  public void testLoginFailureInvalidUsername() {
     // Setup test user
     User user = new User();
     user.setUsername("testUser");
@@ -91,7 +97,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void testLoginFailureInvalidPassword() throws Exception{
+  public void testLoginFailureInvalidPassword() {
     // Setup test user
     User user = new User();
     user.setUsername("testUser");

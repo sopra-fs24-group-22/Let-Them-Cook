@@ -16,14 +16,8 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState<string>();
-  const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
+  const [username, setUsername] = useState<string>();
   const [password, setPassword] = useState<string>();
-
-  const changeMail = (email: string) => {
-    setEmail(email);
-    setEmailIsValid(eMailIsValid(email));
-  };
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -31,7 +25,7 @@ const LoginPage = () => {
   const login = async () => {
     setIsLoading(true);
     const body = {
-      email,
+      username,
       password,
     };
     try {
@@ -48,11 +42,10 @@ const LoginPage = () => {
     <Layout>
       <Title>Login</Title>
       <Input
-        placeholder="E-Mail"
-        type="email"
-        value={email}
-        onChange={(e) => changeMail(e.target.value)}
-        style={emailIsValid ? {} : { border: "1px solid #f00" }}
+        placeholder="Username"
+        type="username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
       <Input
         placeholder="Password"
@@ -62,7 +55,7 @@ const LoginPage = () => {
       />
       <Button
         onClick={login}
-        disabled={!(email && eMailIsValid(email) && password) || isLoading}
+        disabled={!(username && password) || isLoading}
       >
         {!isLoading ? (
           "Log in"

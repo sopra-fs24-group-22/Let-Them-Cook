@@ -2,9 +2,9 @@ import { useState, ChangeEvent } from 'react';
 import { useSelector } from "react-redux";
 import { State } from "../features";
 import Layout from "../components/Layout/MainLayout";
-import { PrimaryButton, SecondaryButton, DoubleButton } from "../components/ui/Button";
+import { PrimaryButton, SecondaryButton, ButtonGroup } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import Modal from 'react-bootstrap/Modal';
+import { Modal } from 'react-bootstrap';
 import { getAllRecipesAPI, postSessionAPI } from "../api/app.api";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from '../components/ui/Icon';
@@ -66,16 +66,26 @@ const SessionsPage = () => {
     <>
       <MainLayout
         sidebarContent = {
-          <PrimaryButton onClick={handleShow}>
+          <PrimaryButton onClick={handleShow} style={{width: '100%'}}>
           Create new session
           </PrimaryButton>}>
 
-        <DoubleButton onClick={() => navigate("/sessions")}>
+        <ButtonGroup>
+          <PrimaryButton onClick={() => navigate("/sessions")} style={{
+            width: '50%',
+            borderTopRightRadius: '0',
+            borderBottomRightRadius: '0',
+          }}>
             All sessions
-        </DoubleButton>
-
-
-
+          </PrimaryButton>
+          <SecondaryButton onClick={() => navigate("/sessions")} style={{
+            width: '50%',
+            borderTopLeftRadius: '0',
+            borderBottomLeftRadius: '0',
+          }}>
+            My sessions
+          </SecondaryButton>
+        </ButtonGroup>
       </MainLayout>
       
       {/* Modal for creating a new session */}

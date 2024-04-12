@@ -13,7 +13,14 @@ import { SecondaryIconButton } from '../components/ui/Icon';
 const SessionsPage = () => {
   // Modal for creating a new session
   const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    setRecipe(undefined);
+    setStart(undefined);
+    setDuration(undefined);
+    setParticipants(undefined);
+    setSingleSteps(['']);
+  }
   const handleShow = () => setShow(true);
 
   // Get all recipes
@@ -54,10 +61,12 @@ const SessionsPage = () => {
   // Return
   return (
     <>
-      <Layout>
-        <PrimaryButton onClick={handleShow}>
+      <Layout sidebarContent={
+        <PrimaryButton onClick={handleShow} style={{width: '100%'}}>
           Create new session
         </PrimaryButton>
+      }>
+        Content
       </Layout>
       
       {/* Modal for creating a new session */}

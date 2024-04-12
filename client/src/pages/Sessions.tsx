@@ -2,12 +2,14 @@ import { useState, ChangeEvent } from 'react';
 import { useSelector } from "react-redux";
 import { State } from "../features";
 import Layout from "../components/Layout/MainLayout";
-import { PrimaryButton, SecondaryButton } from "../components/ui/Button";
+import { PrimaryButton, SecondaryButton, DoubleButton } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
 import { getAllRecipesAPI, postSessionAPI } from "../api/app.api";
 import { faTrashCan } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from '../components/ui/Icon';
+import MainLayout from "../components/Layout/MainLayout";
+import {useNavigate} from "react-router-dom";
 
 
 const SessionsPage = () => {
@@ -22,6 +24,7 @@ const SessionsPage = () => {
     setSingleSteps(['']);
   }
   const handleShow = () => setShow(true);
+  const navigate = useNavigate();
 
   // Get all recipes
   const [recipes, setRecipes] = useState<object>(
@@ -61,13 +64,19 @@ const SessionsPage = () => {
   // Return
   return (
     <>
-      <Layout sidebarContent={
-        <PrimaryButton onClick={handleShow} style={{width: '100%'}}>
+      <MainLayout
+        sidebarContent = {
+          <PrimaryButton onClick={handleShow}>
           Create new session
-        </PrimaryButton>
-      }>
-        Content
-      </Layout>
+          </PrimaryButton>}>
+
+        <DoubleButton onClick={() => navigate("/sessions")}>
+            All sessions
+        </DoubleButton>
+
+
+
+      </MainLayout>
       
       {/* Modal for creating a new session */}
       <Modal show={show} onHide={handleClose}>

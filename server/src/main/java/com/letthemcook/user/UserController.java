@@ -37,6 +37,7 @@ public class UserController {
 
       Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
       cookie.setSecure(true);
+      cookie.setHttpOnly(true);
       cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
       response.addCookie(cookie);
 
@@ -57,6 +58,7 @@ public class UserController {
 
       Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
       cookie.setSecure(true);
+      cookie.setHttpOnly(true);
       cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
       response.addCookie(cookie);
 

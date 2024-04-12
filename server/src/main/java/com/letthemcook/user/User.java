@@ -24,7 +24,6 @@ public class User implements Serializable, UserDetails {
   private String lastName;
   private String email;
   private String password;
-  private String salt;
   private UserRole userRole;
 
   public String getUsername() {
@@ -82,14 +81,6 @@ public class User implements Serializable, UserDetails {
 
   public void setEmail(String email) {
     this.email = email;
-  }
-
-  public String getSalt() {
-    return salt;
-  }
-
-  public void setSalt(String salt) {
-    this.salt = salt;
   }
 
   public String getFirstName() {

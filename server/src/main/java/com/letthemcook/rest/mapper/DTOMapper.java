@@ -3,6 +3,7 @@ package com.letthemcook.rest.mapper;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.auth.token.dto.TokenResponseDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import com.letthemcook.user.dto.UserDTO;
 import org.mapstruct.*;
@@ -25,6 +26,12 @@ public interface DTOMapper {
   @Mapping(source = "username", target = "username")
   @Mapping(source = "password", target = "password")
   User convertUserLoginDTOToEntity(LoginRequestDTO loginRequestDTO);
+
+  // ######################################### Logout #########################################
+
+  @Mapping(source = "username", target = "username")
+  @Mapping(source = "email", target = "email")
+  User convertUserLogoutDTOToEntity(LogoutRequestDTO logoutRequestDTO);
 
   // ######################################### Token #########################################
 

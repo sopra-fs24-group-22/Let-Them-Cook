@@ -77,13 +77,6 @@ public class UserService {
     }
   }
 
-  public User logoutUser(User logoutUser) {
-    checkIfUserExists(logoutUser);
-    User user = userRepository.getByEmail(logoutUser.getEmail());
-    // user.setToken(null);
-    userRepository.save(user);
-    return user;
-  }
 
   public Token refreshToken(String refreshTokenString) {
     try {

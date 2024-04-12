@@ -5,6 +5,7 @@ import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.user.dto.LoginRequestDTO;
+import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -214,5 +215,26 @@ public class UserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isConflict());
+  }
+
+  // ######################################### Logout Route #########################################
+
+  @Test
+  public void logoutUser() throws Exception {
+    // Setup registration request
+    LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
+    logoutRequestDTO.setUsername("test@other.com");
+    logoutRequestDTO.setEmail("test@other.com");
+
+    // Mock token
+    Token token = new Token();
+    token.setAccessToken("accessToken");
+    token.setRefreshToken("refreshToken");
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/logout")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(logoutRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isNoContent())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.Cookies").doesNotExist());
   }
 }

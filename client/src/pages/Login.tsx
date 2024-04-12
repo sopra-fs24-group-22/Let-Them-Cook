@@ -8,7 +8,6 @@ import {
   HLine,
   BorderlessButton,
 } from "../components/ui/Login";
-import { eMailIsValid } from "../helpers/eMailIsValid";
 import { postLoginAPI } from "../api/app.api";
 import { setAccessToken } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

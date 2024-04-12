@@ -1,10 +1,12 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import styled from "styled-components";
 import Logo from "../../assets/img/logo.png";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
+import { Modal } from 'react-bootstrap';
+import { SecondaryButton } from "../ui/Button";
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -15,12 +17,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   children,
   sidebarContent,
 }) => {
+  const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
   return (
     <Wrapper>
       <Navbar>
         <div className="logo-box">
           {/* <img src={Logo} alt="" /> */}
-          <i>Let them Cook</i>
+          <LogoText
+            onClick={() => {setEasterEggClickCounter(easterEggClickCounter + 1);}}
+          >Let them Cook</LogoText>
         </div>
         <ul>
           <li>
@@ -55,6 +60,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Sidebar>{sidebarContent}</Sidebar>
         <Content>{children}</Content>
       </Main>
+      {/* Modal just for fun */}
+      <Modal show={easterEggClickCounter == 5} onHide={() => setEasterEggClickCounter(0)}>
+        <Modal.Body>
+          <img src="gordon-ramsay-what-are-you.gif" width="100%" />
+        </Modal.Body>
+        <Modal.Footer>
+          <SecondaryButton onClick={() => setEasterEggClickCounter(0)}>Ok, got it</SecondaryButton>
+        </Modal.Footer>
+      </Modal>
     </Wrapper>
   );
 };
@@ -158,4 +172,12 @@ const Content = styled.div`
   &:hover {
     transform: translateY(-5px);
   }
+`;
+const LogoText = styled.i`
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 `;

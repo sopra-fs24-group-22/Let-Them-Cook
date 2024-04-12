@@ -23,7 +23,6 @@ import java.util.HashMap;
 @Service
 @Transactional
 public class UserService {
-  @Autowired
   private final UserRepository userRepository;
   private final SequenceGeneratorService sequenceGeneratorService;
   private final AuthenticationManager authenticationManager;
@@ -57,7 +56,7 @@ public class UserService {
     userRepository.save(newUser);
     return token;
   }
-
+  
   public Token loginUser(User checkUser) {
     try {
       Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(checkUser.getUsername(), checkUser.getPassword()));
@@ -107,7 +106,7 @@ public class UserService {
     User userByEmail = userRepository.getByEmail(userToBeCreated.getEmail());
     User userByUsername = userRepository.getByUsername(userToBeCreated.getUsername());
 
-    String baseErrorMessage = "add user failed because %s already exists";
+    String baseErrorMessage = "Creating user failed because %s already exists";
     if (userByEmail != null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
               String.format(baseErrorMessage, "email"));

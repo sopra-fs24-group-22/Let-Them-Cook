@@ -61,12 +61,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Content>{children}</Content>
       </Main>
       {/* Modal just for fun */}
-      <Modal show={easterEggClickCounter == 5} onHide={() => setEasterEggClickCounter(0)}>
+      <Modal show={easterEggClickCounter == 5}
+             onHide={() => setEasterEggClickCounter(0)}
+             backdrop="static"
+             keyboard={false}>
         <Modal.Body>
           <img src="gordon-ramsay-what-are-you.gif" width="100%" />
         </Modal.Body>
         <Modal.Footer>
-          <SecondaryButton onClick={() => setEasterEggClickCounter(0)}>Ok, got it</SecondaryButton>
+          <SecondaryButton onClick={() => setEasterEggClickCounter(0)}>I'm an idiot sandwich</SecondaryButton>
         </Modal.Footer>
       </Modal>
     </Wrapper>

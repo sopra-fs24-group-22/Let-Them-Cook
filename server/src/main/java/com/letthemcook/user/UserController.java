@@ -2,7 +2,7 @@ package com.letthemcook.user;
 
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.auth.token.dto.TokenResponseDTO;
-import com.letthemcook.rest.mapper.DTOMapper;
+import com.letthemcook.rest.mapper.DTOUserMapper;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
@@ -32,7 +32,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
-      User user = DTOMapper.INSTANCE.convertUserLoginDTOToEntity(loginRequestDTO);
+      User user = DTOUserMapper.INSTANCE.convertUserLoginDTOToEntity(loginRequestDTO);
       Token token = userService.loginUser(user);
 
       Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
@@ -41,14 +41,14 @@ public class UserController {
       cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
       response.addCookie(cookie);
 
-      return ResponseEntity.ok(DTOMapper.INSTANCE.convertEntityToTokenDTO(token));
+      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
   @PostMapping("/api/auth/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> logoutUser(@RequestBody LogoutRequestDTO logoutRequestDTO, HttpServletResponse response) {
-      User user = DTOMapper.INSTANCE.convertUserLogoutDTOToEntity(logoutRequestDTO); // for possible future use
+      User user = DTOUserMapper.INSTANCE.convertUserLogoutDTOToEntity(logoutRequestDTO); // for possible future use
       Token token = new Token();
 
       token.setAccessToken(UUID.randomUUID().toString());
@@ -73,7 +73,7 @@ public class UserController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> createUser(@RequestBody RegisterRequestDTO registerRequestDTO, HttpServletResponse response) {
-      User userInput = DTOMapper.INSTANCE.convertRegisterDTOtoEntity(registerRequestDTO);
+      User userInput = DTOUserMapper.INSTANCE.convertRegisterDTOtoEntity(registerRequestDTO);
       Token token = userService.createUser(userInput);
 
       Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
@@ -82,7 +82,7 @@ public class UserController {
       cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
       response.addCookie(cookie);
 
-      return ResponseEntity.ok(DTOMapper.INSTANCE.convertEntityToTokenDTO(token));
+      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
   @PostMapping("/api/auth/refresh")
@@ -90,6 +90,6 @@ public class UserController {
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {
       Token token = userService.refreshToken(refreshToken);
-      return ResponseEntity.ok(DTOMapper.INSTANCE.convertEntityToTokenDTO(token));
+      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 }

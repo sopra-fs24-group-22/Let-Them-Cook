@@ -12,9 +12,9 @@ import org.mapstruct.factory.Mappers;
 import com.letthemcook.user.User;
 
 @Mapper
-public interface DTOMapper {
+public interface DTOUserMapper {
 
-  DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
+  DTOUserMapper INSTANCE = Mappers.getMapper(DTOUserMapper.class);
 
   @Mapping(source = "id", target = "id")
   @Mapping(source = "email", target = "email")

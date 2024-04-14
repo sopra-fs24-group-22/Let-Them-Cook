@@ -26,70 +26,75 @@ public class UserController {
     this.userService = userService;
   }
 
-
-  // TODO: Create custom error handling to avoid try/catch blocks in every Mapping method
   @PostMapping("/api/auth/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
-      User user = DTOUserMapper.INSTANCE.convertUserLoginDTOToEntity(loginRequestDTO);
-      Token token = userService.loginUser(user);
+    User user = DTOUserMapper.INSTANCE.convertUserLoginDTOToEntity(loginRequestDTO);
+    Token token = userService.loginUser(user);
 
-      Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
-      cookie.setSecure(true);
-      cookie.setHttpOnly(true);
-      cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
-      response.addCookie(cookie);
+    Cookie cookie = getTokenCookie(token);
+    cookie.setPath("/api/auth/login");
+    response.addCookie(cookie);
 
-      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+    return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+
   }
 
   @PostMapping("/api/auth/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> logoutUser(@RequestBody LogoutRequestDTO logoutRequestDTO, HttpServletResponse response) {
-      User user = DTOUserMapper.INSTANCE.convertUserLogoutDTOToEntity(logoutRequestDTO); // for possible future use
-      Token token = new Token();
+    User user = DTOUserMapper.INSTANCE.convertUserLogoutDTOToEntity(logoutRequestDTO); // for possible future use
+    Token token = new Token();
 
-      token.setAccessToken(UUID.randomUUID().toString());
-      token.setRefreshToken(UUID.randomUUID().toString());
+    token.setAccessToken(UUID.randomUUID().toString());
+    token.setRefreshToken(UUID.randomUUID().toString());
 
-      Cookie accessTokenCookie = new Cookie("accessToken", null);
-      accessTokenCookie.setSecure(true);
-      accessTokenCookie.setMaxAge(0);
-      accessTokenCookie.setPath("/");
-      response.addCookie(accessTokenCookie);
+    Cookie accessTokenCookie = new Cookie("accessToken", null);
+    accessTokenCookie.setSecure(true);
+    accessTokenCookie.setMaxAge(0);
+    accessTokenCookie.setPath("/");
+    response.addCookie(accessTokenCookie);
 
-      Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-      refreshTokenCookie.setSecure(true);
-      refreshTokenCookie.setMaxAge(0);
-      refreshTokenCookie.setPath("/");
-      response.addCookie(refreshTokenCookie);
+    Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+    refreshTokenCookie.setSecure(true);
+    refreshTokenCookie.setMaxAge(0);
+    refreshTokenCookie.setPath("/");
+    response.addCookie(refreshTokenCookie);
 
-      return ResponseEntity.noContent().build();
+    return ResponseEntity.noContent().build();
   }
 
   @PostMapping("/api/auth/register")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> createUser(@RequestBody RegisterRequestDTO registerRequestDTO, HttpServletResponse response) {
-      User userInput = DTOUserMapper.INSTANCE.convertRegisterDTOtoEntity(registerRequestDTO);
-      Token token = userService.createUser(userInput);
+    User userInput = DTOUserMapper.INSTANCE.convertRegisterDTOtoEntity(registerRequestDTO);
+    Token token = userService.createUser(userInput);
 
-      Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
-      cookie.setSecure(true);
-      cookie.setHttpOnly(true);
-      cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
-      response.addCookie(cookie);
+    Cookie cookie = getTokenCookie(token);
+    response.addCookie(cookie);
 
-      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+    return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
   @PostMapping("/api/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {
-      Token token = userService.refreshToken(refreshToken);
-      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+    Token token = userService.refreshAccessToken(refreshToken);
+    return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+  }
+
+  // ######################################### Util #########################################
+
+  private Cookie getTokenCookie(Token token) {
+    Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
+    cookie.setSecure(true);
+    cookie.setHttpOnly(true);
+    cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
+
+    return cookie;
   }
 }

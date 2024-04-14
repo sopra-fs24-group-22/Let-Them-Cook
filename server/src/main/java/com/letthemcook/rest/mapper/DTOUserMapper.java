@@ -5,7 +5,6 @@ import com.letthemcook.auth.token.dto.TokenResponseDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
-import com.letthemcook.user.dto.UserDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -15,11 +14,6 @@ import com.letthemcook.user.User;
 public interface DTOUserMapper {
 
   DTOUserMapper INSTANCE = Mappers.getMapper(DTOUserMapper.class);
-
-  @Mapping(source = "id", target = "id")
-  @Mapping(source = "email", target = "email")
-  @Mapping(source = "password", target = "password")
-  UserDTO convertEntityToUserGetDTO(User user);
 
   // ######################################### Login #########################################
 

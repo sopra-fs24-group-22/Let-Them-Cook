@@ -77,7 +77,7 @@ public class UserService {
   }
 
 
-  public Token refreshToken(String refreshTokenString) {
+  public Token refreshAccessToken(String refreshTokenString) {
     try {
       User user = userRepository.getByUsername(jwtService.extractUsername(refreshTokenString));
 

@@ -124,7 +124,7 @@ public class UserControllerTest {
     token.setRefreshToken("validRefreshToken");
 
     // Mock userService
-    when(userService.refreshToken(anyString())).thenReturn(token);
+    when(userService.refreshAccessToken(anyString())).thenReturn(token);
 
     // Perform request
     mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh")
@@ -137,7 +137,7 @@ public class UserControllerTest {
   @Test
   public void testReturnErrorWhenRefreshTokenIsInvalid() throws Exception {
     // Mock userService
-    when(userService.refreshToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+    when(userService.refreshAccessToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
     // Perform request
     mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh")

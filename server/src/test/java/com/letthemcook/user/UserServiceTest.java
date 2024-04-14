@@ -121,7 +121,7 @@ public class UserServiceTest {
   // ######################################### Refresh Token Tests #########################################
 
   @Test
-  public void shouldReturnNewTokenWhenRefreshTokenIsValid() {
+  public void shouldReturnNewTokenWhenRefreshAccessTokenIsValid() {
     User user = new User();
     user.setUsername("testUser");
 
@@ -130,25 +130,25 @@ public class UserServiceTest {
     when(jwtService.isTokenValid(anyString(), any(User.class))).thenReturn(true);
     when(jwtService.generateAccessToken(any(User.class))).thenReturn("newAccessToken");
 
-    Token result = userService.refreshToken("validRefreshToken");
+    Token result = userService.refreshAccessToken("validRefreshToken");
 
     assertEquals("newAccessToken", result.getAccessToken());
     assertEquals("validRefreshToken", result.getRefreshToken());
   }
 
   @Test
-  public void shouldThrowExceptionWhenRefreshTokenIsInvalid() {
+  public void shouldThrowExceptionWhenRefreshAccessTokenIsInvalid() {
     when(userRepository.getByUsername(anyString())).thenReturn(null);
     when(jwtService.extractUsername(anyString())).thenReturn(null);
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.refreshToken("invalidRefreshToken"));
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.refreshAccessToken("invalidRefreshToken"));
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     assertEquals("invalid refresh token!", exception.getReason());
   }
 
   @Test
-  public void shouldThrowExceptionWhenRefreshTokenIsNotValidForUser() {
+  public void shouldThrowExceptionWhenRefreshAccessTokenIsNotValidForUser() {
     User user = new User();
     user.setUsername("testUser");
 
@@ -156,7 +156,7 @@ public class UserServiceTest {
     when(jwtService.extractUsername(anyString())).thenReturn("testUser");
     when(jwtService.isTokenValid(anyString(), any(User.class))).thenReturn(false);
 
-    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.refreshToken("invalidRefreshTokenForUser"));
+    ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.refreshAccessToken("invalidRefreshTokenForUser"));
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     assertEquals("invalid refresh token!", exception.getReason());

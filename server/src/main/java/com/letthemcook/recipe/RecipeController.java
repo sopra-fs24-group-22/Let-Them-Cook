@@ -6,8 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-
 @RestController
 public class RecipeController {
 
@@ -25,5 +23,14 @@ public class RecipeController {
     recipeService.createRecipe(recipe);
 
     return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  @DeleteMapping("/api/recipe/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    recipeService.deleteRecipe(id, accessToken);
+
+    return ResponseEntity.status(HttpStatus.OK).build();
   }
 }

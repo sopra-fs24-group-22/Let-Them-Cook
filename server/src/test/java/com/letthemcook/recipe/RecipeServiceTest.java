@@ -1,5 +1,7 @@
 package com.letthemcook.recipe;
 
+import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +23,10 @@ public class RecipeServiceTest {
   private RecipeRepository recipeRepository;
   @Mock
   private SequenceGeneratorService sequenceGeneratorService;
+  @Mock
+  private JwtService jwtService;
+  @Mock
+  private UserRepository userRepository;
   @InjectMocks
   private RecipeService recipeService;
 
@@ -28,7 +34,7 @@ public class RecipeServiceTest {
 
   @BeforeEach
   public void setup() {
-    recipeService = new RecipeService(recipeRepository, sequenceGeneratorService);
+    recipeService = new RecipeService(recipeRepository, sequenceGeneratorService, jwtService, userRepository);
   }
 
   @AfterEach

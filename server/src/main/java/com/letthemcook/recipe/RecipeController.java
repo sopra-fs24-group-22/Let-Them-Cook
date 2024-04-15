@@ -19,7 +19,7 @@ public class RecipeController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<Void> createRecipe(@RequestBody RecipePostDTO recipePostDTO) {
-    Recipe recipe = DTORecipeMapper.INSTANCE.convertRecipePostDTOToEntity(recipePostDTO);
+    Recipe recipe = DTORecipeMapper.INSTANCE.convertRecipePostDTOToRecipe(recipePostDTO);
     recipeService.createRecipe(recipe);
 
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -32,5 +32,14 @@ public class RecipeController {
     recipeService.deleteRecipe(id, accessToken);
 
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  @GetMapping("/api/recipe/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<RecipePostDTO> getRecipe(@PathVariable Long id) {
+    Recipe recipe = recipeService.getRecipe(id);
+
+    return ResponseEntity.status(HttpStatus.OK).body(DTORecipeMapper.INSTANCE.convertRecipeToRecipePostDTO(recipe));
   }
 }

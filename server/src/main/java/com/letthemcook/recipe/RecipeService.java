@@ -32,6 +32,7 @@ public class RecipeService {
   public Recipe createRecipe(Recipe recipe) {
     // Set recipe data
     recipe.setId(sequenceGeneratorService.getSequenceNumber(Recipe.SEQUENCE_NAME));
+    //TODO: Create Cookbook and add recipe to it
     recipeRepository.save(recipe);
     return recipe;
   }
@@ -53,5 +54,13 @@ public class RecipeService {
     }
 
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not authorized to delete this recipe");
+  }
+
+  public Recipe getRecipe(Long id) {
+    Recipe recipe = recipeRepository.getById(id);
+    if (recipe == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+    }
+    return recipe;
   }
 }

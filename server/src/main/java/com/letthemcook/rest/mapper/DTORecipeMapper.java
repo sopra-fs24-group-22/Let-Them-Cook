@@ -17,5 +17,10 @@ public interface DTORecipeMapper {
   @Mapping(source = "title", target = "title")
   @Mapping(source = "checklist", target = "checklist")
   @Mapping(source = "privacyStatus", target = "privacyStatus")
-  Recipe convertRecipePostDTOToEntity(RecipePostDTO recipePostDTO);
+  Recipe convertRecipePostDTOToRecipe(RecipePostDTO recipePostDTO);
+
+  @Mapping(source = "creatorId", target = "creatorId")
+  @Mapping(source = "title", target = "title")
+  @Mapping(source = "checklist", target = "checklist")
+  RecipePostDTO convertRecipeToRecipePostDTO(Recipe recipe);
 }

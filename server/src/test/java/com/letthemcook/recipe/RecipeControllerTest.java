@@ -14,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -72,7 +71,7 @@ public class RecipeControllerTest {
     recipeRepository.deleteAll();
   }
 
-  // ######################################### Recipe Tests #########################################
+  // ######################################### Create Recipe Tests #########################################
 
   @Test
   @WithMockUser
@@ -99,7 +98,6 @@ public class RecipeControllerTest {
   }
 
   @Test
-  @WithAnonymousUser
   public void testCreateRecipeFailureUnauthorized() throws Exception {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
@@ -112,8 +110,31 @@ public class RecipeControllerTest {
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe")
+              .with(csrf())
               .contentType(MediaType.APPLICATION_JSON)
               .content(new ObjectMapper().writeValueAsString(recipeRequest)))
-            .andExpect(MockMvcResultMatchers.status().isForbidden());
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  // ######################################### Get Recipe Tests #########################################
+  @Test
+  @WithMockUser
+  public void testGetRecipeSuccess() throws Exception {
+    // Mock recipe service
+    Recipe recipe = recipeRepository.getById(1L);
+    when(recipeService.getRecipe(1L)).thenReturn(recipe);
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")
+              .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void testGetRecipeFailureUnauthorized() throws Exception {
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")
+              .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
 }

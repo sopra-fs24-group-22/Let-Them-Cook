@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 
@@ -42,7 +44,7 @@ public class RecipeServiceTest {
     recipeRepository.deleteAll();
   }
 
-  // ######################################### Recipe Tests #########################################
+  // ######################################### Create Recipe Tests #########################################
 
   @Test
   public void testCreateRecipeSuccess() {
@@ -67,5 +69,54 @@ public class RecipeServiceTest {
     assertEquals(recipe.getId(), result.getId());
     assertEquals(recipe.getTitle(), result.getTitle());
     assertEquals(recipe.getChecklist(), result.getChecklist());
+  }
+
+  // ######################################### Get Recipe Tests #########################################
+
+  @Test
+  public void testGetRecipeSuccess() {
+    // Setup test recipe
+    ArrayList<String> checklist = new ArrayList<>();
+    checklist.add("Test Step");
+
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setCreatorId(1L);
+    recipe.setTitle("Test Recipe");
+    recipe.setChecklist(checklist);
+
+    // Mock DBSequence
+    when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
+
+    // Perform test
+    Recipe result = recipeService.getRecipe(recipe.getId());
+
+    assertEquals(recipe.getCreatorId(), result.getCreatorId());
+    assertEquals(recipe.getId(), result.getId());
+    assertEquals(recipe.getTitle(), result.getTitle());
+    assertEquals(recipe.getChecklist(), result.getChecklist());
+  }
+
+  @Test
+  public void testGetRecipeFailureNotFound() {
+    // Setup test recipe
+    ArrayList<String> checklist = new ArrayList<>();
+    checklist.add("Test Step");
+
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setCreatorId(1L);
+    recipe.setTitle("Test Recipe");
+    recipe.setChecklist(checklist);
+
+    // Mock DBSequence
+    when(recipeRepository.getById(recipe.getId())).thenReturn(null);
+
+    // Perform test
+    try {
+      recipeService.getRecipe(recipe.getId());
+    } catch (ResponseStatusException e) {
+      assertEquals(e.getStatus(), HttpStatus.NOT_FOUND);
+    }
   }
 }

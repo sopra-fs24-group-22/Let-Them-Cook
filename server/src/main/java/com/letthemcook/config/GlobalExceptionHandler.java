@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(e.getClass() + e.getMessage());
+            .build();
   }
 
   @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, MissingRequestCookieException.class})

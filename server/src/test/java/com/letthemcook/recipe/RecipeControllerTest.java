@@ -2,10 +2,12 @@ package com.letthemcook.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -56,10 +58,12 @@ public class RecipeControllerTest {
     checklist.add("Test Step");
 
     Recipe recipe = new Recipe();
+    recipe.setId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
     recipe.setCreatorId(1L);
 
+    when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
     recipeRepository.save(recipe);
   }
 
@@ -77,13 +81,14 @@ public class RecipeControllerTest {
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
 
-    Recipe recipeRequest = new Recipe();
-    recipeRequest.setTitle("Test Recipe 2");
+    RecipePostDTO recipeRequest = new RecipePostDTO();
+    recipeRequest.setTitle("Test Recipe");
     recipeRequest.setChecklist(checklist);
     recipeRequest.setCreatorId(1L);
 
     // Mock recipe service
-    when(recipeService.createRecipe(recipeRequest)).thenReturn(recipeRequest);
+    Recipe recipe = recipeRepository.getById(1L);
+    when(recipeService.createRecipe(Mockito.any())).thenReturn(recipe);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe")
@@ -100,7 +105,7 @@ public class RecipeControllerTest {
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
 
-    Recipe recipeRequest = new Recipe();
+    RecipePostDTO recipeRequest = new RecipePostDTO();
     recipeRequest.setTitle("Test Recipe 2");
     recipeRequest.setChecklist(checklist);
     recipeRequest.setCreatorId(1L);

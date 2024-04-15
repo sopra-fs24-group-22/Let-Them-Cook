@@ -49,4 +49,12 @@ public class Recipe {
   public void setCreatorId(Long creatorId) {
     this.creatorId = creatorId;
   }
+
+  public int getPrivacyStatus() {
+    return privacyStatus;
+  }
+
+  public void setPrivacyStatus(int privacyStatus) {
+    this.privacyStatus = privacyStatus;
+  }
 }

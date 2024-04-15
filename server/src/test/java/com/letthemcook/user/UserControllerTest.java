@@ -44,8 +44,6 @@ public class UserControllerTest {
   private JwtAuthFilter jwtAuthFilter;
   @MockBean
   private JwtService jwtService;
-  @Autowired
-  private UserController userController;
   @MockBean
   private AuthenticationManager authenticationManager;
   @MockBean
@@ -53,6 +51,8 @@ public class UserControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
+  @Autowired
+  private UserController userController;
 
   // ######################################### Setup & Teardown #########################################
 

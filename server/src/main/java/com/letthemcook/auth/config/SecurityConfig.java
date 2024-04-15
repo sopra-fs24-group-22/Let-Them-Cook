@@ -35,7 +35,7 @@ public class SecurityConfig {
     return http.csrf().disable()
             .authorizeRequests(request -> request.antMatchers("/api/auth/**", "/api")
                     .permitAll()
-                    .antMatchers("/api/users").hasAnyAuthority(UserRole.USER.name())
+                    .antMatchers("/api/users", "/api/recipe").hasAnyAuthority(UserRole.USER.name())
                     .anyRequest().authenticated())
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())

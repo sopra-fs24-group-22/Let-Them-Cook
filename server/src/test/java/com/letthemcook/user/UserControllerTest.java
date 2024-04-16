@@ -62,8 +62,8 @@ public class UserControllerTest {
     User user = new User();
     user.setUsername("test@test.com");
     user.setPassword("password");
-    user.setFirstname("Test");
-    user.setLastname("User");
+    user.setFirstName("Test");
+    user.setLastName("User");
     user.setEmail("test@user.com");
 
     userRepository.save(user);
@@ -127,7 +127,7 @@ public class UserControllerTest {
     when(userService.refreshAccessToken(anyString())).thenReturn(token);
 
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh")
                     .cookie(new Cookie("refreshToken", "validRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
@@ -140,7 +140,7 @@ public class UserControllerTest {
     when(userService.refreshAccessToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh")
                     .cookie(new Cookie("refreshToken", "invalidRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
@@ -148,7 +148,7 @@ public class UserControllerTest {
   @Test
   public void testReturnErrorWhenRefreshTokenIsMissing() throws Exception {
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh"))
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/refresh"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
@@ -159,8 +159,8 @@ public class UserControllerTest {
     RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
     registerRequestDTO.setUsername("test@other.com");
     registerRequestDTO.setPassword("password");
-    registerRequestDTO.setFirstname("Test");
-    registerRequestDTO.setLastname("User");
+    registerRequestDTO.setFirstName("Test");
+    registerRequestDTO.setLastName("User");
     registerRequestDTO.setEmail("test@other.com");
 
     // Mock token
@@ -185,8 +185,8 @@ public class UserControllerTest {
     RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
     registerRequestDTO.setUsername("test@other.com");
     registerRequestDTO.setPassword("password");
-    registerRequestDTO.setFirstname("Test");
-    registerRequestDTO.setLastname("User");
+    registerRequestDTO.setFirstName("Test");
+    registerRequestDTO.setLastName("User");
     registerRequestDTO.setEmail("test@user.com");
 
     // Mock userService
@@ -204,8 +204,8 @@ public class UserControllerTest {
     RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
     registerRequestDTO.setUsername("test@test.com");
     registerRequestDTO.setPassword("password");
-    registerRequestDTO.setFirstname("Test");
-    registerRequestDTO.setLastname("User");
+    registerRequestDTO.setFirstName("Test");
+    registerRequestDTO.setLastName("User");
     registerRequestDTO.setEmail("test@other.com");
 
     // Mock userService

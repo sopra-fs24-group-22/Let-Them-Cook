@@ -74,7 +74,7 @@ public class RecipeControllerTest {
   // ######################################### Create Recipe Tests #########################################
 
   @Test
-  @WithMockUser
+  @WithMockUser(username = "testUser", password = "testPassword")
   public void testCreateRecipeSuccess() throws Exception {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
@@ -87,10 +87,11 @@ public class RecipeControllerTest {
 
     // Mock recipe service
     Recipe recipe = recipeRepository.getById(1L);
-    when(recipeService.createRecipe(Mockito.any())).thenReturn(recipe);
+    when(recipeService.createRecipe(Mockito.any(), Mockito.any())).thenReturn(recipe);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe")
+              .header("Authorization", "Bearer testToken")
               .with(csrf())
               .contentType(MediaType.APPLICATION_JSON)
               .content(new ObjectMapper().writeValueAsString(recipeRequest)))

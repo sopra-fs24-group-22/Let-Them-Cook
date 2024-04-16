@@ -1,6 +1,8 @@
 package com.letthemcook.recipe;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.cookbook.CookbookService;
+import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +31,8 @@ public class RecipeServiceTest {
   private JwtService jwtService;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private CookbookService cookbookservice;
   @InjectMocks
   private RecipeService recipeService;
 
@@ -36,7 +40,7 @@ public class RecipeServiceTest {
 
   @BeforeEach
   public void setup() {
-    recipeService = new RecipeService(recipeRepository, sequenceGeneratorService, jwtService, userRepository);
+    recipeService = new RecipeService(recipeRepository, sequenceGeneratorService, jwtService, userRepository, cookbookservice);
   }
 
   @AfterEach
@@ -48,6 +52,11 @@ public class RecipeServiceTest {
 
   @Test
   public void testCreateRecipeSuccess() {
+    // Setup test user
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("testUser");
+
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
@@ -58,11 +67,13 @@ public class RecipeServiceTest {
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
 
-    // Mock DBSequence
+    // Mock Services
+    when(jwtService.extractUsername(Mockito.any())).thenReturn("testUser");
+    when(userRepository.getByUsername(Mockito.any())).thenReturn(user);
     when(sequenceGeneratorService.getSequenceNumber(Mockito.any())).thenReturn(recipe.getId());
 
     // Perform test
-    Recipe result = recipeService.createRecipe(recipe);
+    Recipe result = recipeService.createRecipe(recipe, "accessToken");
 
     Mockito.verify(recipeRepository, Mockito.times(1)).save(Mockito.any());
     assertEquals(recipe.getCreatorId(), result.getCreatorId());

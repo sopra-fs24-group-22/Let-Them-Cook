@@ -73,13 +73,14 @@ public class UserController {
     User userInput = DTOUserMapper.INSTANCE.convertRegisterDTOtoEntity(registerRequestDTO);
     Token token = userService.createUser(userInput);
 
+    // Generate tokens and set as cookies
     Cookie cookie = getTokenCookie(token);
     response.addCookie(cookie);
 
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
-  @PostMapping("/api/auth/refresh")
+  @GetMapping("/api/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {

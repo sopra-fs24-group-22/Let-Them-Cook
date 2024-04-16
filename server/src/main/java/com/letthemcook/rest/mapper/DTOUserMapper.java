@@ -37,8 +37,8 @@ public interface DTOUserMapper {
 
   @Mapping(source = "username", target = "username")
   @Mapping(source = "email", target = "email")
-  @Mapping(source = "firstName", target = "firstName")
-  @Mapping(source = "lastName", target = "lastName")
+  @Mapping(source = "firstname", target = "firstname")
+  @Mapping(source = "lastname", target = "lastname")
   @Mapping(source = "password", target = "password")
   User convertRegisterDTOtoEntity(RegisterRequestDTO registerRequestDTO);
 

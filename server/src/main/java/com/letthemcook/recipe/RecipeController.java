@@ -1,7 +1,9 @@
 package com.letthemcook.recipe;
 
+import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.rest.mapper.DTORecipeMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,17 +12,20 @@ import org.springframework.web.bind.annotation.*;
 public class RecipeController {
 
   private final RecipeService recipeService;
+  private final JwtService jwtService;
 
-  public RecipeController(RecipeService recipeService) {
+  @Autowired
+  public RecipeController(RecipeService recipeService, JwtService jwtService) {
     this.recipeService = recipeService;
+    this.jwtService = jwtService;
   }
 
   @PostMapping("/api/recipe")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public ResponseEntity<Void> createRecipe(@RequestBody RecipePostDTO recipePostDTO) {
+  public ResponseEntity<Void> createRecipe(@RequestBody RecipePostDTO recipePostDTO, @RequestHeader("Authorization") String accessToken) {
     Recipe recipe = DTORecipeMapper.INSTANCE.convertRecipePostDTOToRecipe(recipePostDTO);
-    recipeService.createRecipe(recipe);
+    recipeService.createRecipe(recipe, accessToken);
 
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }

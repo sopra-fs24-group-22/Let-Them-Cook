@@ -1,6 +1,7 @@
 package com.letthemcook.recipe;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.cookbook.CookbookService;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,21 +20,28 @@ public class RecipeService {
   private final UserRepository userRepository;
   private final SequenceGeneratorService sequenceGeneratorService;
   private final JwtService jwtService;
+  private final CookbookService cookbookService;
   //Logger logger = LoggerFactory.getLogger(RecipeService.class);
 
   @Autowired
-  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository) {
+  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository, CookbookService cookbookService) {
     this.recipeRepository = recipeRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
     this.userRepository = userRepository;
+    this.cookbookService = cookbookService;
   }
 
-  public Recipe createRecipe(Recipe recipe) {
+  public Recipe createRecipe(Recipe recipe, String accessToken) {
+    accessToken = accessToken.substring(7);
+    String username = jwtService.extractUsername(accessToken);
+
     // Set recipe data
     recipe.setId(sequenceGeneratorService.getSequenceNumber(Recipe.SEQUENCE_NAME));
-    //TODO: Create Cookbook and add recipe to it
+    recipe.setCreatorId(userRepository.getByUsername(username).getId());
+
     recipeRepository.save(recipe);
+    cookbookService.addRecipeToCookbook(recipe.getCreatorId(), recipe.getId());
     return recipe;
   }
 

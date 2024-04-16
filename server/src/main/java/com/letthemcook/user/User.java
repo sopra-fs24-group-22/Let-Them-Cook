@@ -1,5 +1,6 @@
 package com.letthemcook.user;
 
+import com.letthemcook.cookbook.Cookbook;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,11 +21,12 @@ public class User implements Serializable, UserDetails {
   @Id
   private Long id;
   private String username;
-  private String firstName;
-  private String lastName;
+  private String firstname;
+  private String lastname;
   private String email;
   private String password;
   private UserRole userRole;
+  private Cookbook cookbook = new Cookbook(id);
 
   public String getUsername() {
     return username;
@@ -83,20 +85,20 @@ public class User implements Serializable, UserDetails {
     this.email = email;
   }
 
-  public String getFirstName() {
-    return firstName;
+  public String getFirstname() {
+    return firstname;
   }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
+  public void setFirstname(String firstname) {
+    this.firstname = firstname;
   }
 
-  public String getLastName() {
-    return lastName;
+  public String getLastname() {
+    return lastname;
   }
 
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+  public void setLastname(String lastname) {
+    this.lastname = lastname;
   }
 
   public UserRole getRole() {
@@ -105,5 +107,13 @@ public class User implements Serializable, UserDetails {
 
   public void setRole(UserRole userRole) {
     this.userRole = userRole;
+  }
+
+  public Cookbook getCookbook() {
+    return cookbook;
+  }
+
+  public void setCookbook(Cookbook cookbook) {
+    this.cookbook = cookbook;
   }
 }

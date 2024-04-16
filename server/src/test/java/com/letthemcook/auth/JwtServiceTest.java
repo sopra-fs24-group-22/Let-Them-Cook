@@ -43,7 +43,7 @@ public class JwtServiceTest {
   public void testTokenExpires() throws InterruptedException {
     String token = jwtService.generateAccessToken(userDetails);
     assertTrue(jwtService.isTokenValid(token, userDetails));
-    Thread.sleep(2000); // wait for token to expire
+    Thread.sleep(5000); // wait for token to expire
     assertFalse(jwtService.isTokenValid(token, userDetails));
   }
 

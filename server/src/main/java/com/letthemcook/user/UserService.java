@@ -2,7 +2,9 @@ package com.letthemcook.user;
 
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
+import com.letthemcook.cookbook.Cookbook;
 import com.letthemcook.util.SequenceGeneratorService;
+import com.letthemcook.cookbook.CookbookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -24,15 +26,17 @@ import java.util.HashMap;
 @Transactional
 public class UserService {
   private final UserRepository userRepository;
+  private final CookbookService cookbookService;
   private final SequenceGeneratorService sequenceGeneratorService;
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
-  private JwtService jwtService;
+  private final JwtService jwtService;
   Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
     this.userRepository = userRepository;
+    this.cookbookService = cookbookService;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.authenticationManager = authenticationManager;
     this.passwordEncoder = passwordEncoder;
@@ -46,6 +50,10 @@ public class UserService {
     newUser.setId(sequenceGeneratorService.getSequenceNumber(User.SEQUENCE_NAME));
     newUser.setRole(UserRole.USER);
     newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
+
+    // Create cookbook
+    Cookbook cookbook = cookbookService.createCookbook(newUser.getId());
+    newUser.setCookbook(cookbook);
 
     // Create token
     Token token = new Token();

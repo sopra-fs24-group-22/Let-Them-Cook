@@ -79,7 +79,7 @@ public class UserController {
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
-  @PostMapping("/api/auth/refresh")
+  @GetMapping("/api/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {

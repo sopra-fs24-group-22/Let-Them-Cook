@@ -1,8 +1,8 @@
 import { axiosAuth, axiosPublic } from "./axios";
 
 // Login
-export const postLoginAPI = async (login: any) => {
-  const { data } = await axiosPublic.post("auth/login", { login });
+export const postLoginAPI = async (body: any) => {
+  const { data } = await axiosPublic.post("auth/login", body);
   return data.accessToken;
 };
 export const postRegisterAPI = async (body: any) => {
@@ -12,7 +12,7 @@ export const postRegisterAPI = async (body: any) => {
 
 // Refresh
 export const refreshAccessTokenAPI = async () => {
-  const { data } = await axiosPublic.get("refresh", { withCredentials: true });
+  const { data } = await axiosPublic.get("auth/refresh", { withCredentials: true });
   return data.accessToken;
 };
 

@@ -36,6 +36,7 @@ axiosAuth.interceptors.response.use(
       if (error.response.status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;
         const accessToken = await refreshAccessTokenAPI();
+        console.log("Access Token: " + accessToken);
         axiosAuth.defaults.headers["Authorization"] = "Bearer " + accessToken;
         originalRequest.headers["Authorization"] = "Bearer " + accessToken;
         return axiosAuth(originalRequest);
@@ -43,7 +44,8 @@ axiosAuth.interceptors.response.use(
       return Promise.reject(error);
     } catch (e) {
       console.error("Your session has expired. Please log in again.");
-      window.location.href = "/login";
+      // TODO: something's wrong I can feel it
+      // window.location.href = "/login";
       return Promise.reject(error);
     }
   }

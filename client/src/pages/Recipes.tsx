@@ -111,7 +111,7 @@ const RecipesPage = () => {
     {/* Modal for creating a new recipe */}
     <Modal show={show} onHide={handleClose}>
       <Modal.Header>
-        <Modal.Title>Create new session</Modal.Title>
+        <Modal.Title>Create new recipe</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Label htmlFor="dishName">Dish name</Label>

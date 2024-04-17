@@ -3,16 +3,19 @@ import { axiosAuth, axiosPublic } from "./axios";
 // Login
 export const postLoginAPI = async (body: any) => {
   const { data } = await axiosPublic.post("auth/login", body);
+  setRefreshToken(data.refreshToken);
   return data.accessToken;
 };
 export const postRegisterAPI = async (body: any) => {
   const { data } = await axiosPublic.post("auth/register", body);
+  setRefreshToken(data.refreshToken);
   return data.accessToken;
 };
 
 // Refresh
 export const refreshAccessTokenAPI = async () => {
-  const { data } = await axiosPublic.get("auth/refresh", { withCredentials: true });
+  const { data } = await axiosPublic.post("auth/refresh",
+    { refreshToken: getRefreshToken() });
   return data.accessToken;
 };
 
@@ -32,3 +35,10 @@ export const postSessionAPI = async (session: any) => {
   const { data } = await axiosAuth.post("session", { session });
   return data;
 };
+
+// ### Helpers ###
+const setRefreshToken = (refreshToken: string) => {
+  localStorage.setItem("refreshToken", refreshToken);
+};
+export const getRefreshToken = () => localStorage.refreshToken;
+export const deleteRefreshToken = () => localStorage.removeItem("refreshToken");

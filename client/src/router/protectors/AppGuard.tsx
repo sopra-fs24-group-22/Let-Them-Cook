@@ -16,7 +16,7 @@ export const AppGuard = () => {
   if (appLoading) {
     return <LoadingPage />;
   }
-  if (!isLoggedIn) {
+  if (isLoggedIn) {
     return <Outlet />;
   }
   return <Navigate to="/login" replace />;

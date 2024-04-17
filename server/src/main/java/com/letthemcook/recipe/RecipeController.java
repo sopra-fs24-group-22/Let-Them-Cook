@@ -1,6 +1,5 @@
 package com.letthemcook.recipe;
 
-import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.rest.mapper.DTORecipeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +11,10 @@ import org.springframework.web.bind.annotation.*;
 public class RecipeController {
 
   private final RecipeService recipeService;
-  private final JwtService jwtService;
 
   @Autowired
-  public RecipeController(RecipeService recipeService, JwtService jwtService) {
+  public RecipeController(RecipeService recipeService) {
     this.recipeService = recipeService;
-    this.jwtService = jwtService;
   }
 
   @PostMapping("/api/recipe")

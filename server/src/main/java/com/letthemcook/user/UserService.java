@@ -53,7 +53,7 @@ public class UserService {
 
     // Create cookbook
     Cookbook cookbook = cookbookService.createCookbook(newUser.getId());
-    newUser.setCookbook(cookbook);
+    newUser.setCookbookId(cookbook.getId());
 
     // Create token
     Token token = new Token();

@@ -4,7 +4,7 @@ import { State } from "../features";
 import Layout from "../components/Layout/MainLayout";
 import { PrimaryButton, SecondaryButton, ButtonGroup } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import {Col, Container, Modal, Row, Stack} from 'react-bootstrap';
+import {Accordion, Col, Container, Modal, Row, Stack} from 'react-bootstrap';
 import { getAllRecipesAPI, postSessionAPI, getAllSessionsAPI } from "../api/app.api";
 import {
   faTrashCan,
@@ -135,25 +135,25 @@ const SessionsPage = () => {
         </ButtonGroup>
         <Container fluid>
         <Row>
-          {sessions.map((item, index) =>
-          <div key={index} style={{
-            background: 'linear-gradient(180deg, #f7f7f7 0%, #e5e5e5 100%)',
-            borderRadius: '8px',
-            padding: '16px',
-            marginTop: `5px`
-
-          }}>
-            <div>{item.recipe}</div>
-            <div>{item.Start}</div>
-            <div>{item.Duration}</div>
-            <div>{item.Participants}</div>
-            <div>{item.Chef}</div>
-          </div>
-          )}
+          <Accordion>
+            {sessions.map((session, index) => (
+                <Accordion.Item key={index} eventKey={String(index)} style={{ width: '100%', background: '#f0f0f0', marginTop: '5px'}}>
+                  <Accordion.Header style={{ background: '#f0f0f0' }}>
+                    <div style={{ fontSize: '20px' }}>{session.recipe}</div>
+                  </Accordion.Header>
+                  <Accordion.Body style={{ background: '#f0f0f0' }}>
+                    <div>{session.Start}</div>
+                    <div>{session.Duration}</div>
+                    <div>{session.Participants}</div>
+                    <div>{session.Chef}</div>
+                  </Accordion.Body>
+                </Accordion.Item>
+            ))}
+          </Accordion>
         </Row>
         </Container>
       </MainLayout>
-      
+
       {/* Modal for creating a new session */}
       <Modal show={show} onHide={handleClose}>
         <Modal.Header>

@@ -2,9 +2,11 @@ package com.letthemcook.rest.mapper;
 
 import com.letthemcook.session.Session;
 import com.letthemcook.session.dto.SessionDTO;
+import com.letthemcook.session.dto.SessionPostDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+@Mapper
 public interface DTOSessionMapper {
 
   DTOSessionMapper INSTANCE = Mappers.getMapper(DTOSessionMapper.class);
@@ -12,8 +14,17 @@ public interface DTOSessionMapper {
   // ######################################### POST session #########################################
 
   @Mapping(source = "sessionName", target = "sessionName")
-  Session convertSessionDTOToEntity(SessionDTO sessionDTO);
+  @Mapping(source = "recipe", target = "recipe")
+  @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
+  @Mapping(source = "date", target = "date")
+  Session convertSingleSessionDTOToEntity(SessionPostDTO sessionPostDTO);
 
+// ######################################### GET single session #########################################
 
-
+  @Mapping(source = "sessionName", target = "sessionName")
+  @Mapping(source = "host", target = "host")
+  @Mapping(source = "recipe", target = "recipe")
+  @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
+  @Mapping(source = "date", target = "date")
+  SessionDTO convertEntityToSingleSessionDTO(Session session);
 }

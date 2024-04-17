@@ -1,33 +1,16 @@
-package com.letthemcook.session;
-
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+package com.letthemcook.session.dto;
 
 import java.util.ArrayList;
 
-@Document("sessions")
-public class Session {
-  @Transient
-  public static final String SEQUENCE_NAME = "sessions_sequence";
-
-  @Id
+public class SessionPostDTO {
   private Long id;
-  private Long host;
   private Long recipe;
   private String sessionName;
   private Integer maxParticipantCount;
-  private ArrayList<Long> participants;
   private String date;
 
   public Long getId() {
     return id;
-  }
-
-  public Long getHost() {
-    return host;
   }
 
   public Long getRecipe() {
@@ -42,9 +25,6 @@ public class Session {
     return maxParticipantCount;
   }
 
-  public ArrayList<Long> getParticipants() {
-    return participants;
-  }
 
   public String getDate() {
     return date;
@@ -52,10 +32,6 @@ public class Session {
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public void setHost(Long host) {
-    this.host = host;
   }
 
   public void setRecipe(Long recipe) {
@@ -70,9 +46,6 @@ public class Session {
     this.maxParticipantCount = maxParticipantCount;
   }
 
-  public void setParticipants(ArrayList<Long> participants) {
-    this.participants = participants;
-  }
 
   public void setDate(String date) {
     this.date = date;

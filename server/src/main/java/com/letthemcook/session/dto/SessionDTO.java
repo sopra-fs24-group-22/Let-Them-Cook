@@ -1,12 +1,17 @@
 package com.letthemcook.session.dto;
 
+import com.letthemcook.recipe.Recipe;
+
+import java.util.ArrayList;
+
 public class SessionDTO {
   private Long id;
   private Long host;
-  //private Recipe recipe;
+  private Long recipe;
   private String sessionName;
-  private Integer participantCount;
-  private String Date;
+  private Integer maxParticipantCount;
+  private ArrayList<Long> participants;
+  private String date;
 
   public Long getId() {
     return id;
@@ -16,20 +21,24 @@ public class SessionDTO {
     return host;
   }
 
-  /*public Recipe getRecipe() {
+  public Long getRecipe() {
     return recipe;
   }
-*/
+
   public String getSessionName() {
     return sessionName;
   }
 
-  public Integer getParticipantCount() {
-    return participantCount;
+  public Integer getMaxParticipantCount() {
+    return maxParticipantCount;
+  }
+
+  public ArrayList<Long> getParticipants() {
+    return participants;
   }
 
   public String getDate() {
-    return Date;
+    return date;
   }
 
   public void setId(Long id) {
@@ -40,19 +49,23 @@ public class SessionDTO {
     this.host = host;
   }
 
-  /*public void setRecipe(Recipe recipe) {
+  public void setRecipe(Long recipe) {
     this.recipe = recipe;
   }
-*/
+
   public void setSessionName(String sessionName) {
     this.sessionName = sessionName;
   }
 
-  public void setParticipantCount(Integer participantCount) {
-    this.participantCount = participantCount;
+  public void setMaxParticipantCount(Integer maxParticipantCount) {
+    this.maxParticipantCount = maxParticipantCount;
+  }
+
+  public void setParticipants(ArrayList<Long> participants) {
+    this.participants = participants;
   }
 
   public void setDate(String date) {
-    Date = date;
+    this.date = date;
   }
 }

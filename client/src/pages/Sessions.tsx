@@ -4,8 +4,8 @@ import { State } from "../features";
 import Layout from "../components/Layout/MainLayout";
 import { PrimaryButton, SecondaryButton, ButtonGroup } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import { Modal } from 'react-bootstrap';
-import { getAllRecipesAPI, postSessionAPI } from "../api/app.api";
+import {Col, Container, Modal, Row, Stack} from 'react-bootstrap';
+import { getAllRecipesAPI, postSessionAPI, getAllSessionsAPI } from "../api/app.api";
 import {
   faTrashCan,
   faCircleChevronDown,
@@ -15,8 +15,28 @@ import { SecondaryIconButton } from '../components/ui/Icon';
 import MainLayout from "../components/Layout/MainLayout";
 import {useNavigate} from "react-router-dom";
 
-
+//Defined interface for session
+interface Session {
+  recipe: string;
+  Start: string;
+  Duration: string;
+  Participants: number;
+  Chef: string;
+}
 const SessionsPage = () => {
+  //Session Overview
+  const [sessions, setSession] = useState<Session[]>(
+      // TODO: API CALL
+      // await getAllSessionsAPI();
+      [
+        {"recipe": "Kottu Roti", "Start": "01.05.2024, 18:20", "Duration": "2h", "Participants": 2, "Chef": "Chef Dave"},
+        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
+        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
+        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
+        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"}
+      ]//! DEV ONLY
+  )
+
   // Modal for creating a new session
   const [show, setShow] = useState(false);
   const handleClose = () => {
@@ -113,6 +133,25 @@ const SessionsPage = () => {
             My sessions
           </SecondaryButton>
         </ButtonGroup>
+        <Container fluid>
+        <Row>
+          {sessions.map((item, index) =>
+          <div key={index} style={{
+            background: 'linear-gradient(180deg, #f7f7f7 0%, #e5e5e5 100%)',
+            borderRadius: '8px',
+            padding: '16px',
+            marginTop: `5px`
+
+          }}>
+            <div>{item.recipe}</div>
+            <div>{item.Start}</div>
+            <div>{item.Duration}</div>
+            <div>{item.Participants}</div>
+            <div>{item.Chef}</div>
+          </div>
+          )}
+        </Row>
+        </Container>
       </MainLayout>
       
       {/* Modal for creating a new session */}

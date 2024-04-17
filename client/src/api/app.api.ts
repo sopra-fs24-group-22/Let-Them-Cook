@@ -32,3 +32,8 @@ export const postSessionAPI = async (session: any) => {
   const { data } = await axiosAuth.post("session", { session });
   return data;
 };
+
+export const getAllSessionsAPI = async () => {
+  const { data } = await axiosAuth.get("sessions");
+  return data;
+}

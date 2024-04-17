@@ -149,6 +149,7 @@ const Main = styled.main`
   padding: 130px 30px 30px 30px;
   display: flex;
   flex-direction: row;
+  height: 100%; 
 `;
 
 const Sidebar = styled.div`
@@ -167,11 +168,12 @@ const Sidebar = styled.div`
 const Content = styled.div`
   padding: 30px;
   background-color: #ffffffe2;
-  height: 400px;
   flex: 1;
   border-radius: 20px;
   box-shadow: 0px 18px 0px -8px #0000004e;
   transition: transform 0.2s;
+  max-height: 600px;
+  overflow-y: auto;
   &:hover {
     transform: translateY(-5px);
   }

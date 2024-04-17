@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
   Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(ResponseStatusException.class)
-  public ResponseEntity handleResponseStatusException(ResponseStatusException e) {
+  public ResponseEntity<String> handleResponseStatusException(ResponseStatusException e) {
     log.info("{}\n{}", e.getMessage(), e.getStatus());
     return ResponseEntity
             .status(e.getStatus())
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity handleException(Exception e) {
+  public ResponseEntity<Void> handleException(Exception e) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, MissingRequestCookieException.class})
-  public ResponseEntity handleBadCredentialsException(BadCredentialsException e) {
+  public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException e) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(ExpiredJwtException.class)
-  public ResponseEntity handleExpiredJwtException(ExpiredJwtException e, HttpServletResponse response) {
+  public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException e, HttpServletResponse response) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     Cookie cookie = new Cookie("refreshToken", null);
     cookie.setSecure(true);

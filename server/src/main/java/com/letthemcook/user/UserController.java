@@ -6,6 +6,7 @@ import com.letthemcook.rest.mapper.DTOUserMapper;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
+import com.letthemcook.user.dto.RefreshRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,6 @@ public class UserController {
     Token token = userService.loginUser(user);
 
     Cookie cookie = getTokenCookie(token);
-    cookie.setPath("/api/auth/login");
     response.addCookie(cookie);
 
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
@@ -83,7 +83,8 @@ public class UserController {
   @GetMapping("/api/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {
+  public ResponseEntity<TokenResponseDTO> refreshToken(@RequestBody RefreshRequestDTO refreshRequestDTO) {
+    String refreshToken = refreshRequestDTO.getRefreshToken();
     Token token = userService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
@@ -95,6 +96,7 @@ public class UserController {
     cookie.setSecure(true);
     cookie.setHttpOnly(true);
     cookie.setMaxAge((int) (refreshTokenExpirationMs / 1000));
+    cookie.setPath("/");
 
     return cookie;
   }

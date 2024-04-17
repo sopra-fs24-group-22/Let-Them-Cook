@@ -1,6 +1,7 @@
 package com.letthemcook.recipe;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.cookbook.CookbookRepository;
 import com.letthemcook.cookbook.CookbookService;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -21,15 +22,17 @@ public class RecipeService {
   private final SequenceGeneratorService sequenceGeneratorService;
   private final JwtService jwtService;
   private final CookbookService cookbookService;
+  private final CookbookRepository cookbookRepository;
   //Logger logger = LoggerFactory.getLogger(RecipeService.class);
 
   @Autowired
-  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository, CookbookService cookbookService) {
+  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository, CookbookService cookbookService, CookbookRepository cookbookRepository) {
     this.recipeRepository = recipeRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
+    this.cookbookRepository = cookbookRepository;
   }
 
   public Recipe createRecipe(Recipe recipe, String accessToken) {
@@ -58,6 +61,12 @@ public class RecipeService {
     // Check if user is authorized to delete recipe
     if(Objects.equals(recipe.getCreatorId(), userRepository.getByUsername(jwtService.extractUsername(accessToken)).getId())) {
       recipeRepository.deleteById(id);
+
+      // Delete recipe from all cookbooks
+      cookbookRepository.findCookbookByRecipeIdsContaining(id).forEach(cookbook -> {
+        cookbook.removeRecipe(id);
+        cookbookRepository.save(cookbook);
+      });
       return;
     }
 

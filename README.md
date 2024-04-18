@@ -37,3 +37,11 @@ npm run build
 ### Server
 
 Open the project in your IDE and run the com.letthemcook application in debug mode.
+
+## PRODUCTION
+
+The MongoDB production database is hosted on MongoDB Atlas:
+
+```
+mongodb+srv://sopra24:<password>@letthemcook.klnzygg.mongodb.net/?retryWrites=true&w=majority&appName=LetThemCook
+```

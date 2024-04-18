@@ -1,3 +1,5 @@
 **/dist
 server/src/main/resources/static
+.vscode/*
+.idea
 ```

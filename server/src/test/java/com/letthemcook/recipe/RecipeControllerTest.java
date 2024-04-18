@@ -127,6 +127,8 @@ public class RecipeControllerTest {
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")
+              .header("Authorization", "Bearer testToken")
+              .with(csrf())
               .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk());
   }

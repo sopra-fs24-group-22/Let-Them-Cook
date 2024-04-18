@@ -2,9 +2,6 @@ package com.letthemcook.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
-import com.letthemcook.recipe.Recipe;
-import com.letthemcook.recipe.dto.RecipePostDTO;
-import com.letthemcook.session.dto.SessionDTO;
 import com.letthemcook.session.dto.SessionPostDTO;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +11,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +20,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 
@@ -133,6 +128,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
       // Perform test
       mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1")
+                      .header("Authorization", "Bearer testToken")
+                      .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isOk());
     }

@@ -6,6 +6,9 @@ export const postLoginAPI = async (body: any) => {
   setRefreshToken(data.refreshToken);
   return data.accessToken;
 };
+export const postLogoutAPI = async (body: any) => {
+  const { data } = await axiosPublic.post("auth/logout", body)
+};
 export const postRegisterAPI = async (body: any) => {
   const { data } = await axiosPublic.post("auth/register", body);
   setRefreshToken(data.refreshToken);

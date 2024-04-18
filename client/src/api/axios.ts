@@ -55,5 +55,8 @@ axiosAuth.interceptors.response.use(
 const setAccessToken = (accessToken: string) => {
   axiosAuth.defaults.headers["Authorization"] = "Bearer " + accessToken;
 };
+const deleteAccessToken = () => {
+  delete axiosAuth.defaults.headers["Authorization"];
+};
 
-export { axiosAuth, axiosPublic, setAccessToken };
+export { axiosAuth, axiosPublic, setAccessToken, deleteAccessToken };

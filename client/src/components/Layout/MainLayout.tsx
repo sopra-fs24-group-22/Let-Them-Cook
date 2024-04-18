@@ -1,12 +1,14 @@
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
 import Logo from "../../assets/img/logo.png";
-import { Link } from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { Modal } from 'react-bootstrap';
-import { SecondaryButton } from "../ui/Button";
+import {PrimaryButton, SecondaryButton} from "../ui/Button";
+import {deleteRefreshToken, getRefreshToken, postLogoutAPI} from "../../api/app.api";
+import {deleteAccessToken} from "../../api/axios";
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -18,6 +20,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   sidebarContent,
 }) => {
   const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
+  const [show, setShow] = useState(false);
+  const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
+  const navigate = useNavigate();
+  const logout = async () => {
+    try {
+      const refreshToken = getRefreshToken();
+      await postLogoutAPI(refreshToken);
+      deleteRefreshToken();
+      deleteAccessToken();
+      navigate("/login");
+    } catch (error) {
+      alert(
+          "Something went wrong during logout"
+      )
+    }
+  }
   return (
     <Wrapper>
       <Navbar>
@@ -50,7 +69,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           </li>
 
           <li>
-            <Link to="/chefs">
+            <Link to="/chefs" onClick={(e) => { e.preventDefault(); handleShow(); }}>
               <FontAwesomeIcon icon={faSignOut} />
             </Link>
           </li>
@@ -70,6 +89,20 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         </Modal.Body>
         <Modal.Footer>
           <SecondaryButton onClick={() => setEasterEggClickCounter(0)}>I'm an idiot sandwich</SecondaryButton>
+        </Modal.Footer>
+      </Modal>
+      {/*Modal for Logout confirmation*/}
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header>
+          <Modal.Title>Are you sure you want to log out?</Modal.Title>
+        </Modal.Header>
+        <Modal.Footer>
+          <PrimaryButton onClick={logout}>
+            Yes, log out
+          </PrimaryButton>
+          <SecondaryButton onClick={handleClose}>
+            No, stay logged in
+          </SecondaryButton>
         </Modal.Footer>
       </Modal>
     </Wrapper>

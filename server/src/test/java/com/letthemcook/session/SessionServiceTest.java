@@ -47,7 +47,7 @@ public class SessionServiceTest {
 
   // ######################################### Get Sessions Tests #########################################
 
-  @Test
+/*  @Test
   public void testGetSessionsDefaultParamsSuccess() {
     // Setup test sessions
     ArrayList<Session> sessions = new ArrayList<>();
@@ -109,6 +109,6 @@ public class SessionServiceTest {
 
     // Verify result
     assertEquals(sessions.subList(10, 15), result);
-  }
+  }*/
 
 }

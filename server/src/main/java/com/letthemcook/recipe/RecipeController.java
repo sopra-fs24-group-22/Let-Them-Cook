@@ -28,12 +28,12 @@ public class RecipeController {
   }
 
   @DeleteMapping("/api/recipe/{id}")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
     recipeService.deleteRecipe(id, accessToken);
 
-    return ResponseEntity.status(HttpStatus.OK).build();
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
   @GetMapping("/api/recipe/{id}")

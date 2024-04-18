@@ -70,7 +70,7 @@ public class RecipeService {
       return;
     }
 
-    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not authorized to delete this recipe");
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to delete this recipe");
   }
 
   public Recipe getRecipe(Long id) {

@@ -1,6 +1,7 @@
 package com.letthemcook.config;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -35,12 +36,12 @@ public class GlobalExceptionHandler {
             .build();
   }
 
-  @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, MissingRequestCookieException.class})
-  public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException e) {
+  @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, MissingRequestCookieException.class, MalformedJwtException.class})
+  public ResponseEntity<Void> handleBadCredentialsException(BadCredentialsException e) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
-            .body(e.getMessage());
+            .build();
   }
 
   @ExceptionHandler(ExpiredJwtException.class)

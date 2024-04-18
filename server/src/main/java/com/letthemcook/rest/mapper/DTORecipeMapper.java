@@ -13,7 +13,6 @@ public interface DTORecipeMapper {
 
   // ######################################### POST recipe #########################################
 
-  @Mapping(source = "creatorId", target = "creatorId")
   @Mapping(source = "title", target = "title")
   @Mapping(source = "checklist", target = "checklist")
   @Mapping(source = "privacyStatus", target = "privacyStatus")

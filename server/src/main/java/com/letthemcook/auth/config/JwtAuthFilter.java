@@ -2,6 +2,7 @@ package com.letthemcook.auth.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.servlet.FilterChain;
@@ -35,9 +37,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       String authHeader = request.getHeader("Authorization");
       String jwt;
       String username;
-      if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      String path = request.getRequestURI();
+
+      if(path.startsWith("/api/auth/")) {
         filterChain.doFilter(request, response);
         return;
+      }
+
+      if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header.");
       }
 
       jwt = authHeader.substring(7);
@@ -57,7 +65,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
       }
-    } catch (Exception e) {;
+    } catch (Exception e) {
       resolver.resolveException(request, response, null, e);
     }
 

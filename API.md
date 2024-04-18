@@ -196,7 +196,7 @@ Authorization: Bearer [access token]
 {
   "title": "[Recipe title]",
   "checklist": ["List of checklist items"],
-  "privacyStatus": "[Privacy status boolean value]"
+  "privacyStatus": "[PUBLIC/PRIVATE]"
 }
 ```
 
@@ -428,6 +428,64 @@ Authorization: Bearer [access token]
 ```
 404 NOT FOUND "Recipe not in cookbook"
 ```
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+# Session Endpoints
+
+## Get Sessions
+
+Used to fetch all sessions based on query params.
+
+**URL** : `/api/sessions?{query params}`
+
+**Query params**
+  - `host` - ID of the host user
+  - `recipe` - ID of the recipe used in the session
+  - `limit` - Limit of sessions to fetch
+  - `offset` - Offset of sessions to fetch
+  - *More query params to be implemented*
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+    
+```json
+{
+  "sessions": [
+    {
+      "id": "[Session id]",
+      "host": "[Host user id]",
+      "recipe": "[Recipe id]",
+      "sessionName": "[Session name]",
+      "maxParticipantCount": "[Max participant count]",
+      "participants": ["List of participant user ids"],
+      "date": "[Date of session]"
+    }
+  ]
+}
+```
+
+### Error Response
 
 **Condition** : Invalid access token.
 

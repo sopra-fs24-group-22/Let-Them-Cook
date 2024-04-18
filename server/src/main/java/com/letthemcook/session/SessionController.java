@@ -8,11 +8,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 
 @RestController
 public class SessionController {
-
-
   private final SessionService sessionService;
 
   @Autowired
@@ -46,5 +48,20 @@ public class SessionController {
     sessionService.deleteSession(sessionId, accessToken);
 
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  @GetMapping("/api/sessions")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<ArrayList<SessionDTO>> getSessions(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
+    List<Session> queriedSessions = sessionService.getSessions(limit, offset, allParams);
+
+    // convert each user to the API representation
+    ArrayList<SessionDTO> sessionsGetDTOS = new ArrayList<>();
+    for (Session session : queriedSessions) {
+      sessionsGetDTOS.add(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
   }
 }

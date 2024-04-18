@@ -86,7 +86,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       sessionRequest.setRecipe(2L);
       sessionRequest.setDate("2020-01-01");
 
-      // Mock recipe service
+      // Mock session service
       Session session = sessionRepository.getById(1L);
       when(sessionService.createSession(Mockito.any(), Mockito.any())).thenReturn(session);
 
@@ -122,7 +122,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     @Test
     @WithMockUser
     public void testGetRecipeSuccess() throws Exception {
-      // Mock recipe service
+      // Mock session service
       Session session = sessionRepository.getById(1L);
       when(sessionService.getSession(1L)).thenReturn(session);
 
@@ -142,4 +142,43 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
               .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
+    // ######################################### Get Sessions Tests #########################################
+
+    @Test
+    @WithMockUser
+    public void testGetSessionsSuccess() throws Exception {
+      // Setup test sessions
+      Session session = new Session();
+      session.setSessionName("Test Session");
+      session.setMaxParticipantCount(3);
+      session.setRecipe(2L);
+      session.setDate("2025-01-01");
+      session.setHost(1L);
+      session.setParticipants(new ArrayList<>());
+
+      ArrayList<Session> sessions = new ArrayList<>();
+
+      for(int i = 0; i < 15; i++) {
+        session.setId((long) i);
+        sessions.add(session);
+      }
+
+      // Mock session service
+      when(sessionService.getSessions(null, null, null)).thenReturn(sessions);
+
+      // Perform test
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/sessions")
+                      .header("Authorization", "Bearer testToken")
+                      .with(csrf())
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(MockMvcResultMatchers.status().isOk());
+    }
+
+    @Test
+    public void testGetSessionsFailureUnauthorized() throws Exception {
+      // Perform test
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/sessions")
+                      .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
 }

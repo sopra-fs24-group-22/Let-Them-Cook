@@ -88,10 +88,10 @@ public class UserController {
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
-  @GetMapping("/user/me")
+  @GetMapping("user/me")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<GetMeRequestDTO> getUser(@CookieValue String accessToken) {
+  public ResponseEntity<GetMeRequestDTO> getUser(@RequestHeader("Authorization") String accessToken) {
     User user = userService.getUser(accessToken);
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
   }

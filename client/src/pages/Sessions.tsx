@@ -22,7 +22,7 @@ interface Session {
 }
 const SessionsPage = () => {
   //Session Overview
-  const [sessions, setSession] = useState<Session[]>(
+  const sessions =
       // TODO: API CALL
       // await getAllSessionsAPI();
       [
@@ -31,8 +31,7 @@ const SessionsPage = () => {
         {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
         {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
         {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"}
-      ]//! DEV ONLY
-  )
+      ]; //! DEV ONLY
 
   // Modal for creating a new session
   const [show, setShow] = useState(false);
@@ -48,7 +47,7 @@ const SessionsPage = () => {
   const navigate = useNavigate();
 
   // Get all recipes
-  const [recipes, setRecipes] = useState<object>(
+  const recipes = (
     // TODO: API call
     // await getAllRecipesAPI();
     {1: 'Chicken curry', 2: 'Pasta', 3: 'Pizza'} //! DEV ONLY

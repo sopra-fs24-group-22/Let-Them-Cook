@@ -2,7 +2,7 @@ package com.letthemcook.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
-import com.letthemcook.recipe.dto.RecipePostDTO;
+import com.letthemcook.recipe.dto.RecipeDTO;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,11 +55,14 @@ public class RecipeControllerTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
     recipe.setCreatorId(1L);
 
     when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
@@ -79,10 +82,13 @@ public class RecipeControllerTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
-    RecipePostDTO recipeRequest = new RecipePostDTO();
+    RecipeDTO recipeRequest = new RecipeDTO();
     recipeRequest.setTitle("Test Recipe");
     recipeRequest.setChecklist(checklist);
+    recipeRequest.setIngredients(ingredients);
     recipeRequest.setCreatorId(1L);
 
     // Mock recipe service
@@ -103,10 +109,13 @@ public class RecipeControllerTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
-    RecipePostDTO recipeRequest = new RecipePostDTO();
+    RecipeDTO recipeRequest = new RecipeDTO();
     recipeRequest.setTitle("Test Recipe 2");
     recipeRequest.setChecklist(checklist);
+    recipeRequest.setIngredients(ingredients);
     recipeRequest.setCreatorId(1L);
 
     // Perform test

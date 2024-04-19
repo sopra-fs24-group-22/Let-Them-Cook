@@ -94,12 +94,15 @@ public class RecipeServiceTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
     recipe.setCreatorId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
 
     // Mock DBSequence
     when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
@@ -111,6 +114,7 @@ public class RecipeServiceTest {
     assertEquals(recipe.getId(), result.getId());
     assertEquals(recipe.getTitle(), result.getTitle());
     assertEquals(recipe.getChecklist(), result.getChecklist());
+    assertEquals(recipe.getIngredients(), result.getIngredients());
   }
 
   @Test
@@ -118,12 +122,15 @@ public class RecipeServiceTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
     recipe.setCreatorId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
 
     // Mock DBSequence
     when(recipeRepository.getById(recipe.getId())).thenReturn(null);
@@ -148,12 +155,15 @@ public class RecipeServiceTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
     recipe.setCreatorId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
 
     // Setup cookbooks
     ArrayList<Cookbook> cookbooks = new ArrayList<>();
@@ -191,12 +201,15 @@ public class RecipeServiceTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
     recipe.setCreatorId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
 
     // Mock Services
     when(recipeRepository.getById(recipe.getId())).thenReturn(null);
@@ -223,12 +236,15 @@ public class RecipeServiceTest {
     // Setup test recipe
     ArrayList<String> checklist = new ArrayList<>();
     checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
     recipe.setCreatorId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
 
     // Mock Services
     when(jwtService.extractUsername(Mockito.any())).thenReturn("testUser");

@@ -12,14 +12,14 @@ import { SecondaryIconButton } from '../components/ui/Icon';
 import MainLayout from "../components/Layout/MainLayout";
 import {useNavigate} from "react-router-dom";
 
-//Defined interface for session
-interface Session {
-  recipe: string;
-  Start: string;
-  Duration: string;
-  Participants: number;
-  Chef: string;
-}
+// //Defined interface for session
+// interface Session {
+//   recipe: string;
+//   Start: string;
+//   Duration: string;
+//   Participants: number;
+//   Chef: string;
+// }
 const SessionsPage = () => {
   //Session Overview
   const sessions =

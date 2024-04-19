@@ -1,11 +1,8 @@
 import { useState, ChangeEvent } from 'react';
-import { useSelector } from "react-redux";
-import { State } from "../features";
-import Layout from "../components/Layout/MainLayout";
 import { PrimaryButton, SecondaryButton, ButtonGroup } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import {Accordion, Col, Container, Modal, Row, Stack} from 'react-bootstrap';
-import { getAllRecipesAPI, postSessionAPI, getAllSessionsAPI } from "../api/app.api";
+import {Accordion, Container, Modal, Row} from 'react-bootstrap';
+// import { getAllRecipesAPI, postSessionAPI, getAllSessionsAPI } from "../api/app.api";
 import {
   faTrashCan,
   faCircleChevronDown,
@@ -96,13 +93,13 @@ const SessionsPage = () => {
     setSingleSteps(values);
   };
   const moveSingleStepDown = (index: number) => {
-    if (index == singleSteps.length-1) return;
+    if (index === singleSteps.length-1) return;
     const values = [...singleSteps];
     [values[index], values[index+1]] = [values[index+1], values[index]];
     setSingleSteps(values);
   };
   const moveSingleStepUp = (index: number) => {
-    if (index == 0) return;
+    if (index === 0) return;
     const values = [...singleSteps];
     [values[index], values[index-1]] = [values[index-1], values[index]];
     setSingleSteps(values);
@@ -166,7 +163,7 @@ const SessionsPage = () => {
             <Option disabled selected>Select a recipe</Option>
             <Option disabled>{"-".repeat(40)}</Option>
             {Object.entries(recipes).map(([k, v]) => (
-              <Option key={k} value={k} selected={recipe == Number(k)}>
+              <Option key={k} value={k} selected={recipe === Number(k)}>
                 {v}</Option>
             ))}
           </Select>
@@ -196,18 +193,18 @@ const SessionsPage = () => {
               <SecondaryIconButton
                 icon={faCircleChevronDown}
                 style={{
-                  cursor: (index == singleSteps.length-1) ? '' : 'pointer',
+                  cursor: (index === singleSteps.length-1) ? '' : 'pointer',
                   marginLeft: '5px',
-                  color: (index == singleSteps.length-1) ? '#ccc' : '#878787'}}
-                onClick={(index == singleSteps.length-1) ? () => {} : () => moveSingleStepDown(index)}
+                  color: (index === singleSteps.length-1) ? '#ccc' : '#878787'}}
+                onClick={(index === singleSteps.length-1) ? () => {} : () => moveSingleStepDown(index)}
               />
               <SecondaryIconButton
                 icon={faCircleChevronUp}
                 style={{
-                  cursor: (index == 0) ? '' : 'pointer',
+                  cursor: (index === 0) ? '' : 'pointer',
                   marginLeft: '5px',
-                  color: (index == 0) ? '#ccc' : '#878787'}}
-                onClick={(index == 0) ? () => {} : () => moveSingleStepUp(index)}
+                  color: (index === 0) ? '#ccc' : '#878787'}}
+                onClick={(index === 0) ? () => {} : () => moveSingleStepUp(index)}
               />
               <SecondaryIconButton
                 icon={faTrashCan}

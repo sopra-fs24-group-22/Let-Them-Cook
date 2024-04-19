@@ -20,62 +20,62 @@ const Router = () => {
     <BrowserRouter>
       <Routes>
 
-        /* Login-Page */
+        {/* Login-Page */}
         <Route path="/login" element={<LoginGuard />}>
           <Route path="/login" element={<LoginPage />} />
         </Route>
 
-        /* Register-Page */
+        {/* Register-Page */}
         <Route path="/register" element={<LoginGuard />}>
           <Route path="/register" element={<RegisterPage />} />
         </Route>
 
-        /* Dashboard */
+        {/* Dashboard */}
         <Route path="/home" element={<AppGuard />}>
           <Route path="/home" element={<AppPage />} />
         </Route>
 
-        /* Sessions */
+        {/* Sessions */}
         <Route path="/sessions" element={<AppGuard />}>
           <Route path="/sessions" element={<SessionsPage />} />
         </Route>
 
-        /* In session */
+        {/* In session */}
         <Route path="/sessions/:sessionID" element={<AppGuard />}>
           <Route path="/sessions/:sessionID" element={<SessionViewerPage />} />
         </Route>
 
-        /* Profile */
+        {/* Profile */}
         <Route path="/profile/:user" element={<AppGuard />}>
           <Route path="/profile/:user" element={<ProfilePage />} />
         </Route>
 
-        /* Recipes */
+        {/* Recipes */}
         <Route path="/recipes" element={<AppGuard />}>
           <Route path="/recipes" element={<RecipesPage />} />
         </Route>
 
-        /* Cookbook */
+        {/* Cookbook */}
         <Route path="/recipes/cookbook/:user" element={<AppGuard />}>
           <Route path="/recipes/cookbook/:user" element={<CookbookPage />} />
         </Route>
 
-        /* Chefs */
+        {/* Chefs */}
         <Route path="/chefs" element={<AppGuard />}>
           <Route path="/chefs" element={<ChefsPage />} />
         </Route>
 
-        /* Followed Chefs */
+        {/* Followed Chefs */}
         <Route path="/chefs/mychefs/:user" element={<AppGuard />}>
           <Route path="/chefs/mychefs/:user" element={<ChefsFollowedPage />} />
         </Route>
 
-        /* Empty redirection */
+        {/* Empty redirection */}
         <Route path="/" element={
           <Navigate to="/home" replace />
         } />
 
-        /* Error 404 */
+        {/* Error 404 */}
         <Route path="/*" element={
           <div>404</div>
         } />

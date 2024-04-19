@@ -1,13 +1,12 @@
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
-import Logo from "../../assets/img/logo.png";
 import {Link, useNavigate} from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { Modal } from 'react-bootstrap';
 import {PrimaryButton, SecondaryButton} from "../ui/Button";
-import {postLogoutAPI} from "../../api/app.api";
+// import {postLogoutAPI} from "../../api/app.api";
 import {deleteAccessToken} from "../../api/axios";
 
 interface MainLayoutProps {
@@ -39,7 +38,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     <Wrapper>
       <Navbar>
         <div className="logo-box">
-          {/* <img src={Logo} alt="" /> */}
           <LogoText
             onClick={() => {setEasterEggClickCounter(easterEggClickCounter + 1);}}
           >Let them Cook</LogoText>
@@ -78,12 +76,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Content>{children}</Content>
       </Main>
       {/* Modal just for fun */}
-      <Modal show={easterEggClickCounter == 5}
+      <Modal show={easterEggClickCounter === 5}
              onHide={() => setEasterEggClickCounter(0)}
              backdrop="static"
              keyboard={false}>
         <Modal.Body>
-          <img src="gordon-ramsay-what-are-you.gif" width="100%" />
+          <img src="gordon-ramsay-what-are-you.gif" width="100%" alt="Idiot sandwich" />
         </Modal.Body>
         <Modal.Footer>
           <SecondaryButton onClick={() => setEasterEggClickCounter(0)}>I'm an idiot sandwich</SecondaryButton>

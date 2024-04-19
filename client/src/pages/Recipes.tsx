@@ -1,6 +1,4 @@
 import { useState, ChangeEvent } from 'react';
-import { useSelector } from "react-redux";
-import { State } from "../features";
 import { PrimaryButton, SecondaryButton } from "../components/ui/Button";
 import { Label, Input } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
@@ -96,7 +94,6 @@ const RecipesPage = () => {
     setIngredients(values);
   };
   
-  const appState = useSelector((state: State) => state.app);
   return (<>
     <MainLayout
       sidebarContent = {

@@ -196,6 +196,7 @@ Authorization: Bearer [access token]
 {
   "title": "[Recipe title]",
   "checklist": ["List of checklist items"],
+  "ingredients": ["List of ingredients"],
   "privacyStatus": "[PUBLIC/PRIVATE]"
 }
 ```
@@ -206,6 +207,7 @@ Authorization: Bearer [access token]
 {
   "title": "[Butter chicken]",
   "checklist": ["Chop onions", "Cook chicken"],
+    "ingredients": [ "1 Onion", "200g Chicken"],
   "privacyStatus": 1
 }
 ```
@@ -253,7 +255,8 @@ Authorization: Bearer [access token]
 {
   "creatorId": "[User id]",
   "title": "[Recipe title]",
-  "checklist": ["List of checklist items"]
+  "checklist": ["List of checklist items"],
+  "ingredients": ["List of ingredients"]
 }
 ```
 

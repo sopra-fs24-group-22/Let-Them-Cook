@@ -1,6 +1,6 @@
 package com.letthemcook.recipe;
 
-import com.letthemcook.recipe.dto.RecipePostDTO;
+import com.letthemcook.recipe.dto.RecipeDTO;
 import com.letthemcook.rest.mapper.DTORecipeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +20,8 @@ public class RecipeController {
   @PostMapping("/recipe")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public ResponseEntity<Void> createRecipe(@RequestBody RecipePostDTO recipePostDTO, @RequestHeader("Authorization") String accessToken) {
-    Recipe recipe = DTORecipeMapper.INSTANCE.convertRecipePostDTOToRecipe(recipePostDTO);
+  public ResponseEntity<Void> createRecipe(@RequestBody RecipeDTO recipeDTO, @RequestHeader("Authorization") String accessToken) {
+    Recipe recipe = DTORecipeMapper.INSTANCE.convertRecipePostDTOToRecipe(recipeDTO);
     recipeService.createRecipe(recipe, accessToken);
 
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -39,7 +39,7 @@ public class RecipeController {
   @GetMapping("/recipe/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<RecipePostDTO> getRecipe(@PathVariable Long id) {
+  public ResponseEntity<RecipeDTO> getRecipe(@PathVariable Long id) {
     Recipe recipe = recipeService.getRecipe(id);
 
     return ResponseEntity.status(HttpStatus.OK).body(DTORecipeMapper.INSTANCE.convertRecipeToRecipePostDTO(recipe));

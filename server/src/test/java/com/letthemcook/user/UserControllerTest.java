@@ -6,7 +6,6 @@ import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
-import com.letthemcook.user.dto.RefreshRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.Cookie;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -122,17 +123,12 @@ public class UserControllerTest {
     token.setAccessToken("newAccessToken");
     token.setRefreshToken("validRefreshToken");
 
-    // Setup Request DTO
-    RefreshRequestDTO refreshRequestDTO = new RefreshRequestDTO();
-    refreshRequestDTO.setRefreshToken("validRefreshToken");
-
     // Mock userService
     when(userService.refreshAccessToken(anyString())).thenReturn(token);
 
     // Perform request
     mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(refreshRequestDTO)))
+                    .cookie(new Cookie("refreshToken", "validRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").value(token.getRefreshToken()));
@@ -140,18 +136,20 @@ public class UserControllerTest {
 
   @Test
   public void testReturnErrorWhenRefreshTokenIsInvalid() throws Exception {
-    // Setup Request DTO
-    RefreshRequestDTO refreshRequestDTO = new RefreshRequestDTO();
-    refreshRequestDTO.setRefreshToken("invalidRefreshToken");
-
     // Mock userService
     when(userService.refreshAccessToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
     // Perform request
     mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(refreshRequestDTO)))
+                    .cookie(new Cookie("refreshToken", "invalidRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void testReturnErrorWhenRefreshTokenIsMissing() throws Exception {
+    // Perform request
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   // ######################################### Register Route #########################################

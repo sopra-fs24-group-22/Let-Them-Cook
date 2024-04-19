@@ -40,3 +40,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/43
 ### Gian Gyger
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/56
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/58
+
+## 26.04.2024
+### Claudio Fleischmann
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/53

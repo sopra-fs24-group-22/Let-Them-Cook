@@ -20,9 +20,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   sidebarContent,
 }) => {
   const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
-  const [show, setShow] = useState(false);
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
+  const [showLogoutBox, setShowLogoutBox] = useState(false);
+  const handleShowLogoutBox = () => setShowLogoutBox(true);
+  const handleCloseLogoutBox = () => setShowLogoutBox(false);
   const navigate = useNavigate();
   const logout = async () => {
     try {
@@ -69,7 +69,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           </li>
 
           <li>
-            <Link to="/chefs" onClick={(e) => { e.preventDefault(); handleShow(); }}>
+            <Link to="" onClick={(e) => { e.preventDefault(); handleShowLogoutBox(); }}>
               <FontAwesomeIcon icon={faSignOut} />
             </Link>
           </li>
@@ -92,17 +92,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         </Modal.Footer>
       </Modal>
       {/*Modal for Logout confirmation*/}
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={showLogoutBox} onHide={handleCloseLogoutBox}>
         <Modal.Header>
           <Modal.Title>Are you sure you want to log out?</Modal.Title>
         </Modal.Header>
         <Modal.Footer>
+          <SecondaryButton onClick={handleCloseLogoutBox}>
+            No, stay logged in
+          </SecondaryButton>
           <PrimaryButton onClick={logout}>
             Yes, log out
           </PrimaryButton>
-          <SecondaryButton onClick={handleClose}>
-            No, stay logged in
-          </SecondaryButton>
         </Modal.Footer>
       </Modal>
     </Wrapper>

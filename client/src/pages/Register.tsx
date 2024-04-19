@@ -34,11 +34,11 @@ const RegisterPage = () => {
   const register = async () => {
     setIsLoading(true);
     const body = {
-      firstname,
-      lastname,
-      username,
-      email,
-      password,
+      "firstname": firstname,
+      "lastname": lastname,
+      "username": username,
+      "email": email,
+      "password": password,
     };
     try {
       const res = await postRegisterAPI(body);

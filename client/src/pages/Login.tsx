@@ -24,8 +24,8 @@ const LoginPage = () => {
   const login = async () => {
     setIsLoading(true);
     const body = {
-      username,
-      password,
+      "username": username,
+      "password": password,
     };
     try {
       const res = await postLoginAPI(body);

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
+import com.letthemcook.rest.mapper.DTOUserMapper;
+import com.letthemcook.user.dto.GetMeRequestDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
@@ -237,4 +239,50 @@ public class UserControllerTest {
             .andExpect(MockMvcResultMatchers.status().isNoContent())
             .andExpect(MockMvcResultMatchers.jsonPath("$.Cookies").doesNotExist());
   }
+
+  @Test
+  public void getUser_returnsUserDetails_whenAccessTokenIsValid() throws Exception {
+    // Given
+    String validAccessToken = "validAccessToken";
+    User user = new User();
+    user.setUsername("test@test.com");
+    user.setPassword("password");
+    user.setFirstname("Test");
+    user.setLastname("User");
+    user.setEmail("test@user.com");
+
+    GetMeRequestDTO expectedResponse = DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user);
+
+    when(userService.getUser(validAccessToken)).thenReturn(user);
+
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me")
+                    .cookie(new Cookie("accessToken", validAccessToken)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(user.getUsername()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.firstname").value(user.getFirstname()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.lastname").value(user.getLastname()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()));
+  }
+
+  @Test
+  public void getUser_returnsUnauthorized_whenAccessTokenIsInvalid() throws Exception {
+    // Given
+    String invalidAccessToken = "invalidAccessToken";
+
+    when(userService.getUser(invalidAccessToken)).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
+
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me")
+                    .cookie(new Cookie("accessToken", invalidAccessToken)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void getUser_returnsBadRequest_whenAccessTokenIsMissing() throws Exception {
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
 }

@@ -84,6 +84,13 @@ public class UserService {
     }
   }
 
+  public User getUser(String accessToken) {
+    accessToken = accessToken.substring(7);
+    String username = jwtService.extractUsername(accessToken);
+
+    return userRepository.getByUsername(username);
+    }
+
 
   public Token refreshAccessToken(String refreshTokenString) {
     try {

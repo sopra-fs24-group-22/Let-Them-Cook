@@ -3,6 +3,7 @@ package com.letthemcook.user;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.auth.token.dto.TokenResponseDTO;
 import com.letthemcook.rest.mapper.DTOUserMapper;
+import com.letthemcook.user.dto.GetMeRequestDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
@@ -85,6 +86,14 @@ public class UserController {
   public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {
     Token token = userService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+  }
+
+  @GetMapping("/user/me")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<GetMeRequestDTO> getUser(@CookieValue String accessToken) {
+    User user = userService.getUser(accessToken);
+    return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
   }
 
   // ######################################### Util #########################################

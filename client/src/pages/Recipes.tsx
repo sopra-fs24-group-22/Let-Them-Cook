@@ -29,12 +29,11 @@ const RecipesPage = () => {
 
   // Function to save a new session
   const saveNewRecipe = async () => {
-    // TODO: API call
     const body = {
-      dishName: dishName,
-      cookingTime: cookingTime,
-      ingredients: ingredients,
-      singleSteps: singleSteps
+      "title": dishName,
+      "cookingTimeMin": cookingTime,
+      "ingredients": ingredients,
+      "checklist": singleSteps
     };
     try {
       await postRecipeAPI(body);
@@ -113,8 +112,8 @@ const RecipesPage = () => {
         <Input id="dishName" type="text" value={dishName} style={{width: '80%'}}
           onChange={(e) => setDishName(e.target.value)} />
 
-        <Label htmlFor="cookingTime">Cooking time</Label>
-        <Input id="cookingTime" type="number" placeholder="2.5 hours" value={cookingTime}
+        <Label htmlFor="cookingTime">Cooking time (minutes)</Label>
+        <Input id="cookingTime" type="number" placeholder="90" value={cookingTime}
           onChange={(e) => setCookingTime(Number(e.target.value))} />
 
         <Label htmlFor="ingredients">Ingredients</Label>

@@ -28,8 +28,8 @@ const LoginPage = () => {
       "password": password,
     };
     try {
-      const res = await postLoginAPI(body);
-      const { accessToken } = res;
+      const accessToken = await postLoginAPI(body);
+      console.log(accessToken);
       setAccessToken(accessToken);
       navigate("/home");
     } catch (error) {

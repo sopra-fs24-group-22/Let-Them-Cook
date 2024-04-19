@@ -6,7 +6,7 @@ import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { Modal } from 'react-bootstrap';
 import {PrimaryButton, SecondaryButton} from "../ui/Button";
-// import {postLogoutAPI} from "../../api/app.api";
+import {postLogoutAPI} from "../../api/app.api";
 import {deleteAccessToken} from "../../api/axios";
 
 interface MainLayoutProps {
@@ -25,8 +25,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   const navigate = useNavigate();
   const logout = async () => {
     try {
-      // what now?
       deleteAccessToken();
+      await postLogoutAPI({});
       navigate("/login");
     } catch (error) {
       alert(

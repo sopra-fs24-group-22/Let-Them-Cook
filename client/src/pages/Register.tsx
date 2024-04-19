@@ -42,7 +42,7 @@ const RegisterPage = () => {
     };
     try {
       const res = await postRegisterAPI(body);
-      const { accessToken } = res;
+      const accessToken = res;
       setAccessToken(accessToken);
       navigate("/home");
     } catch (error) {

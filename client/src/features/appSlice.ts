@@ -26,7 +26,7 @@ const initialState: AppState = {
 export const loadAccessTokenAndUser = createAsyncThunk(
   "app/loadAccessTokenAndUser",
   async (_, { dispatch }: any) => {
-    const { accessToken } = await refreshAccessTokenAPI();
+    const accessToken = await refreshAccessTokenAPI();
     setAccessToken(accessToken);
     const { user } = await getMyUser();
     return user as User;

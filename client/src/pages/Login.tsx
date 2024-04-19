@@ -29,7 +29,6 @@ const LoginPage = () => {
     };
     try {
       const accessToken = await postLoginAPI(body);
-      console.log(accessToken);
       setAccessToken(accessToken);
       navigate("/home");
     } catch (error) {

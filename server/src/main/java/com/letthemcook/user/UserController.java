@@ -26,7 +26,7 @@ public class UserController {
     this.userService = userService;
   }
 
-  @PostMapping("/api/auth/login")
+  @PostMapping("/auth/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
@@ -40,7 +40,7 @@ public class UserController {
 
   }
 
-  @PostMapping("/api/auth/logout")
+  @PostMapping("/auth/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> logoutUser(@RequestBody LogoutRequestDTO logoutRequestDTO, HttpServletResponse response) {
@@ -65,7 +65,7 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/api/auth/register")
+  @PostMapping("/auth/register")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> createUser(@RequestBody RegisterRequestDTO registerRequestDTO, HttpServletResponse response) {
@@ -79,7 +79,7 @@ public class UserController {
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
-  @GetMapping("/api/auth/refresh")
+  @GetMapping("/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {

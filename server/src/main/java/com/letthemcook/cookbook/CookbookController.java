@@ -14,7 +14,7 @@ public class CookbookController {
     this.cookbookService = cookbookService;
   }
 
-  @PostMapping("/api/cookbook/recipe/{id}")
+  @PostMapping("/cookbook/recipe/{id}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<Void> addRecipeToCookbook(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
@@ -23,7 +23,7 @@ public class CookbookController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @DeleteMapping("/api/cookbook/recipe/{id}")
+  @DeleteMapping("/cookbook/recipe/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> removeRecipeFromCookbook(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {

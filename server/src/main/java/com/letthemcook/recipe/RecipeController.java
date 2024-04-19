@@ -17,7 +17,7 @@ public class RecipeController {
     this.recipeService = recipeService;
   }
 
-  @PostMapping("/api/recipe")
+  @PostMapping("/recipe")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<Void> createRecipe(@RequestBody RecipePostDTO recipePostDTO, @RequestHeader("Authorization") String accessToken) {
@@ -27,7 +27,7 @@ public class RecipeController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @DeleteMapping("/api/recipe/{id}")
+  @DeleteMapping("/recipe/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
@@ -36,7 +36,7 @@ public class RecipeController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @GetMapping("/api/recipe/{id}")
+  @GetMapping("/recipe/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<RecipePostDTO> getRecipe(@PathVariable Long id) {

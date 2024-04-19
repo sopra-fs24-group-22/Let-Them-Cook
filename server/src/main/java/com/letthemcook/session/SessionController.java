@@ -22,7 +22,7 @@ public class SessionController {
     this.sessionService = sessionService;
   }
 
-  @PostMapping("/api/session")
+  @PostMapping("/session")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<Void> createSession(@RequestBody SessionPostDTO sessionPostDTO, @RequestHeader("Authorization") String accessToken) {
@@ -32,7 +32,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @GetMapping("/api/session/{sessionId}")
+  @GetMapping("/session/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<SessionDTO> getSession(@PathVariable Long sessionId) {
@@ -41,7 +41,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));
   }
 
-  @DeleteMapping("/api/session/{sessionId}")
+  @DeleteMapping("/session/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<Void> deleteSession(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) {
@@ -50,7 +50,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  @GetMapping("/api/sessions")
+  @GetMapping("/sessions")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<ArrayList<SessionDTO>> getSessions(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {

@@ -33,9 +33,9 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf().disable()
-            .authorizeRequests(request -> request.antMatchers("/api/auth/**", "/api")
+            .authorizeRequests(request -> request.antMatchers("/auth/**", "/api")
                     .permitAll()
-                    .antMatchers("/api/users", "/api/recipe", "api/cookbook", "/api/session").hasAnyAuthority(UserRole.USER.name())
+                    .antMatchers("/users", "/recipe", "api/cookbook", "/session").hasAnyAuthority(UserRole.USER.name())
                     .anyRequest().authenticated())
             .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())

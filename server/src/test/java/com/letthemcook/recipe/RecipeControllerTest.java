@@ -90,7 +90,7 @@ public class RecipeControllerTest {
     when(recipeService.createRecipe(Mockito.any(), Mockito.any())).thenReturn(recipe);
 
     // Perform test
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe")
+    mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
               .header("Authorization", "Bearer testToken")
               .with(csrf())
               .contentType(MediaType.APPLICATION_JSON)
@@ -110,7 +110,7 @@ public class RecipeControllerTest {
     recipeRequest.setCreatorId(1L);
 
     // Perform test
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe")
+    mockMvc.perform(MockMvcRequestBuilders.post("/recipe")
               .with(csrf())
               .contentType(MediaType.APPLICATION_JSON)
               .content(new ObjectMapper().writeValueAsString(recipeRequest)))
@@ -126,7 +126,7 @@ public class RecipeControllerTest {
     when(recipeService.getRecipe(1L)).thenReturn(recipe);
 
     // Perform test
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1")
               .header("Authorization", "Bearer testToken")
               .with(csrf())
               .contentType(MediaType.APPLICATION_JSON))
@@ -136,7 +136,7 @@ public class RecipeControllerTest {
   @Test
   public void testGetRecipeFailureUnauthorized() throws Exception {
     // Perform test
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1")
               .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }

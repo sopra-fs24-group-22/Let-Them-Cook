@@ -91,7 +91,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.loginUser(any(User.class))).thenReturn(token);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(loginRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -108,7 +108,7 @@ public class UserControllerTest {
 
     when(userService.loginUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(loginRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
@@ -127,7 +127,7 @@ public class UserControllerTest {
     when(userService.refreshAccessToken(anyString())).thenReturn(token);
 
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
+    mockMvc.perform(MockMvcRequestBuilders.get("/auth/refresh")
                     .cookie(new Cookie("refreshToken", "validRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
@@ -140,7 +140,7 @@ public class UserControllerTest {
     when(userService.refreshAccessToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
+    mockMvc.perform(MockMvcRequestBuilders.get("/auth/refresh")
                     .cookie(new Cookie("refreshToken", "invalidRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
@@ -148,7 +148,7 @@ public class UserControllerTest {
   @Test
   public void testReturnErrorWhenRefreshTokenIsMissing() throws Exception {
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh"))
+    mockMvc.perform(MockMvcRequestBuilders.get("/auth/refresh"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
@@ -171,7 +171,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.createUser(any(User.class))).thenReturn(token);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -192,7 +192,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.createUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isConflict());
@@ -211,7 +211,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.createUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isConflict());
@@ -231,7 +231,7 @@ public class UserControllerTest {
     token.setAccessToken("accessToken");
     token.setRefreshToken("refreshToken");
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/logout")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/logout")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(logoutRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isNoContent())

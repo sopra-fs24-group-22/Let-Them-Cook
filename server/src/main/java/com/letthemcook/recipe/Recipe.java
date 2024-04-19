@@ -17,6 +17,7 @@ public class Recipe {
   private String title;
   private ArrayList<String> checklist;
   private ArrayList<String> ingredients;
+  private int cookingTimeMin;
   private int privacyStatus;
 
   public ArrayList<String> getChecklist() {
@@ -65,5 +66,13 @@ public class Recipe {
 
   public void setIngredients(ArrayList<String> ingredients) {
     this.ingredients = ingredients;
+  }
+
+  public int getCookingTimeMin() {
+    return cookingTimeMin;
+  }
+
+  public void setCookingTimeMin(int cookingTimeMin) {
+    this.cookingTimeMin = cookingTimeMin;
   }
 }

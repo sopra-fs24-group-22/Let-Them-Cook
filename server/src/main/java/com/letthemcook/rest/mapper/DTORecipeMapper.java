@@ -16,12 +16,13 @@ public interface DTORecipeMapper {
   @Mapping(source = "title", target = "title")
   @Mapping(source = "checklist", target = "checklist")
   @Mapping(source = "ingredients", target = "ingredients")
-  @Mapping(source = "privacyStatus", target = "privacyStatus")
+  @Mapping(source = "cookingTimeMin", target = "cookingTimeMin")
   Recipe convertRecipePostDTOToRecipe(RecipeDTO recipeDTO);
 
   @Mapping(source = "creatorId", target = "creatorId")
   @Mapping(source = "title", target = "title")
   @Mapping(source = "checklist", target = "checklist")
   @Mapping(source = "ingredients", target = "ingredients")
+  @Mapping(source = "cookingTimeMin", target = "cookingTimeMin")
   RecipeDTO convertRecipeToRecipePostDTO(Recipe recipe);
 }

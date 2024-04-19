@@ -38,6 +38,14 @@ npm run build
 
 Open the project in your IDE and run the com.letthemcook application in debug mode.
 
+### Dev Proxy
+To runthe proxy server, start the frontend and backend server and then run
+```
+npm i && npm start
+```
+in the dev-proxy folder.
+Access the app through localhost:5000
+
 ## PRODUCTION
 
 The MongoDB production database is hosted on MongoDB Atlas:

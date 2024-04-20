@@ -34,7 +34,7 @@ export const ParticipantView = (props: any) => {
   }, [micStream, micOn]);
 
   return (
-    <div>
+    <div style={{marginTop: '20px'}}>
       <audio ref={micRef} autoPlay playsInline muted={isLocal} />
       {webcamOn && (
         <ReactPlayer
@@ -45,8 +45,7 @@ export const ParticipantView = (props: any) => {
           muted={true}
           playing={true}
           url={videoStream}
-          height={"300px"}
-          width={"300px"}
+          width={"100%"}
           onError={(err) => {
             console.log(err, "participant video error");
           }}

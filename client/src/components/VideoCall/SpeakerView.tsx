@@ -18,7 +18,6 @@ const SpeakerView = () => {
   }, [participants]);
   return (
     <div>
-      <p>Current HLS State: {hlsState}</p>
       {/* Controls for the meeting */}
       <Controls />
 

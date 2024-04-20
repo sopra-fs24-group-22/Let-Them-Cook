@@ -1,7 +1,6 @@
-//importing hls.js
+import { useEffect, useRef } from "react";
 import { useMeeting } from "@videosdk.live/react-sdk";
 import Hls from "hls.js";
-import { useEffect, useRef } from "react";
 
 function ViewerView() {
   // States to store downstream url and current HLS state
@@ -51,7 +50,7 @@ function ViewerView() {
       {/* Showing message if HLS is not started or is stopped by HOST */}
       {hlsState != "HLS_PLAYABLE" ? (
         <div>
-          <p>HLS has not started yet or is stopped</p>
+          <p>The host didn't start the session yet.</p>
         </div>
       ) : (
         hlsState == "HLS_PLAYABLE" && (

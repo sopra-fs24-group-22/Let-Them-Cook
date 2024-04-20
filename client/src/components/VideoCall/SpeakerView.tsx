@@ -1,7 +1,7 @@
 import { Constants, useMeeting } from "@videosdk.live/react-sdk";
 import { useMemo } from "react";
 import { ParticipantView } from "./ParticipantView";
-import { Controls } from "./Controls";
+import { SpeakerControls } from "./SpeakerControls";
 
 const SpeakerView = () => {
   //Get the participants and HLS State from useMeeting
@@ -19,7 +19,7 @@ const SpeakerView = () => {
   return (
     <div>
       {/* Controls for the meeting */}
-      <Controls />
+      <SpeakerControls />
 
       {/* Rendring all the HOST participants */}
       {speakers.map((participant) => (

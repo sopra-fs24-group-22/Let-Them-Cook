@@ -201,7 +201,7 @@ const Content = styled.div`
   border-radius: 20px;
   box-shadow: 0px 18px 0px -8px #0000004e;
   transition: transform 0.2s;
-  max-height: 600px;
+  max-height: 1000px;
   overflow-y: auto;
   &:hover {
     transform: translateY(-5px);

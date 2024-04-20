@@ -8,11 +8,16 @@ import {
 } from "@videosdk.live/react-sdk";
 import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
+import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faSpinner} from "@fortawesome/free-solid-svg-icons";
 
 const SessionViewer = () => {
+  const navigate = useNavigate();
+  
   // States for VideoCall
   const [meetingId, setMeetingId] = useState<string|null>(null);
-  const onMeetingLeave = () => { setMeetingId(null); };
+  const onMeetingLeave = () => { setMeetingId(null); navigate("/sessions") };
   const [mode, setMode] = useState<"CONFERENCE"|"VIEWER">("CONFERENCE");
 
   // Layout States
@@ -41,7 +46,8 @@ const SessionViewer = () => {
       }
 
     } catch(e) {
-      alert("Error while fetching meeting details. Please try again.");
+      alert("Error while loading the session. Please try again.");
+      navigate('/sessions');
     }
   };
 
@@ -71,7 +77,10 @@ const SessionViewer = () => {
           </MeetingConsumer>
         </MeetingProvider>
       ) : (
-        <>Loading...</>
+        <>
+          <p><FontAwesomeIcon icon={ faSpinner } spin={true} /></p>
+          <p><Link to="/sessions">Back to sessions overview</Link></p>
+        </>
       )}
     </MainLayout>
   )

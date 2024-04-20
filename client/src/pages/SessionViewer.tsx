@@ -1,24 +1,74 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import MainLayout from "../components/Layout/MainLayout";
 import {
   MeetingProvider,
+  MeetingConsumer,
+  useMeeting,
+  useParticipant,
+  Constants,
 } from "@videosdk.live/react-sdk";
-import MainLayout from "../components/Layout/MainLayout";
-import { MeetingView } from "../components/VideoCall/MeetingView";
+import { authToken } from "../components/VideoCall/API";
+import { Container } from "../components/VideoCall/Container";
+import { getMyUser } from "../api/user.api";
 
 const SessionViewer = () => {
+  const [meetingId, setMeetingId] = useState<string|null>(null);
+  const onMeetingLeave = () => { setMeetingId(null); };
+
+  const [mode, setMode] = useState<"CONFERENCE"|"VIEWER">("CONFERENCE");
+
+  const getMeetingAndToken = async (id: string|null) => {
+    // API-Call
+    try {
+      // res = await ...();
+      const res = { meetingId: "22qc-6glc-r9l6", ownerName: "claudio" }; //! Mocked
+
+      // Set Meeting ID
+      const meetingId = id === null ? res.meetingId : id;
+      setMeetingId(meetingId);
+
+      // Set Mode (CONFERENCE if Session owner, VIEWER if not)
+      const user = await getMyUser();
+
+      //TODO: @Gian mit Redux?
+      if(res.ownerName === user.username) {
+        setMode("CONFERENCE");
+      } else  {
+        setMode("VIEWER");
+      }
+
+    } catch(e) {
+      alert("Error while fetching meeting details. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    getMeetingAndToken(meetingId);
+  }, []);
+
   return (
     <MainLayout>
-      <MeetingProvider
-        config={{
-          meetingId: "g46m-k33x-0yqe",
-          micEnabled: true,
-          webcamEnabled: true,
-          name: "Let them cook",
-          debugMode: true, //! DEV
-        }}
-        token="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiI1NGJmOTg2Ny0wMjZjLTQ1MGEtYmZkYy1hYzNlZTBiNmJmN2QiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTcxMzYxMjg1MSwiZXhwIjoxNzEzNjk5MjUxfQ.22WcFqaarjATdFYsB6BxeDpV747giYUtN_Y4cbv3cu0"
-      >
-        <MeetingView />
-      </MeetingProvider>
+      { meetingId !== null ? (
+        <MeetingProvider
+          config={{
+            meetingId,
+            micEnabled: true,
+            webcamEnabled: true,
+            name: "TestPerson", // TODO: get Username from Redux
+            mode: mode,
+            debugMode: true, // TODO: turn off in production
+          }}
+          token={authToken}
+        >
+          <MeetingConsumer>
+            {() => (
+              <Container meetingId={meetingId} onMeetingLeave={onMeetingLeave} />
+            )}
+          </MeetingConsumer>
+        </MeetingProvider>
+      ) : (
+        <>Loading...</>
+      )}
     </MainLayout>
   )
 };

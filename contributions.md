@@ -45,3 +45,4 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/58
 ### Claudio Fleischmann
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/53
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/47
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/70

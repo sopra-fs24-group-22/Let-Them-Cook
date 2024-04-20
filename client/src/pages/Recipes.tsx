@@ -1,6 +1,6 @@
 import { useState, ChangeEvent } from 'react';
 import { PrimaryButton, SecondaryButton } from "../components/ui/Button";
-import { Label, Input } from "../components/ui/Input";
+import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
 import { postRecipeAPI } from "../api/app.api";
 import MainLayout from '../components/Layout/MainLayout';
@@ -15,12 +15,14 @@ const RecipesPage = () => {
   // Vars for creating a new recipe
   const [show, setShow] = useState(false);
   const [dishName, setDishName] = useState<string>();
+  const [privacyStatus, setPrivacyStatus] = useState<0|1>(0);
   const [cookingTime, setCookingTime] = useState<number>();
   const [ingredients, setIngredients] = useState<string[]>(['']);
   const [singleSteps, setSingleSteps] = useState<string[]>(['']);
   const handleClose = () => {
     setShow(false);
     setDishName(undefined);
+    setPrivacyStatus(0);
     setCookingTime(undefined);
     setIngredients(['']);
     setSingleSteps(['']);
@@ -31,9 +33,10 @@ const RecipesPage = () => {
   const saveNewRecipe = async () => {
     const body = {
       "title": dishName,
+      "privacyStatus": privacyStatus,
       "cookingTimeMin": cookingTime,
       "ingredients": ingredients,
-      "checklist": singleSteps
+      "checklist": singleSteps,
     };
     try {
       await postRecipeAPI(body);
@@ -111,6 +114,12 @@ const RecipesPage = () => {
         <Label htmlFor="dishName">Dish name</Label>
         <Input id="dishName" type="text" value={dishName} style={{width: '80%'}}
           onChange={(e) => setDishName(e.target.value)} />
+
+        <Label htmlFor="privacyStatus">Privacy status</Label>
+        <Select id="privacyStatus" onChange={(e) => { (Number(e.target.value) === 1) ? setPrivacyStatus(1) : setPrivacyStatus(0)}} >
+          <Option value={0} selected={privacyStatus === 0}>Private</Option>
+          <Option value={1} selected={privacyStatus === 1}>Public</Option>
+        </Select>
 
         <Label htmlFor="cookingTime">Cooking time (minutes)</Label>
         <Input id="cookingTime" type="number" placeholder="90" value={cookingTime}

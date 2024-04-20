@@ -34,11 +34,11 @@ const RegisterPage = () => {
   const register = async () => {
     setIsLoading(true);
     const body = {
-      "firstname": firstname,
-      "lastname": lastname,
-      "username": username,
-      "email": email,
-      "password": password,
+      firstname: firstname,
+      lastname: lastname,
+      username: username,
+      email: email,
+      password: password,
     };
     try {
       const res = await postRegisterAPI(body);
@@ -61,7 +61,6 @@ const RegisterPage = () => {
 
   return (
     <Layout>
-      <Title>Register</Title>
       <Input
         placeholder="First name"
         value={firstname}
@@ -98,7 +97,6 @@ const RegisterPage = () => {
         )}
       </Button>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <HLine />
       <BorderlessButton
         onClick={() => navigate("/login")}
         style={{ cursor: "pointer" }}

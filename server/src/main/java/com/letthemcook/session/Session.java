@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 
 @Document("sessions")
 public class Session {
@@ -20,7 +21,7 @@ public class Session {
   private String sessionName;
   private Integer maxParticipantCount;
   private ArrayList<Long> participants;
-  private String date;
+  private Date date;
 
   public Long getId() {
     return id;
@@ -46,7 +47,7 @@ public class Session {
     return participants;
   }
 
-  public String getDate() {
+  public Date getDate() {
     return date;
   }
 
@@ -74,7 +75,7 @@ public class Session {
     this.participants = participants;
   }
 
-  public void setDate(String date) {
+  public void setDate(Date date) {
     this.date = date;
   }
 }

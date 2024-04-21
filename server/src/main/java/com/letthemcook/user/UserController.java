@@ -10,6 +10,7 @@ import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -92,8 +93,8 @@ public class UserController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<GetMeRequestDTO> getUser(@RequestHeader("Authorization") String accessToken) {
-    User user = userService.getUser(accessToken);
-    return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
+      User user = userService.getUser(accessToken);
+      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
   }
 
   // ######################################### Util #########################################

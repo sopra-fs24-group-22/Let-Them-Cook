@@ -285,4 +285,25 @@ public class UserControllerTest {
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
+  // ######################################### User me #########################################
+
+  @Test
+  public void getUserReturnsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+    // Given
+    String invalidAccessToken = "invalidAccessToken";
+
+    when(userService.getUser(invalidAccessToken)).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
+
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me")
+                    .header("Authorization", invalidAccessToken))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void getUserReturnsBadRequestWhenAccessTokenIsMissing() throws Exception {
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
 }

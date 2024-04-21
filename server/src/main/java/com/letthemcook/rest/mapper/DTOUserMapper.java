@@ -49,6 +49,7 @@ public interface DTOUserMapper {
   @Mapping(source = "firstname", target = "firstname")
   @Mapping(source = "lastname", target = "lastname")
   @Mapping(source = "username", target = "username")
+  @Mapping(source = "id", target = "id")
   GetMeRequestDTO convertEntityToGetMeResponseDTO(User user);
 
 }

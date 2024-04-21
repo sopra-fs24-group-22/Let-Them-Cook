@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -55,6 +56,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       // Setup test recipe
       ArrayList<Long> participantList = new ArrayList<>();
       participantList.add(2L);
+      Date date = new Date();
 
       Session session = new Session();
       session.setId(1L);
@@ -63,7 +65,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       session.setHost(1L);
       session.setRecipe(4L);
       session.setParticipants(participantList);
-      session.setDate("2020-01-01");
+      session.setDate(date);
 
       when(sessionRepository.getById(session.getId())).thenReturn(session);
       sessionRepository.save(session);
@@ -80,11 +82,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     @WithMockUser(username = "testUser", password = "testPassword")
     public void testCreateSessionSuccess() throws Exception {
       // Setup test session
+      Date date = new Date();
+
       SessionPostDTO sessionRequest = new SessionPostDTO();
       sessionRequest.setSessionName("Test Session");
       sessionRequest.setMaxParticipantCount(3);
       sessionRequest.setRecipe(2L);
-      sessionRequest.setDate("2020-01-01");
+      sessionRequest.setDate(date);
 
       // Mock session service
       Session session = sessionRepository.getById(1L);
@@ -101,13 +105,14 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
     @Test
     public void testCreateSessionFailureUnauthorized() throws Exception {
-      // Setup test recipe
       // Setup test session
+      Date date = new Date();
+
       SessionPostDTO sessionRequest = new SessionPostDTO();
       sessionRequest.setSessionName("Test Session");
       sessionRequest.setMaxParticipantCount(3);
       sessionRequest.setRecipe(2L);
-      sessionRequest.setDate("2020-01-01");
+      sessionRequest.setDate(date);
 
       // Perform test
       mockMvc.perform(MockMvcRequestBuilders.post("/session")
@@ -148,11 +153,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     @WithMockUser
     public void testGetSessionsSuccess() throws Exception {
       // Setup test sessions
+      Date date = new Date();
+
       Session session = new Session();
       session.setSessionName("Test Session");
       session.setMaxParticipantCount(3);
       session.setRecipe(2L);
-      session.setDate("2025-01-01");
+      session.setDate(date);
       session.setHost(1L);
       session.setParticipants(new ArrayList<>());
 

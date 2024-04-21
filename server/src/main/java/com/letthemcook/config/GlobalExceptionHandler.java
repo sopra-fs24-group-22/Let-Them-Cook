@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
             .build();
   }
 
-  @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, MissingRequestCookieException.class, MalformedJwtException.class})
+  @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class, MissingRequestCookieException.class, MalformedJwtException.class, MissingRequestHeaderException.class})
   public ResponseEntity<Void> handleBadCredentialsException(BadCredentialsException e) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     return ResponseEntity
@@ -55,5 +56,13 @@ public class GlobalExceptionHandler {
     return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body("Token expired.");
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
+    log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
+    return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
   }
 }

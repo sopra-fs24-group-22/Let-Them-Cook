@@ -1,26 +1,32 @@
-import { useState, ChangeEvent } from 'react';
-import { PrimaryButton, SecondaryButton } from "../components/ui/Button";
-import { Label, Input } from "../components/ui/Input";
+import { useState, ChangeEvent, useEffect } from 'react';
+import { ButtonGroup, PrimaryButton, SecondaryButton } from "../components/ui/Button";
+import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
-import { postRecipeAPI } from "../api/app.api";
+import { getAllRecipesAPI, postRecipeAPI } from "../api/app.api";
 import MainLayout from '../components/Layout/MainLayout';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTrashCan,
   faCircleChevronDown,
-  faCircleChevronUp
+  faCircleChevronUp,
+  faPenToSquare
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from '../components/ui/Icon';
+import { Container, Row, Col } from 'react-bootstrap';
+import { Header2 } from '../components/ui/Header';
 
 const RecipesPage = () => {
   // Vars for creating a new recipe
   const [show, setShow] = useState(false);
   const [dishName, setDishName] = useState<string>();
+  const [privacyStatus, setPrivacyStatus] = useState<0|1>(0);
   const [cookingTime, setCookingTime] = useState<number>();
   const [ingredients, setIngredients] = useState<string[]>(['']);
   const [singleSteps, setSingleSteps] = useState<string[]>(['']);
   const handleClose = () => {
     setShow(false);
     setDishName(undefined);
+    setPrivacyStatus(0);
     setCookingTime(undefined);
     setIngredients(['']);
     setSingleSteps(['']);
@@ -31,9 +37,10 @@ const RecipesPage = () => {
   const saveNewRecipe = async () => {
     const body = {
       "title": dishName,
+      "privacyStatus": privacyStatus,
       "cookingTimeMin": cookingTime,
       "ingredients": ingredients,
-      "checklist": singleSteps
+      "checklist": singleSteps,
     };
     try {
       await postRecipeAPI(body);
@@ -92,6 +99,75 @@ const RecipesPage = () => {
     [values[index], values[index-1]] = [values[index-1], values[index]];
     setIngredients(values);
   };
+
+  const [pageView, setPageView] = useState<"ALL"|"MY">('ALL');
+  const [recipes, setRecipes] = useState<any[]>([]);
+
+  const changeView = async (view: "ALL"|"MY") => {
+    setPageView(view);
+    await fetchRecipes(view);
+  }
+
+  const fetchRecipes = async (view: "ALL"|"MY") => {
+    try {
+      // TODO: API call
+      // const res = await getAllRecipesAPI();
+      //! Mocked in Dev
+      const res = (view === "ALL") ? [
+        { id: 1, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+        { id: 2, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+        { id: 3, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+        { id: 4, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+        { id: 5, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+      ] : [
+        { id: 1, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+        { id: 2, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
+      ];
+      setRecipes(res);
+    } catch (error) {
+      alert("Error while loading the recipes. Please try again.");
+    }
+  }
+
+  useEffect(() => {
+    fetchRecipes("ALL");
+  }, []);
+
+  const buttonTopBar = (pageView === "ALL") ? (
+    <>
+      <PrimaryButton style={{
+        width: '50%',
+        borderTopRightRadius: '0',
+        borderBottomRightRadius: '0',
+      }}>
+        All recipes
+      </PrimaryButton>
+      <SecondaryButton onClick={() => changeView("MY")} style={{
+        width: '50%',
+        borderTopLeftRadius: '0',
+        borderBottomLeftRadius: '0',
+      }}>
+        My cookbook
+      </SecondaryButton>
+    </>
+  ) : (
+    <>
+      <SecondaryButton onClick={() => changeView("ALL")} style={{
+        width: '50%',
+        borderTopRightRadius: '0',
+        borderBottomRightRadius: '0',
+      }}>
+        All recipes
+      </SecondaryButton>
+      <PrimaryButton style={{
+        width: '50%',
+        borderTopLeftRadius: '0',
+        borderBottomLeftRadius: '0',
+      }}>
+        My cookbook
+      </PrimaryButton>
+    </>
+  );
   
   return (<>
     <MainLayout
@@ -99,7 +175,34 @@ const RecipesPage = () => {
         <PrimaryButton onClick={handleShow} style={{width: '100%'}}>
           Create new recipe
         </PrimaryButton>}>
-      Recipes
+      <ButtonGroup style={{marginBottom: '20px'}}>
+        { buttonTopBar }
+      </ButtonGroup>
+      <Container>
+        <Row>
+          {recipes.map((recipe, index) => (
+            <Col xs={4} style={{
+              borderLeft: (index % 3 !== 0) ? '1px solid #ccc' : '',
+              margin: '20px 0',
+              padding: '10px 20px',
+            }}>
+              <Container>
+                <Row>
+                  <Col xs={11}>
+                    <Header2>{recipe.title}</Header2>
+                    <p style={{ fontSize: '10pt' }}>{recipe.cookingTimeMin} minutes</p>
+                  </Col>
+                  <Col xs={1}>
+                    {/* // TODO: only show if user is owner */}
+                    <FontAwesomeIcon icon={ faPenToSquare } style={{ cursor: 'pointer', fontSize: '12pt' }} />
+                  </Col>
+                </Row>
+              </Container>
+              
+            </Col>
+          ))}
+        </Row>
+      </Container>
     </MainLayout>
 
     {/* Modal for creating a new recipe */}
@@ -111,6 +214,12 @@ const RecipesPage = () => {
         <Label htmlFor="dishName">Dish name</Label>
         <Input id="dishName" type="text" value={dishName} style={{width: '80%'}}
           onChange={(e) => setDishName(e.target.value)} />
+
+        <Label htmlFor="privacyStatus">Privacy status</Label>
+        <Select id="privacyStatus" onChange={(e) => { (Number(e.target.value) === 1) ? setPrivacyStatus(1) : setPrivacyStatus(0)}} >
+          <Option value={0} selected={privacyStatus === 0}>Private</Option>
+          <Option value={1} selected={privacyStatus === 1}>Public</Option>
+        </Select>
 
         <Label htmlFor="cookingTime">Cooking time (minutes)</Label>
         <Input id="cookingTime" type="number" placeholder="90" value={cookingTime}

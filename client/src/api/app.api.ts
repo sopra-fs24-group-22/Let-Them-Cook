@@ -25,8 +25,8 @@ export const getAllRecipesAPI = async () => {
   return data;
 };
 
-export const postRecipeAPI = async (session: any) => {
-  const { data } = await axiosAuth.post("recipe", { session });
+export const postRecipeAPI = async (body: any) => {
+  const { data } = await axiosAuth.post("recipe", body);
   return data;
 };
 

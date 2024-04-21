@@ -2,6 +2,7 @@ import { Constants, useMeeting } from "@videosdk.live/react-sdk";
 import { useEffect, useRef, useState } from "react";
 import { SpeakerView } from "./SpeakerView";
 import { ViewerView } from "./ViewerView";
+import { PrimaryButton } from "../ui/Button";
 
 const Container = (props: any) => {
   const [joined, setJoined] = useState<"JOINED"|"JOINING"|null>(null);
@@ -37,7 +38,6 @@ const Container = (props: any) => {
 
   return (
     <div className="container">
-      <h3>Meeting Id: {props.meetingId}</h3>
       {joined && joined == "JOINED" ? (
         mMeeting.localParticipant.mode == Constants.modes.CONFERENCE ? (
           <SpeakerView />
@@ -45,9 +45,9 @@ const Container = (props: any) => {
           <ViewerView />
         ) : null
       ) : joined && joined == "JOINING" ? (
-        <p>Joining the meeting...</p>
+        <p>Joining the session...</p>
       ) : (
-        <button onClick={joinMeeting}>Join</button>
+        <PrimaryButton onClick={joinMeeting}>Join the session</PrimaryButton>
       )}
     </div>
   );

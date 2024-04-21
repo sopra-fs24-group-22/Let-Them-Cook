@@ -24,8 +24,8 @@ const LoginPage = () => {
   const login = async () => {
     setIsLoading(true);
     const body = {
-      "username": username,
-      "password": password,
+      username: username,
+      password: password,
     };
     try {
       const accessToken = await postLoginAPI(body);
@@ -38,7 +38,6 @@ const LoginPage = () => {
   };
   return (
     <Layout>
-      <Title>Login</Title>
       <Input
         placeholder="Username"
         type="username"
@@ -51,18 +50,14 @@ const LoginPage = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button
-        onClick={login}
-        disabled={!(username && password) || isLoading}
-      >
+      <Button onClick={login} disabled={!(username && password) || isLoading}>
         {!isLoading ? (
-          "Log in"
+          "Login"
         ) : (
           <FontAwesomeIcon icon={faSpinner} spin={true} />
         )}
       </Button>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <HLine />
       <BorderlessButton
         onClick={() => navigate("/register")}
         style={{ cursor: "pointer" }}

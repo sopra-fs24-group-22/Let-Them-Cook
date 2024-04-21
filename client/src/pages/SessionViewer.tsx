@@ -27,8 +27,9 @@ const SessionViewer = () => {
   const getMeetingAndToken = async (id: string|null) => {
     // API-Call
     try {
+      // TODO: API call to GET /session/credentials/{id}
       // res = await ...();
-      const res = { meetingId: "22qc-6glc-r9l6", ownerName: "claudio", dishName: 'Shawarma' }; //! Mocked
+      const res = { meetingId: "22qc-6glc-r9l6", ownerId: 1, dishName: 'Shawarma' }; //! Mocked
       setDishName(res.dishName);
 
       // Set Meeting ID
@@ -39,7 +40,7 @@ const SessionViewer = () => {
       const user = await getMyUser();
       setUsername(user.username);
 
-      if(res.ownerName === user.username) { // TODO: Owner ID but API GET /session/credentials/{id} does not return owner ID yet
+      if(res.ownerId === user.id) {
         setMode("CONFERENCE");
       } else  {
         setMode("VIEWER");

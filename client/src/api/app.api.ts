@@ -1,5 +1,6 @@
 import { axiosAuth, axiosPublic } from "./axios";
 import { objectToUrlParams } from "../helpers/objectToUrlParams";
+import {format} from "node:url";
 
 // Login
 export const postLoginAPI = async (body: any) => {
@@ -40,11 +41,12 @@ export const postRecipeAPI = async (body: any) => {
 
 // Sessions
 export const postSessionAPI = async (session: any) => {
-  const { data } = await axiosAuth.post("session", { session });
+  const { data } = await axiosAuth.post("session", session);
   return data;
 };
 
-export const getAllSessionsAPI = async () => {
-  const { data } = await axiosAuth.get("sessions");
+
+export const getAllSessionsAPI = async (params?: any) => {
+  const { data } = await axiosAuth.get("sessions", { params });
   return data;
 }

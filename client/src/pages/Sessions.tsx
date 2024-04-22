@@ -1,5 +1,5 @@
-import { useState, ChangeEvent } from 'react';
-import { PrimaryButton, SecondaryButton, ButtonGroup } from "../components/ui/Button";
+import {useState, ChangeEvent, useEffect} from 'react';
+import {PrimaryButton, SecondaryButton, ButtonGroup, JoinButton} from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import {Accordion, Container, Modal, Row} from 'react-bootstrap';
 // import { getAllRecipesAPI, postSessionAPI, getAllSessionsAPI } from "../api/app.api";
@@ -11,27 +11,28 @@ import {
 import { SecondaryIconButton } from '../components/ui/Icon';
 import MainLayout from "../components/Layout/MainLayout";
 import {useNavigate} from "react-router-dom";
+import {getAllSessionsAPI, postSessionAPI} from "../api/app.api";
 
-// //Defined interface for session
-// interface Session {
-//   recipe: string;
-//   Start: string;
-//   Duration: string;
-//   Participants: number;
-//   Chef: string;
-// }
+
 const SessionsPage = () => {
   //Session Overview
-  const sessions =
+  const fetchSessions = async (view: "ALL" | "MY") => {
+    try {
       // TODO: API CALL
       // await getAllSessionsAPI();
-      [
-        {"recipe": "Kottu Roti", "Start": "01.05.2024, 18:20", "Duration": "2h", "Participants": 2, "Chef": "Chef Dave"},
-        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
-        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
-        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"},
-        {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"}
-      ]; //! DEV ONLY
+      const res = (view === "ALL") ?
+          await getAllSessionsAPI() : //await getAllSessionsAPI({ host: });//! DEV ONLY
+          [{"recipe": "Kottu Roti", "Start": "01.05.2024, 18:20", "Duration": "2h", "Participants": 2, "Chef": "Chef Dave"},
+          {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"}]
+      setSessions(res);
+    } catch (error) {
+      alert("Error while loading the sessions. Please try again.");
+    }
+  }
+
+  useEffect(() => {
+    fetchSessions("ALL");
+  }, []);
 
   // Modal for creating a new session
   const [show, setShow] = useState(false);
@@ -48,9 +49,9 @@ const SessionsPage = () => {
 
   // Get all recipes
   const recipes = (
-    // TODO: API call
-    // await getAllRecipesAPI();
-    {1: 'Chicken curry', 2: 'Pasta', 3: 'Pizza'} //! DEV ONLY
+      // TODO: API call
+      // await getAllRecipesAPI();
+      {1: 'Chicken curry', 2: 'Pasta', 3: 'Pizza'} //! DEV ONLY
   );
 
   // Vars for creating a new session
@@ -70,13 +71,14 @@ const SessionsPage = () => {
       participants: participants,
       singleSteps: singleSteps
     };
-    // try {
-    //   await postSessionAPI(body);
-    //   handleClose();
-    // } catch (error) {
-    //   alert("Error while saving the session. Please try again.");
-    // }
-    console.log(body); //! DEV ONLY
+      try {
+        await postSessionAPI(body);
+        handleClose();
+        await fetchSessions("ALL");
+      } catch(error) {
+        alert("Error while saving the session. Please try again.");
+      }
+      //console.log(body); //! DEV ONLY
   };
 
   // Functions for single steps
@@ -92,18 +94,62 @@ const SessionsPage = () => {
     setSingleSteps(values);
   };
   const moveSingleStepDown = (index: number) => {
-    if (index === singleSteps.length-1) return;
+    if (index === singleSteps.length - 1) return;
     const values = [...singleSteps];
-    [values[index], values[index+1]] = [values[index+1], values[index]];
+    [values[index], values[index + 1]] = [values[index + 1], values[index]];
     setSingleSteps(values);
   };
   const moveSingleStepUp = (index: number) => {
     if (index === 0) return;
     const values = [...singleSteps];
-    [values[index], values[index-1]] = [values[index-1], values[index]];
+    [values[index], values[index - 1]] = [values[index - 1], values[index]];
     setSingleSteps(values);
   };
 
+  const [pageView, setPageView] = useState<"ALL" | "MY">('ALL');
+  const [sessions, setSessions] = useState<any[]>([]);
+
+  const changeView = async (view: "ALL" | "MY") => {
+    setPageView(view);
+    await fetchSessions(view);
+  }
+
+
+  const buttonTopBar = (pageView === "ALL") ? (
+      <>
+        <PrimaryButton style={{
+          width: '50%',
+          borderTopRightRadius: '0',
+          borderBottomRightRadius: '0',
+        }}>
+          All sessions
+        </PrimaryButton>
+        <SecondaryButton onClick={() => changeView("MY")} style={{
+          width: '50%',
+          borderTopLeftRadius: '0',
+          borderBottomLeftRadius: '0',
+        }}>
+          My sessions
+        </SecondaryButton>
+      </>
+  ) : (
+      <>
+        <SecondaryButton onClick={() => changeView("ALL")} style={{
+          width: '50%',
+          borderTopRightRadius: '0',
+          borderBottomRightRadius: '0',
+        }}>
+          All sessions
+        </SecondaryButton>
+        <PrimaryButton style={{
+          width: '50%',
+          borderTopLeftRadius: '0',
+          borderBottomLeftRadius: '0',
+        }}>
+          My sessions
+        </PrimaryButton>
+      </>
+  );
   // Return
   return (
     <>
@@ -113,30 +159,20 @@ const SessionsPage = () => {
             Create new session
           </PrimaryButton>}>
 
-        <ButtonGroup>
-          <PrimaryButton onClick={() => navigate("/sessions")} style={{
-            width: '50%',
-            borderTopRightRadius: '0',
-            borderBottomRightRadius: '0',
-          }}>
-            All sessions
-          </PrimaryButton>
-          <SecondaryButton onClick={() => navigate("/sessions")} style={{
-            width: '50%',
-            borderTopLeftRadius: '0',
-            borderBottomLeftRadius: '0',
-          }}>
-            My sessions
-          </SecondaryButton>
+        <ButtonGroup style={{marginBottom: '20px'}}>
+          { buttonTopBar }
         </ButtonGroup>
         <Container fluid>
         <Row>
           <Accordion>
             {sessions.map((session, index) => (
                 <Accordion.Item key={index} eventKey={String(index)} style={{ width: '100%', background: '#f0f0f0', marginTop: '5px'}}>
-                  <Accordion.Header style={{ background: '#f0f0f0' }}>
-                    <div style={{ fontSize: '20px' }}>{session.recipe}</div>
-                  </Accordion.Header>
+                  <Accordion.Header style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0' }}>
+                  <div style={{ fontSize: '20px' }}>{session.recipe}</div>
+                  <div style={{ marginLeft: "90%" }}>
+                    <JoinButton> Join </JoinButton>
+                  </div>
+                </Accordion.Header>
                   <Accordion.Body style={{ background: '#f0f0f0' }}>
                     <div>{session.Start}</div>
                     <div>{session.Duration}</div>

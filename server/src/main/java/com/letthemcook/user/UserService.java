@@ -115,7 +115,7 @@ public class UserService {
     }
   }
 
-// ######################################### Util #########################################
+  // ######################################### Util #########################################
 
   private void checkIfUserExists(User userToBeCreated) {
     User userByEmail = userRepository.getByEmail(userToBeCreated.getEmail());

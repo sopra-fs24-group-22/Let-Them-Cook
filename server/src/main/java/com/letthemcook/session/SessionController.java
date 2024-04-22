@@ -1,6 +1,7 @@
 package com.letthemcook.session;
 
 import com.letthemcook.rest.mapper.DTOSessionMapper;
+import com.letthemcook.session.dto.SessionCredentialsDTO;
 import com.letthemcook.session.dto.SessionDTO;
 import com.letthemcook.session.dto.SessionPostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,7 @@ public class SessionController {
   @PostMapping("/session")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public ResponseEntity<Void> createSession(@RequestBody SessionPostDTO sessionPostDTO, @RequestHeader("Authorization") String accessToken) {
+  public ResponseEntity<Void> createSession(@RequestBody SessionPostDTO sessionPostDTO, @RequestHeader("Authorization") String accessToken) throws IOException {
     Session session = DTOSessionMapper.INSTANCE.convertSingleSessionDTOToEntity(sessionPostDTO);
     sessionService.createSession(session, accessToken);
 
@@ -48,6 +50,15 @@ public class SessionController {
     sessionService.deleteSession(sessionId, accessToken);
 
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  @GetMapping("/session/credentials/{sessionId}")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<SessionCredentialsDTO> getSessionCredentials(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) {
+    Session session = sessionService.getSessionCredentials(sessionId, accessToken);
+
+    return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSessionCredentialsDTO(session));
   }
 
   @GetMapping("/sessions")

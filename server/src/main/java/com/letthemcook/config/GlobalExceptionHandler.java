@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,7 +30,7 @@ public class GlobalExceptionHandler {
             .body(e.getMessage());
   }
 
-  @ExceptionHandler(Exception.class)
+  @ExceptionHandler({Exception.class, IOException.class})
   public ResponseEntity<Void> handleException(Exception e) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     return ResponseEntity

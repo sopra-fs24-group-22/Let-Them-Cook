@@ -126,7 +126,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
     @Test
     @WithMockUser
-    public void testGetRecipeSuccess() throws Exception {
+    public void testGetSessionSuccess() throws Exception {
       // Mock session service
       Session session = sessionRepository.getById(1L);
       when(sessionService.getSession(1L)).thenReturn(session);
@@ -140,7 +140,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     }
 
     @Test
-    public void testGetRecipeFailureUnauthorized() throws Exception {
+    public void testGetSessionFailureUnauthorized() throws Exception {
       // Perform test
       mockMvc.perform(MockMvcRequestBuilders.get("/session/1")
                       .contentType(MediaType.APPLICATION_JSON))

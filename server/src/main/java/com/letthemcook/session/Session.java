@@ -22,6 +22,7 @@ public class Session {
   private Integer maxParticipantCount;
   private ArrayList<Long> participants;
   private Date date;
+  private String roomId;
 
   public Long getId() {
     return id;
@@ -51,6 +52,10 @@ public class Session {
     return date;
   }
 
+  public String getRoomId() {
+    return roomId;
+  }
+
   public void setId(Long id) {
     this.id = id;
   }
@@ -77,5 +82,9 @@ public class Session {
 
   public void setDate(Date date) {
     this.date = date;
+  }
+
+  public void setRoomId(String roomId) {
+    this.roomId = roomId;
   }
 }

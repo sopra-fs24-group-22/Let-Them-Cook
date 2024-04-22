@@ -3,6 +3,7 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
+import com.letthemcook.videosdk.VideoSDKService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,8 @@ public class SessionServiceTest {
           //Instance the MongoTemplate, use any test framework
           new MongoTemplate(new SimpleMongoClientDbFactory("mongodb://localhost/test"))
   );
+  @Mock
+  private VideoSDKService videoSDKService;
 
   @InjectMocks
   private SessionService sessionService;
@@ -38,7 +41,7 @@ public class SessionServiceTest {
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, userRepository, mongoTemplate, mongoTemplate);
+    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, userRepository, mongoTemplate, mongoTemplate, videoSDKService);
   }
 
   @AfterEach

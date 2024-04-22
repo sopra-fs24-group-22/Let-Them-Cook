@@ -256,6 +256,7 @@ Authorization: Bearer [access token]
 ```json
 {
   "creatorId": "[User id]",
+  "creatorName": "[username]",
   "title": "[Recipe title]",
   "checklist": ["List of checklist items"],
   "ingredients": ["List of ingredients"],
@@ -329,6 +330,55 @@ Authorization: Bearer [access token]
 
 ```
 403 FORBIDDEN
+```
+
+## Get recipes
+
+Used to query for recipes.
+
+**URL** : `/api/recipes?{query params}`
+
+**Query params**
+- `title` - Title of the recipe
+- `creatorName` - Username of the user who created the recipe
+- `cookingTimeMin` - The maximum cooking time in minutes
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+{
+  [
+    {
+      "id": 1,
+      "creatorId": 70,
+      "title": "Butter Chicken",
+      "checklist": [
+        "Chop Onions",
+        "cook chicken"
+      ],
+      "ingredients": [
+        "200g chicken",
+        "1 Onion",
+        "Clove of garlic"
+      ],
+      "cookingTimeMin": 60,
+      "privacyStatus": 1
+    }
+  ]
+}
 ```
 
 # Cookbook Endpoints
@@ -480,7 +530,8 @@ Authorization: Bearer [access token]
   "sessions": [
     {
       "id": "[Session id]",
-      "host": "[Host user id]",
+      "hostId": "[Host user id]",
+      "creatorName": "[Host username]",
       "recipe": "[Recipe id]",
       "sessionName": "[Session name]",
       "maxParticipantCount": "[Max participant count]",

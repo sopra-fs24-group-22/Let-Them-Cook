@@ -2,7 +2,7 @@ package com.letthemcook.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
-import com.letthemcook.recipe.dto.RecipeDTO;
+import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,7 +85,7 @@ public class RecipeControllerTest {
     ArrayList<String> ingredients = new ArrayList<>();
     ingredients.add("Test Ingredient");
 
-    RecipeDTO recipeRequest = new RecipeDTO();
+    RecipePostDTO recipeRequest = new RecipePostDTO();
     recipeRequest.setTitle("Test Recipe");
     recipeRequest.setChecklist(checklist);
     recipeRequest.setIngredients(ingredients);
@@ -112,7 +112,7 @@ public class RecipeControllerTest {
     ArrayList<String> ingredients = new ArrayList<>();
     ingredients.add("Test Ingredient");
 
-    RecipeDTO recipeRequest = new RecipeDTO();
+    RecipePostDTO recipeRequest = new RecipePostDTO();
     recipeRequest.setTitle("Test Recipe 2");
     recipeRequest.setChecklist(checklist);
     recipeRequest.setIngredients(ingredients);

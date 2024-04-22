@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -37,6 +38,8 @@ public class RecipeServiceTest {
   private CookbookService cookbookservice;
   @Mock
   private CookbookRepository cookbookRepository;
+  @Mock
+  private MongoTemplate mongoTemplate;
   @InjectMocks
   private RecipeService recipeService;
 
@@ -44,7 +47,7 @@ public class RecipeServiceTest {
 
   @BeforeEach
   public void setup() {
-    recipeService = new RecipeService(recipeRepository, sequenceGeneratorService, jwtService, userRepository, cookbookservice, cookbookRepository);
+    recipeService = new RecipeService(recipeRepository, sequenceGeneratorService, jwtService, userRepository, cookbookservice, cookbookRepository, mongoTemplate);
   }
 
   @AfterEach

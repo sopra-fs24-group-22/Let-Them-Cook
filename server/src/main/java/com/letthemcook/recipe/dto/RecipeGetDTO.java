@@ -1,17 +1,8 @@
-package com.letthemcook.recipe;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+package com.letthemcook.recipe.dto;
 
 import java.util.ArrayList;
 
-@Document
-public class Recipe {
-  @Transient
-  public static final String SEQUENCE_NAME = "recipe_sequence";
-
-  @Id
+public class RecipeGetDTO {
   private Long id;
   private Long creatorId;
   private String creatorName;
@@ -21,20 +12,12 @@ public class Recipe {
   private int cookingTimeMin;
   private int privacyStatus;
 
-  public ArrayList<String> getChecklist() {
-    return checklist;
+  public Long getCreatorId() {
+    return creatorId;
   }
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public void setChecklist(ArrayList<String> checklist) {
-    this.checklist = checklist;
+  public void setCreatorId(Long creatorId) {
+    this.creatorId = creatorId;
   }
 
   public String getTitle() {
@@ -45,12 +28,12 @@ public class Recipe {
     this.title = title;
   }
 
-  public Long getCreatorId() {
-    return creatorId;
+  public ArrayList<String> getChecklist() {
+    return checklist;
   }
 
-  public void setCreatorId(Long creatorId) {
-    this.creatorId = creatorId;
+  public void setChecklist(ArrayList<String> checklist) {
+    this.checklist = checklist;
   }
 
   public int getPrivacyStatus() {
@@ -83,5 +66,13 @@ public class Recipe {
 
   public void setCreatorName(String creatorName) {
     this.creatorName = creatorName;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
   }
 }

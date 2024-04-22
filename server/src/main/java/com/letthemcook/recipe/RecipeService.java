@@ -7,11 +7,16 @@ import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -23,16 +28,18 @@ public class RecipeService {
   private final JwtService jwtService;
   private final CookbookService cookbookService;
   private final CookbookRepository cookbookRepository;
+  private final MongoTemplate mongoTemplate;
   //Logger logger = LoggerFactory.getLogger(RecipeService.class);
 
   @Autowired
-  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository, CookbookService cookbookService, CookbookRepository cookbookRepository) {
+  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository, CookbookService cookbookService, CookbookRepository cookbookRepository, MongoTemplate mongoTemplate) {
     this.recipeRepository = recipeRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
     this.cookbookRepository = cookbookRepository;
+    this.mongoTemplate = mongoTemplate;
   }
 
   public Recipe createRecipe(Recipe recipe, String accessToken) {
@@ -42,6 +49,7 @@ public class RecipeService {
     // Set recipe data
     recipe.setId(sequenceGeneratorService.getSequenceNumber(Recipe.SEQUENCE_NAME));
     recipe.setCreatorId(userRepository.getByUsername(username).getId());
+    recipe.setCreatorName(username);
 
     recipeRepository.save(recipe);
     cookbookService.addRecipeToCookbook(recipe.getCreatorId(), recipe.getId());
@@ -79,5 +87,23 @@ public class RecipeService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
     return recipe;
+  }
+
+  public List<Recipe> getRecipes(Integer limit, Integer offset, Map<String, String> allParams) {
+    Query query = new Query();
+    query.limit(limit);
+    query.skip(offset);
+
+    if (allParams.containsKey(QueryParams.TITLE)) {
+      query.addCriteria(Criteria.where(QueryParams.TITLE).regex(".*" + allParams.get(QueryParams.TITLE) + ".*", "i"));
+    }
+    if (allParams.containsKey(QueryParams.COOKING_TIME_MIN)) {
+      query.addCriteria(Criteria.where(QueryParams.COOKING_TIME_MIN).lte(Integer.parseInt(allParams.get(QueryParams.COOKING_TIME_MIN))));
+    }
+    if (allParams.containsKey(QueryParams.CREATOR_NAME)) {
+      query.addCriteria(Criteria.where(QueryParams.CREATOR_NAME).regex(".*" + allParams.get(QueryParams.CREATOR_NAME) + ".*", "i"));
+    }
+
+    return mongoTemplate.find(query, Recipe.class);
   }
 }

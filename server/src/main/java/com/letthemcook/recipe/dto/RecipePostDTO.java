@@ -2,7 +2,7 @@ package com.letthemcook.recipe.dto;
 
 import java.util.ArrayList;
 
-public class RecipeDTO {
+public class RecipePostDTO {
   private Long creatorId;
   private String title;
   private ArrayList<String> checklist;

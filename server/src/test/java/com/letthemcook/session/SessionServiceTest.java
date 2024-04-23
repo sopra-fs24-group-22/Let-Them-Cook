@@ -6,18 +6,11 @@ import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.videosdk.VideoSDKService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDbFactory;
-
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 public class SessionServiceTest {
   @Mock
@@ -41,7 +34,7 @@ public class SessionServiceTest {
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, userRepository, mongoTemplate, mongoTemplate, videoSDKService);
+    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, mongoTemplate, videoSDKService);
   }
 
   @AfterEach
@@ -59,9 +52,9 @@ public class SessionServiceTest {
       Session session = new Session();
       session.setSessionName("Test Session");
       session.setMaxParticipantCount(3);
-      session.setRecipe(2L);
+      session.setRecipeId(2L);
       session.setDate("2025-01-01");
-      session.setHost(1L);
+      session.setHostId(1L);
       session.setParticipants(new ArrayList<>());
       session.setId((long) i);
       sessions.add(session);
@@ -91,9 +84,9 @@ public class SessionServiceTest {
       Session session = new Session();
       session.setSessionName("Test Session");
       session.setMaxParticipantCount(3);
-      session.setRecipe(2L);
+      session.setRecipeId(2L);
       session.setDate("2025-01-01");
-      session.setHost(1L);
+      session.setHostId(1L);
       session.setParticipants(new ArrayList<>());
       session.setId((long) i);
       sessions.add(session);

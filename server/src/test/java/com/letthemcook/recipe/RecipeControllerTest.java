@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -63,7 +64,9 @@ public class RecipeControllerTest {
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
     recipe.setIngredients(ingredients);
+    recipe.setCookingTimeMin(10);
     recipe.setCreatorId(1L);
+    recipe.setCreatorName("Test User");
 
     when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
     recipeRepository.save(recipe);
@@ -127,6 +130,7 @@ public class RecipeControllerTest {
   }
 
   // ######################################### Get Recipe Tests #########################################
+
   @Test
   @WithMockUser
   public void testGetRecipeSuccess() throws Exception {
@@ -148,5 +152,31 @@ public class RecipeControllerTest {
     mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1")
               .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  // ######################################### Get Recipes Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetRecipesSuccess() throws Exception {
+    // Mock recipe service
+    List<Recipe> recipes = new ArrayList<>();
+    Recipe recipe = recipeRepository.getById(1L);
+    recipes.add(recipe);
+    when(recipeService.getRecipes(Mockito.anyInt(), Mockito.anyInt(), Mockito.any())).thenReturn(recipes);
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/recipes")
+              .header("Authorization", "Bearer testToken")
+              .with(csrf())
+              .contentType(MediaType.APPLICATION_JSON))
+              .andExpect(MockMvcResultMatchers.status().isOk())
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1L))
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].creatorId").value(1L))
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].creatorName").value("Test User"))
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Test Recipe"))
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].checklist[0]").value("Test Step"))
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].ingredients[0]").value("Test Ingredient"))
+              .andExpect(MockMvcResultMatchers.jsonPath("$[0].cookingTimeMin").value(10));
   }
 }

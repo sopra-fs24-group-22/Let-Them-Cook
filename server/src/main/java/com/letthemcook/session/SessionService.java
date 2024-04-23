@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -28,12 +29,12 @@ public class SessionService {
   private final VideoSDKService videoSDKService;
 
   @Autowired
-  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, UserRepository user, MongoTemplate mongoTemplate, MongoTemplate mongoTemplate1, VideoSDKService videoSDKService) {
+  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, MongoTemplate mongoTemplate, VideoSDKService videoSDKService) {
     this.sessionRepository = sessionRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
     this.userRepository = userRepository;
-    this.mongoTemplate = mongoTemplate1;
+    this.mongoTemplate = mongoTemplate;
     this.videoSDKService = videoSDKService;
   }
 
@@ -42,7 +43,7 @@ public class SessionService {
     String username = jwtService.extractUsername(accessToken);
 
     session.setId(sequenceGeneratorService.getSequenceNumber(Session.SEQUENCE_NAME));
-    session.setHost(userRepository.getByUsername(username).getId());
+    session.setHostId(userRepository.getByUsername(username).getId());
 
     String roomID = videoSDKService.fetchRoomId();
     session.setRoomId(roomID);
@@ -69,7 +70,7 @@ public class SessionService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
     }
 
-    if (Objects.equals(session.getHost(), userRepository.getByUsername(jwtService.extractUsername(cutAccessToken)).getId())) {
+    if (Objects.equals(session.getHostId(), userRepository.getByUsername(jwtService.extractUsername(cutAccessToken)).getId())) {
       sessionRepository.deleteById(sessionId);
       return;
     }
@@ -82,16 +83,30 @@ public class SessionService {
     query.limit(limit);
     query.skip(offset);
 
-    // Optional query params
-    //TODO: Implement other query params
-    if (allParams.containsKey(QueryParams.HOST.getValue())) {
-      query.addCriteria(Criteria.where(QueryParams.HOST.getValue()).is(Long.parseLong(allParams.get(QueryParams.HOST.getValue()))));
-    }
-    if (allParams.containsKey(QueryParams.RECIPE.getValue())) {
-      query.addCriteria(Criteria.where(QueryParams.RECIPE.getValue()).is(Long.parseLong(allParams.get(QueryParams.RECIPE.getValue()))));
+    // Iterate over all query params and add them to the query depending on the type of param (ID, NAME, DATE, etc.)
+    // TODO: Fix host and recipe names, dates, min / max.
+    for (Map.Entry<String, String> param : allParams.entrySet()) {
+      if (Stream.of(QueryParams.values()).anyMatch(e -> e.getValue().equals(param.getKey()))) {
+        if (param.getKey().toUpperCase().contains("NAME")) {
+          query.addCriteria(Criteria.where(param.getKey()).regex(".*" + param.getValue() + ".*", "i"));
+        }
+
+        else if (param.getKey().toUpperCase().contains("ID")) {
+          query.addCriteria(Criteria.where(param.getKey()).is(Long.parseLong(param.getValue())));
+        }
+
+        else if (param.getKey().toUpperCase().contains("DATE") || param.getKey().toUpperCase().contains("MAX")) {
+          query.addCriteria(Criteria.where(param.getKey()).lte(param.getValue()));
+        }
+
+        else if (param.getKey().toUpperCase().contains("MIN")) {
+          query.addCriteria(Criteria.where(param.getKey()).gte(Integer.parseInt(param.getValue())));
+        }
+      }
     }
 
-    return mongoTemplate.find(query, Session.class);
+      return mongoTemplate.find(query, Session.class);
+
   }
 
   public Session getSessionCredentials(Long sessionId, String accessToken) {

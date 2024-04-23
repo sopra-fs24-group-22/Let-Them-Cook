@@ -16,10 +16,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -260,5 +262,49 @@ public class RecipeServiceTest {
     } catch (ResponseStatusException e) {
       assertEquals(e.getStatus(), HttpStatus.FORBIDDEN);
     }
+  }
+
+  // ######################################### Get Recipes Tests #########################################
+
+  @Test
+  public void testGetRecipesNoParamsSuccess() {
+    // Setup test recipes
+    ArrayList<Recipe> recipes = new ArrayList<>();
+    ArrayList<String> checklist = new ArrayList<>();
+    checklist.add("Test Step");
+    ArrayList<String> ingredients = new ArrayList<>();
+    ingredients.add("Test Ingredient");
+
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setCreatorId(1L);
+    recipe.setCreatorName("testUser");
+    recipe.setTitle("Test Recipe");
+    recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
+    recipe.setCookingTimeMin(10);
+    recipe.setPrivacyStatus(1);
+    recipes.add(recipe);
+
+    recipe = new Recipe();
+    recipe.setId(2L);
+    recipe.setCreatorId(2L);
+    recipe.setCreatorName("User2");
+    recipe.setTitle("Practice Recipe");
+    recipe.setChecklist(checklist);
+    recipe.setIngredients(ingredients);
+    recipe.setCookingTimeMin(20);
+    recipe.setPrivacyStatus(1);
+    recipes.add(recipe);
+
+    // Setup params
+    HashMap<String, String> params = new HashMap<>();
+    params.put("limit", "10");
+    params.put("offset", "0");
+
+    when(mongoTemplate.find(Mockito.any(Query.class), Mockito.eq(Recipe.class))).thenReturn(recipes);
+
+    // Perform test
+    assertEquals(recipes, recipeService.getRecipes(10, 0, params));
   }
 }

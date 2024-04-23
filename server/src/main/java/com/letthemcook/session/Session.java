@@ -16,8 +16,8 @@ public class Session {
 
   @Id
   private Long id;
-  private Long host;
-  private Long recipe;
+  private Long hostId;
+  private Long recipeId;
   private String sessionName;
   private Integer maxParticipantCount;
   private ArrayList<Long> participants;
@@ -28,12 +28,12 @@ public class Session {
     return id;
   }
 
-  public Long getHost() {
-    return host;
+  public Long getHostId() {
+    return hostId;
   }
 
-  public Long getRecipe() {
-    return recipe;
+  public Long getRecipeId() {
+    return recipeId;
   }
 
   public String getSessionName() {
@@ -60,12 +60,12 @@ public class Session {
     this.id = id;
   }
 
-  public void setHost(Long host) {
-    this.host = host;
+  public void setHostId(Long hostId) {
+    this.hostId = hostId;
   }
 
-  public void setRecipe(Long recipe) {
-    this.recipe = recipe;
+  public void setRecipeId(Long recipeId) {
+    this.recipeId = recipeId;
   }
 
   public void setSessionName(String sessionName) {

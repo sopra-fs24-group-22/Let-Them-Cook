@@ -55,6 +55,7 @@ const SessionViewer = () => {
 
   useEffect(() => {
     getMeetingAndToken(meetingId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

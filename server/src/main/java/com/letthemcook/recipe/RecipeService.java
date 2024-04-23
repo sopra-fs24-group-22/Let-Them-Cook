@@ -94,14 +94,14 @@ public class RecipeService {
     query.limit(limit);
     query.skip(offset);
 
-    if (allParams.containsKey(QueryParams.TITLE)) {
-      query.addCriteria(Criteria.where(QueryParams.TITLE).regex(".*" + allParams.get(QueryParams.TITLE) + ".*", "i"));
+    if (allParams.containsKey(QueryParams.TITLE.getValue())) {
+      query.addCriteria(Criteria.where(QueryParams.TITLE.getValue()).regex(".*" + allParams.get(QueryParams.TITLE.getValue()) + ".*", "i"));
     }
-    if (allParams.containsKey(QueryParams.COOKING_TIME_MIN)) {
-      query.addCriteria(Criteria.where(QueryParams.COOKING_TIME_MIN).lte(Integer.parseInt(allParams.get(QueryParams.COOKING_TIME_MIN))));
+    if (allParams.containsKey(QueryParams.COOKING_TIME_MIN.getValue())) {
+      query.addCriteria(Criteria.where(QueryParams.COOKING_TIME_MIN.getValue()).lte(Integer.parseInt(allParams.get(QueryParams.COOKING_TIME_MIN.getValue()))));
     }
-    if (allParams.containsKey(QueryParams.CREATOR_NAME)) {
-      query.addCriteria(Criteria.where(QueryParams.CREATOR_NAME).regex(".*" + allParams.get(QueryParams.CREATOR_NAME) + ".*", "i"));
+    if (allParams.containsKey(QueryParams.CREATOR_NAME.getValue())) {
+      query.addCriteria(Criteria.where(QueryParams.CREATOR_NAME.getValue()).regex(".*" + allParams.get(QueryParams.CREATOR_NAME.getValue()) + ".*", "i"));
     }
 
     return mongoTemplate.find(query, Recipe.class);

@@ -1,6 +1,5 @@
 import { axiosAuth, axiosPublic } from "./axios";
 import { objectToUrlParams } from "../helpers/objectToUrlParams";
-import {format} from "node:url";
 
 // Login
 export const postLoginAPI = async (body: any) => {
@@ -32,6 +31,12 @@ export const getAllRecipesAPI = async (limit = null, offset = null, queryParams 
 };
 export const deleteRecipeAPI = async (id: string) => {
   await axiosAuth.delete("recipe/" + id);
+};
+
+// Cookbooks
+export const getCookbookAPI = async (userId: number) => {
+   const { data } = await axiosAuth.get("cookbook/" + userId);
+  return data;
 };
 
 export const postRecipeAPI = async (body: any) => {

@@ -2,7 +2,7 @@ import { useState, ChangeEvent, useEffect } from 'react';
 import { ButtonGroup, PrimaryButton, SecondaryButton } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
-import { deleteRecipeAPI, getAllRecipesAPI, postRecipeAPI } from "../api/app.api";
+import { deleteRecipeAPI, getAllRecipesAPI, getCookbookAPI, postRecipeAPI } from "../api/app.api";
 import MainLayout from '../components/Layout/MainLayout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -134,9 +134,7 @@ const RecipesPage = () => {
       if(view === "ALL") {
         res = await getAllRecipesAPI();
       } else {
-        // TODO: should be solved using GET /cookbook
-        // now it ownly shows one's own recipes
-        res = await getAllRecipesAPI(null, null, {"creatorName": userName});;
+        res = await getCookbookAPI(userId);
       }
       setRecipes(res);
     } catch (error) {
@@ -145,12 +143,10 @@ const RecipesPage = () => {
   }
 
   const [userId, setUserId] = useState<number>(0);
-  const [userName, setUserName] = useState<string>("");
 
   const fetchUser = async () => {
     const user = await getMyUser();
     setUserId(user.id);
-    setUserName(user.username);
   }
 
   useEffect(() => {

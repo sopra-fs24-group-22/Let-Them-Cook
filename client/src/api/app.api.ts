@@ -33,6 +33,12 @@ export const deleteRecipeAPI = async (id: string) => {
   await axiosAuth.delete("recipe/" + id);
 };
 
+// Cookbooks
+export const getCookbookAPI = async (userId: number) => {
+   const { data } = await axiosAuth.get("cookbook/" + userId);
+  return data;
+};
+
 export const postRecipeAPI = async (body: any) => {
   const { data } = await axiosAuth.post("recipe", body);
   return data;

@@ -502,3 +502,182 @@ Authorization: Bearer [access token]
 ```
 403 FORBIDDEN
 ```
+
+## Post Session
+
+Used to create a new session
+
+**URL** : `/api/session`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `201 CREATED`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+## Get Session
+
+Used to get a specific session.
+
+**URL** : `/api/session/{sessionId}`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "sessions": [
+    {
+      "sessionName": "[Session name]",
+      "host": "[Host user id]",
+      "recipe": "[Recipe id]",
+      "maxParticipantCount": "[Max participant count]",
+      "participants": ["List of participant user ids"],
+      "date": "[Date of session]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+## Delete a session
+
+Used to delete a scheduled session.
+
+**URL** : `/api/session/{sessionId}`
+
+**Method** : `DELETE`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `204 NO CONTENT`
+
+**Content**
+
+```
+204 NO CONTENT
+```
+
+### Error Response
+**Condition** : Deleting a recipe from cookbook that is not in the cookbook.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "Session not found
+```
+
+**Condition** : Invalid access token.
+
+**Code** : `401 UNAUTHORIZED`
+
+**Content** :
+
+```
+401 UNAUTHORIZED "You are not authorized to delete this session"
+```
+
+## Get Session Credentials
+
+Used to get credentials for a specific session.
+
+**URL** : `/api/session/credentials/{sessionId}`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "sessions": [
+    {
+      "host": "[Host user id]",
+      "roomId": "[(String) Room id]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User is not participant in session.
+
+**Code** : `401 UNAUTHORIZED`
+
+**Content** :
+
+```
+401 UNAUTHORIZED "You are not authorized to get credentials for this session"
+```

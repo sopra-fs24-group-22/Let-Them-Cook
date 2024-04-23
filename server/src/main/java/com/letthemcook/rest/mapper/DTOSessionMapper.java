@@ -26,6 +26,7 @@ public interface DTOSessionMapper {
   @Mapping(source = "host", target = "host")
   @Mapping(source = "recipe", target = "recipe")
   @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
+  @Mapping(source = "participants", target = "participants")
   @Mapping(source = "date", target = "date")
   SessionDTO convertEntityToSingleSessionDTO(Session session);
 

@@ -8,11 +8,13 @@ import {
 } from "@videosdk.live/react-sdk";
 import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faSpinner} from "@fortawesome/free-solid-svg-icons";
+import { getSessionCredentialsAPI } from "../api/app.api";
 
 const SessionViewer = () => {
+  const { sessionID } = useParams();
   const navigate = useNavigate();
   
   // States for VideoCall
@@ -27,20 +29,19 @@ const SessionViewer = () => {
   const getMeetingAndToken = async (id: string|null) => {
     // API-Call
     try {
-      // TODO: API call to GET /session/credentials/{id}
-      // res = await ...();
-      const res = { meetingId: "22qc-6glc-r9l6", ownerId: 1, dishName: 'Shawarma' }; //! Mocked
+      const res = await getSessionCredentialsAPI(Number(sessionID));
+      console.log(res);
       setDishName(res.dishName);
 
       // Set Meeting ID
-      const meetingId = id === null ? res.meetingId : id;
+      const meetingId = id === null ? res.roomId : id;
       setMeetingId(meetingId);
 
       // Set Mode (CONFERENCE if Session owner, VIEWER if not)
       const user = await getMyUser();
       setUsername(user.username);
 
-      if(res.ownerId === user.id) {
+      if(res.hostId === user.id) {
         setMode("CONFERENCE");
       } else  {
         setMode("VIEWER");
@@ -65,9 +66,9 @@ const SessionViewer = () => {
             meetingId,
             micEnabled: true,
             webcamEnabled: true,
-            name: username, // TODO: get Username from Redux
+            name: username,
             mode: mode,
-            debugMode: true, // TODO: turn off in production
+            debugMode: true, // TODO Sprint 2: turn off in production
           }}
           token={authToken}
         >

@@ -49,9 +49,11 @@ export const postSessionAPI = async (session: any) => {
   const { data } = await axiosAuth.post("session", session);
   return data;
 };
-
-
 export const getAllSessionsAPI = async (params?: any) => {
   const { data } = await axiosAuth.get("sessions", { params });
+  return data;
+}
+export const getSessionCredentialsAPI = async (sessionId: number) => {
+  const { data } = await axiosAuth.get("session/credentials/" + sessionId);
   return data;
 }

@@ -2,7 +2,6 @@ import {useState, ChangeEvent, useEffect} from 'react';
 import {PrimaryButton, SecondaryButton, ButtonGroup, JoinButton} from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import {Accordion, Container, Modal, Row} from 'react-bootstrap';
-// import { getAllRecipesAPI, postSessionAPI, getAllSessionsAPI } from "../api/app.api";
 import {
   faTrashCan,
   faCircleChevronDown,
@@ -10,11 +9,23 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from '../components/ui/Icon';
 import MainLayout from "../components/Layout/MainLayout";
-import {useNavigate} from "react-router-dom";
-import {getAllSessionsAPI, postSessionAPI} from "../api/app.api";
+import {getAllRecipesAPI, getAllSessionsAPI, postSessionAPI} from "../api/app.api";
+import { getMyUser } from '../api/user.api';
+import { useNavigate } from 'react-router-dom';
 
 
 const SessionsPage = () => {
+  const navigate = useNavigate();
+  const [userName, setUserName] = useState<String>("");
+  const fetchUser = async () => {
+    try {
+      const user = await getMyUser();
+      setUserName(user.username);
+    } catch(e) {
+      alert("Error while fetching the user. Please reload the page.");
+    }
+  }
+
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
@@ -31,7 +42,9 @@ const SessionsPage = () => {
   }
 
   useEffect(() => {
+    fetchUser();
     fetchSessions("ALL");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Modal for creating a new session
@@ -44,15 +57,21 @@ const SessionsPage = () => {
     setParticipants(undefined);
     setSingleSteps(['']);
   }
-  const handleShow = () => setShow(true);
-  const navigate = useNavigate();
+  const handleShow = async () => {
+    await fetchAllRecipes();
+    setShow(true);
+  }
 
-  // Get all recipes
-  const recipes = (
-      // TODO: API call
-      // await getAllRecipesAPI();
-      {1: 'Chicken curry', 2: 'Pasta', 3: 'Pizza'} //! DEV ONLY
-  );
+  // Get all recipes for the New-Session-PopUp
+  const [ownRecipes, setOwnRecipes] = useState<any[]>([]);
+  const fetchAllRecipes = async () => {
+    try {
+      const res = await getAllRecipesAPI(null, null, {"creatorName": userName});
+      setOwnRecipes(res);
+    } catch(e) {
+      alert("Error while fetching all recipes. Please reload the page.");
+    }
+  };
 
   // Vars for creating a new session
   const [recipe, setRecipe] = useState<number>();
@@ -63,7 +82,6 @@ const SessionsPage = () => {
 
   // Function to save a new session
   const saveNewSession = async () => {
-    // TODO: API call
     const body = {
       recipe: recipe,
       start: start,
@@ -78,7 +96,6 @@ const SessionsPage = () => {
       } catch(error) {
         alert("Error while saving the session. Please try again.");
       }
-      //console.log(body); //! DEV ONLY
   };
 
   // Functions for single steps
@@ -170,7 +187,7 @@ const SessionsPage = () => {
                   <Accordion.Header style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0' }}>
                   <div style={{ fontSize: '20px' }}>{session.recipe}</div>
                   <div style={{ marginLeft: "90%" }}>
-                    <JoinButton> Join </JoinButton>
+                    <JoinButton onClick={() => navigate("/sessions/" + session.id)}>Join</JoinButton>
                   </div>
                 </Accordion.Header>
                   <Accordion.Body style={{ background: '#f0f0f0' }}>
@@ -197,9 +214,8 @@ const SessionsPage = () => {
             onChange={(e) => setRecipe(Number(e.target.value))}>
             <Option disabled selected>Select a recipe</Option>
             <Option disabled>{"-".repeat(40)}</Option>
-            {Object.entries(recipes).map(([k, v]) => (
-              <Option key={k} value={k} selected={recipe === Number(k)}>
-                {v}</Option>
+            {ownRecipes.map((e) => (
+              <Option key={e.id} value={e.id} selected={recipe === Number(e.id)}>{e.title}</Option>
             ))}
           </Select>
 

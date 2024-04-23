@@ -52,7 +52,7 @@ const RecipesPage = () => {
         await postRecipeAPI(body);
       } else {
         // update the existing recipe
-        // TODO: API call
+        // TODO Sprint 2: API call in
         alert("Updating an existing recipe isn't possible yet :)");
       }
       handleClose();
@@ -144,10 +144,13 @@ const RecipesPage = () => {
   }
 
   const [userId, setUserId] = useState<number>(0);
-
   const fetchUser = async () => {
-    const user = await getMyUser();
-    setUserId(user.id);
+    try {
+      const user = await getMyUser();
+      setUserId(user.id);
+    } catch(e) {
+      alert("Error while fetching the user. Please reload the page.");
+    }
   }
 
   useEffect(() => {
@@ -219,7 +222,6 @@ const RecipesPage = () => {
                     <p style={{ fontSize: '10pt' }}>{recipe.cookingTimeMin} minutes</p>
                   </Col>
                   <Col xs={1}>
-                    {/* // TODO: only show if user is owner */}
                     { recipe.creatorId === userId && <>
                       <FontAwesomeIcon
                         className="editRecipeIcon"

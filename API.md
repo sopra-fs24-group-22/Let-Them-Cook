@@ -175,11 +175,11 @@ Used to fetch a new access token.
 
 # Recipe Endpoints
 
-## Create recipe
+## Create recipeId
 
-Used to create a new recipe.
+Used to create a new recipeId.
 
-**URL** : `/api/recipe`
+**URL** : `/api/recipeId`
 
 **Method** : `POST`
 
@@ -198,7 +198,7 @@ Authorization: Bearer [access token]
   "checklist": ["List of checklist items"],
   "ingredients": ["List of ingredients"],
   "cookingTimeMin": "Integer: Cooking time in minutes",
-  "privacyStatus": "[PUBLIC/PRIVATE]"
+  "privacyStatus": "[PUBLIC = 0 / PRIVATE = 1]"
 }
 ```
 
@@ -226,17 +226,17 @@ Authorization: Bearer [access token]
 
 **Code** : `403 FORBIDDEN`
 
-**Content** :
+**Content** : 
 
 ```
 403 FORBIDDEN
 ```
 
-## Get recipe
+## Get recipeId
 
-Used to fetch a recipe.
+Used to fetch a recipeId.
 
-**URL** : `/api/recipe/{id}`
+**URL** : `/api/recipeId/{id}`
 
 **Method** : `GET`
 
@@ -256,6 +256,7 @@ Authorization: Bearer [access token]
 ```json
 {
   "creatorId": "[User id]",
+  "creatorName": "[username]",
   "title": "[Recipe title]",
   "checklist": ["List of checklist items"],
   "ingredients": ["List of ingredients"],
@@ -275,11 +276,11 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
-## Delete recipe
+## Delete recipeId
 
-Used to delete a recipe.
+Used to delete a recipeId.
 
-**URL** : `/api/recipe/{id}`
+**URL** : `/api/recipeId/{id}`
 
 **Method** : `DELETE`
 
@@ -301,17 +302,17 @@ Authorization: Bearer [access token]
 ```
 
 ### Error Response
-**Condition** : Deleting a recipe user does not own.
+**Condition** : Deleting a recipeId user does not own.
 
 **Code** : `403 FORBIDDEN`
 
 **Content** :
 
 ```
-403 FORBIDDEN "User is not allowed to delete this recipe"
+403 FORBIDDEN "User is not allowed to delete this recipeId"
 ```
 
-**Condition** : Deleting a recipe that does not exist
+**Condition** : Deleting a recipeId that does not exist
 
 **Code** : `404 NOT FOUND`
 
@@ -331,13 +332,62 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
+## Get recipes
+
+Used to query for recipes.
+
+**URL** : `/api/recipes?{query params}`
+
+**Query params**
+- `title` - Title of the recipeId
+- `creatorName` - Username of the user who created the recipeId
+- `cookingTimeMin` - The maximum cooking time in minutes
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+{
+  [
+    {
+      "id": 1,
+      "creatorId": 70,
+      "title": "Butter Chicken",
+      "checklist": [
+        "Chop Onions",
+        "cook chicken"
+      ],
+      "ingredients": [
+        "200g chicken",
+        "1 Onion",
+        "Clove of garlic"
+      ],
+      "cookingTimeMin": 60,
+      "privacyStatus": 1
+    }
+  ]
+}
+```
+
 # Cookbook Endpoints
 
-## Add recipe to cookbook
+## Add recipeId to cookbook
 
-Used to add a recipe to the users personal cookbook.
+Used to add a recipeId to the users personal cookbook.
 
-**URL** : `/api/cookbook/recipe/{id}`
+**URL** : `/api/cookbook/recipeId/{id}`
 
 **Method** : `POST`
 
@@ -359,7 +409,7 @@ Authorization: Bearer [access token]
 ```
 
 ### Error Response
-**Condition** : Adding a recipe that does not exist.
+**Condition** : Adding a recipeId that does not exist.
 
 **Code** : `404 NOT FOUND`
 
@@ -369,7 +419,7 @@ Authorization: Bearer [access token]
 404 NOT FOUND "Recipe not found"
 ```
 
-**Condition** : Adding a recipe that is already in the cookbook.
+**Condition** : Adding a recipeId that is already in the cookbook.
 
 **Code** : `409 CONFLICT`
 
@@ -389,11 +439,11 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
-## Remove recipe from cookbook
+## Remove recipeId from cookbook
 
-Used to remove a recipe from the users personal cookbook.
+Used to remove a recipeId from the users personal cookbook.
 
-**URL** : `/api/cookbook/recipe/{id}`
+**URL** : `/api/cookbook/recipeId/{id}`
 
 **Method** : `DELETE`
 
@@ -415,7 +465,7 @@ Authorization: Bearer [access token]
 ```
 
 ### Error Response
-**Condition** : Deleting a recipe from cookbook that does not exist.
+**Condition** : Deleting a recipeId from cookbook that does not exist.
 
 **Code** : `404 NOT FOUND`
 
@@ -425,7 +475,7 @@ Authorization: Bearer [access token]
 404 NOT FOUND "Recipe not found"
 ```
 
-**Condition** : Deleting a recipe from cookbook that is not in the cookbook.
+**Condition** : Deleting a recipeId from cookbook that is not in the cookbook.
 
 **Code** : `404 NOT FOUND`
 
@@ -445,6 +495,52 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
+## Get personal cookbook
+
+**URL** : `/api/cookbook/{id}`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+[
+  {
+    "id": 1,
+    "creatorId": 1,
+    "creatorName": "Trizzy",
+    "title": "Butter Chicken",
+    "checklist": [
+      "Chop Onions",
+      "cook chicken"
+    ],
+    "ingredients": [
+      "200g chicken",
+      "1 Onion",
+      "Clove of garlic"
+    ],
+    "cookingTimeMin": 10,
+    "privacyStatus": 1
+  }
+]
+```
+
+### Error Response
+**Condition** : Getting a cookbook that does not belong to the user.
+
+**Code** : `401 UNAUTHORIZED`
+
 # Session Endpoints
 
 ## Get Sessions
@@ -454,8 +550,9 @@ Used to fetch all sessions based on query params.
 **URL** : `/api/sessions?{query params}`
 
 **Query params**
-  - `host` - ID of the host user
-  - `recipe` - ID of the recipe used in the session
+  - `hostId` - ID of the hostId user
+  - `recipeId` - ID of the recipeId used in the session
+  - `sessionName` - Name of the session
   - `limit` - Limit of sessions to fetch
   - `offset` - Offset of sessions to fetch
   - *More query params to be implemented*
@@ -480,8 +577,9 @@ Authorization: Bearer [access token]
   "sessions": [
     {
       "id": "[Session id]",
-      "host": "[Host user id]",
-      "recipe": "[Recipe id]",
+      "hostId": "[Host user id]",
+      "creatorName": "[Host username]",
+      "recipeId": "[Recipe id]",
       "sessionName": "[Session name]",
       "maxParticipantCount": "[Max participant count]",
       "participants": ["List of participant user ids"],

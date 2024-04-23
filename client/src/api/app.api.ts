@@ -1,4 +1,5 @@
 import { axiosAuth, axiosPublic } from "./axios";
+import { objectToUrlParams } from "../helpers/objectToUrlParams";
 
 // Login
 export const postLoginAPI = async (body: any) => {
@@ -20,8 +21,21 @@ export const refreshAccessTokenAPI = async () => {
 };
 
 // Recipes
-export const getAllRecipesAPI = async () => {
-  const { data } = await axiosAuth.get("recipes");
+export const getAllRecipesAPI = async (limit = null, offset = null, queryParams = {}) => {
+  // Add limit and offset
+  if(limit !== null) { queryParams[limit] = limit; }
+  if(offset !== null) { queryParams[offset] = offset; }
+
+  const { data } = await axiosAuth.get("recipes?" + objectToUrlParams(queryParams));
+  return data;
+};
+export const deleteRecipeAPI = async (id: string) => {
+  await axiosAuth.delete("recipe/" + id);
+};
+
+// Cookbooks
+export const getCookbookAPI = async (userId: number) => {
+   const { data } = await axiosAuth.get("cookbook/" + userId);
   return data;
 };
 
@@ -32,11 +46,14 @@ export const postRecipeAPI = async (body: any) => {
 
 // Sessions
 export const postSessionAPI = async (session: any) => {
-  const { data } = await axiosAuth.post("session", { session });
+  const { data } = await axiosAuth.post("session", session);
   return data;
 };
-
-export const getAllSessionsAPI = async () => {
-  const { data } = await axiosAuth.get("sessions");
+export const getAllSessionsAPI = async (params?: any) => {
+  const { data } = await axiosAuth.get("sessions", { params });
+  return data;
+}
+export const getSessionCredentialsAPI = async (sessionId: number) => {
+  const { data } = await axiosAuth.get("session/credentials/" + sessionId);
   return data;
 }

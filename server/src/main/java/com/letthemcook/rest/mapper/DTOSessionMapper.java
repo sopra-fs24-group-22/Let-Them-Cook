@@ -15,7 +15,7 @@ public interface DTOSessionMapper {
   // ######################################### POST session #########################################
 
   @Mapping(source = "sessionName", target = "sessionName")
-  @Mapping(source = "recipe", target = "recipe")
+  @Mapping(source = "recipe", target = "recipeId")
   @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
   @Mapping(source = "date", target = "date")
   Session convertSingleSessionDTOToEntity(SessionPostDTO sessionPostDTO);
@@ -23,8 +23,8 @@ public interface DTOSessionMapper {
 // ######################################### GET single session #########################################
 
   @Mapping(source = "sessionName", target = "sessionName")
-  @Mapping(source = "host", target = "host")
-  @Mapping(source = "recipe", target = "recipe")
+  @Mapping(source = "hostId", target = "host")
+  @Mapping(source = "recipeId", target = "recipe")
   @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
   @Mapping(source = "participants", target = "participants")
   @Mapping(source = "date", target = "date")
@@ -32,7 +32,7 @@ public interface DTOSessionMapper {
 
   // ######################################### GET session credentials #########################################
 
-  @Mapping(source = "host", target = "hostId")
+  @Mapping(source = "hostId", target = "hostId")
   @Mapping(source = "roomId", target = "roomId")
   SessionCredentialsDTO convertEntityToSessionCredentialsDTO(Session session);
 }

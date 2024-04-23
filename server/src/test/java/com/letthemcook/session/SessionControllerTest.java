@@ -62,8 +62,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       session.setId(1L);
       session.setSessionName("Test Session");
       session.setMaxParticipantCount(2);
-      session.setHost(1L);
-      session.setRecipe(4L);
+      session.setHostId(1L);
+      session.setRecipeId(4L);
       session.setParticipants(participantList);
       session.setDate(date);
 
@@ -158,9 +158,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       Session session = new Session();
       session.setSessionName("Test Session");
       session.setMaxParticipantCount(3);
-      session.setRecipe(2L);
+      session.setRecipeId(2L);
       session.setDate(date);
-      session.setHost(1L);
+      session.setHostId(1L);
       session.setParticipants(new ArrayList<>());
 
       ArrayList<Session> sessions = new ArrayList<>();

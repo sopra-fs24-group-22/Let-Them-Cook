@@ -67,7 +67,7 @@ public class SessionController {
   public ResponseEntity<ArrayList<SessionDTO>> getSessions(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
     List<Session> queriedSessions = sessionService.getSessions(limit, offset, allParams);
 
-    // convert each user to the API representation
+    // Convert each user to the API representation
     ArrayList<SessionDTO> sessionsGetDTOS = new ArrayList<>();
     for (Session session : queriedSessions) {
       sessionsGetDTOS.add(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));

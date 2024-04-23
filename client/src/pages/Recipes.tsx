@@ -2,7 +2,7 @@ import { useState, ChangeEvent, useEffect } from 'react';
 import { ButtonGroup, PrimaryButton, SecondaryButton } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
-import { getAllRecipesAPI, postRecipeAPI } from "../api/app.api";
+import { deleteRecipeAPI, getAllRecipesAPI, getCookbookAPI, postRecipeAPI } from "../api/app.api";
 import MainLayout from '../components/Layout/MainLayout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -14,9 +14,12 @@ import {
 import { SecondaryIconButton } from '../components/ui/Icon';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Header2 } from '../components/ui/Header';
+import { getMyUser } from '../api/user.api';
+import { Tooltip } from 'react-tooltip'
 
 const RecipesPage = () => {
   // Vars for creating a new recipe
+  const [editingRecipeId, setEditingRecipeId] = useState<number>(0);
   const [show, setShow] = useState(false);
   const [dishName, setDishName] = useState<string>();
   const [privacyStatus, setPrivacyStatus] = useState<0|1>(0);
@@ -30,11 +33,12 @@ const RecipesPage = () => {
     setCookingTime(undefined);
     setIngredients(['']);
     setSingleSteps(['']);
+    setEditingRecipeId(0);
   }
-  const handleShow = () => setShow(true);
+  const handleShow = () => { setEditingRecipeId(0); setShow(true); };
 
   // Function to save a new session
-  const saveNewRecipe = async () => {
+  const saveRecipe = async () => {
     const body = {
       "title": dishName,
       "privacyStatus": privacyStatus,
@@ -43,12 +47,29 @@ const RecipesPage = () => {
       "checklist": singleSteps,
     };
     try {
-      await postRecipeAPI(body);
+      if(editingRecipeId === 0) {
+        // create a new recipe
+        await postRecipeAPI(body);
+      } else {
+        // update the existing recipe
+        // TODO Sprint 2: API call in
+        alert("Updating an existing recipe isn't possible yet :)");
+      }
       handleClose();
+      await fetchRecipes(pageView);
     } catch (error) {
       alert("Error while saving the recipe. Please try again.");
     }
   };
+
+  const deleteRecipe = async (recipeId: number) => {
+    try {
+      await deleteRecipeAPI(recipeId.toString());
+      await fetchRecipes(pageView);
+    } catch (error) {
+      alert("Error while deleting the recipe. Please try again.");
+    }
+  }
 
   // Functions for single steps
   const addSingleStep = () => setSingleSteps([...singleSteps, '']);
@@ -110,27 +131,32 @@ const RecipesPage = () => {
 
   const fetchRecipes = async (view: "ALL"|"MY") => {
     try {
-      // TODO: API call
-      // const res = await getAllRecipesAPI();
-      //! Mocked in Dev
-      const res = (view === "ALL") ? [
-        { id: 1, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-        { id: 2, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-        { id: 3, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-        { id: 4, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-        { id: 5, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-      ] : [
-        { id: 1, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-        { id: 2, title: 'Chicken curry', privacyStatus: 1, cookingTimeMin: 60, ingredients: ['Chicken', 'Curry'], checklist: ['Cook chicken', 'Add curry'] },
-      ];
+      var res = [];
+      if(view === "ALL") {
+        res = await getAllRecipesAPI();
+      } else {
+        res = await getCookbookAPI(userId);
+      }
       setRecipes(res);
     } catch (error) {
       alert("Error while loading the recipes. Please try again.");
     }
   }
 
+  const [userId, setUserId] = useState<number>(0);
+  const fetchUser = async () => {
+    try {
+      const user = await getMyUser();
+      setUserId(user.id);
+    } catch(e) {
+      alert("Error while fetching the user. Please reload the page.");
+    }
+  }
+
   useEffect(() => {
+    fetchUser();
     fetchRecipes("ALL");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const buttonTopBar = (pageView === "ALL") ? (
@@ -178,6 +204,8 @@ const RecipesPage = () => {
       <ButtonGroup style={{marginBottom: '20px'}}>
         { buttonTopBar }
       </ButtonGroup>
+      <Tooltip anchorSelect={".editRecipeIcon"} place="top">Edit recipe</Tooltip>
+      <Tooltip anchorSelect={".deleteRecipeIcon"} place="top">Delete recipe</Tooltip>
       <Container>
         <Row>
           {recipes.map((recipe, index) => (
@@ -190,11 +218,35 @@ const RecipesPage = () => {
                 <Row>
                   <Col xs={11}>
                     <Header2>{recipe.title}</Header2>
+                    <p style={{ fontSize: '10pt' }}>by {recipe.creatorName}</p>
                     <p style={{ fontSize: '10pt' }}>{recipe.cookingTimeMin} minutes</p>
                   </Col>
                   <Col xs={1}>
-                    {/* // TODO: only show if user is owner */}
-                    <FontAwesomeIcon icon={ faPenToSquare } style={{ cursor: 'pointer', fontSize: '12pt' }} />
+                    { recipe.creatorId === userId && <>
+                      <FontAwesomeIcon
+                        className="editRecipeIcon"
+                        icon={ faPenToSquare }
+                        style={{ cursor: 'pointer', fontSize: '12pt'}}
+                        onClick={() => {
+                          setEditingRecipeId(recipe.id);
+                          setDishName(recipe.title);
+                          setPrivacyStatus(recipe.privacyStatus);
+                          setCookingTime(recipe.cookingTimeMin);
+                          setIngredients(recipe.ingredients);
+                          setSingleSteps(recipe.checklist);
+                          setShow(true);
+                        }} />
+                      <FontAwesomeIcon
+                        className="deleteRecipeIcon"
+                        icon={ faTrashCan }
+                        style={{ cursor: 'pointer', fontSize: '12pt'}}
+                        onClick={() => {
+                          // eslint-disable-next-line no-restricted-globals
+                          if(confirm("Are you sure you want to delete the recipe \"" + recipe.title + "\"?")) {
+                            deleteRecipe(recipe.id);
+                          }
+                        }} />
+                    </>}
                   </Col>
                 </Row>
               </Container>
@@ -303,7 +355,7 @@ const RecipesPage = () => {
         <SecondaryButton onClick={handleClose}>
           Cancel
         </SecondaryButton>
-        <PrimaryButton onClick={saveNewRecipe} disabled={!(dishName && cookingTime && ingredients && singleSteps)}>
+        <PrimaryButton onClick={saveRecipe} disabled={!(dishName && cookingTime && ingredients && singleSteps)}>
           Save
         </PrimaryButton>
       </Modal.Footer>

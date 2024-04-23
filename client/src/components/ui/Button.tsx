@@ -36,6 +36,27 @@ export const SecondaryButton = styled.button`
   }
 `;
 
+export const JoinButton = styled.button`
+    background-color: #1fdb33;
+    color: #000000;
+    padding: 7px 15px;
+    border-radius: 5px;
+    outline: 0;
+    border: 0;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-size: 1.3rem;
+    font-weight: 500;
+    &:hover {
+        background-color: #7c5050;
+    }
+
+    &:disabled {
+        cursor: default;
+        opacity: 0.7;
+    }
+`;
+
 export const ButtonGroup = styled.div`
   width: 100%;
 `;

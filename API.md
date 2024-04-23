@@ -198,7 +198,7 @@ Authorization: Bearer [access token]
   "checklist": ["List of checklist items"],
   "ingredients": ["List of ingredients"],
   "cookingTimeMin": "Integer: Cooking time in minutes",
-  "privacyStatus": "[PUBLIC/PRIVATE]"
+  "privacyStatus": "[PUBLIC = 0 / PRIVATE = 1]"
 }
 ```
 
@@ -226,7 +226,7 @@ Authorization: Bearer [access token]
 
 **Code** : `403 FORBIDDEN`
 
-**Content** :
+**Content** : 
 
 ```
 403 FORBIDDEN

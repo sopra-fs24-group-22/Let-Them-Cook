@@ -44,8 +44,8 @@ public class RecipeController {
   @GetMapping("/recipe/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<RecipeGetDTO> getRecipe(@PathVariable Long id) {
-    Recipe recipe = recipeService.getRecipe(id);
+  public ResponseEntity<RecipeGetDTO> getRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    Recipe recipe = recipeService.getRecipe(id, accessToken);
 
     return ResponseEntity.status(HttpStatus.OK).body(DTORecipeMapper.INSTANCE.convertRecipeToRecipeGetDTO(recipe));
   }

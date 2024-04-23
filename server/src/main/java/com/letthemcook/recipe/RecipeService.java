@@ -3,6 +3,7 @@ package com.letthemcook.recipe;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.cookbook.CookbookRepository;
 import com.letthemcook.cookbook.CookbookService;
+import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,9 +82,13 @@ public class RecipeService {
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to delete this recipe");
   }
 
-  public Recipe getRecipe(Long id) {
+  public Recipe getRecipe(Long id, String accessToken) {
     Recipe recipe = recipeRepository.getById(id);
-    if (recipe == null) {
+
+    accessToken = accessToken.substring(7);
+    User user = userRepository.getByUsername(jwtService.extractUsername(accessToken));
+
+    if (recipe == null || (!Objects.equals(recipe.getCreatorId(), user.getId()) && recipe.getPrivacyStatus() == 1)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
     return recipe;
@@ -94,6 +99,7 @@ public class RecipeService {
     query.limit(limit);
     query.skip(offset);
 
+    // Optional params
     if (allParams.containsKey(QueryParams.TITLE.getValue())) {
       query.addCriteria(Criteria.where(QueryParams.TITLE.getValue()).regex(".*" + allParams.get(QueryParams.TITLE.getValue()) + ".*", "i"));
     }
@@ -103,6 +109,9 @@ public class RecipeService {
     if (allParams.containsKey(QueryParams.CREATOR_NAME.getValue())) {
       query.addCriteria(Criteria.where(QueryParams.CREATOR_NAME.getValue()).regex(".*" + allParams.get(QueryParams.CREATOR_NAME.getValue()) + ".*", "i"));
     }
+
+    // Only find public recipes
+    query.addCriteria(Criteria.where("privacyStatus").is(0));
 
     return mongoTemplate.find(query, Recipe.class);
   }

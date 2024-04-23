@@ -495,6 +495,52 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
+## Get personal cookbook
+
+**URL** : `/api/cookbook/{id}`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+[
+  {
+    "id": 1,
+    "creatorId": 1,
+    "creatorName": "Trizzy",
+    "title": "Butter Chicken",
+    "checklist": [
+      "Chop Onions",
+      "cook chicken"
+    ],
+    "ingredients": [
+      "200g chicken",
+      "1 Onion",
+      "Clove of garlic"
+    ],
+    "cookingTimeMin": 10,
+    "privacyStatus": 1
+  }
+]
+```
+
+### Error Response
+**Condition** : Getting a cookbook that does not belong to the user.
+
+**Code** : `401 UNAUTHORIZED`
+
 # Session Endpoints
 
 ## Get Sessions

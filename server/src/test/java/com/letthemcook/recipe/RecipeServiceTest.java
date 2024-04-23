@@ -109,11 +109,17 @@ public class RecipeServiceTest {
     recipe.setChecklist(checklist);
     recipe.setIngredients(ingredients);
 
-    // Mock DBSequence
+    // Setup Mock user
+    User user = new User();
+    user.setId(1L);
+
+    // Mock Services
     when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
+    when(jwtService.extractUsername(Mockito.any())).thenReturn("testUser");
+    when(userRepository.getByUsername(Mockito.any())).thenReturn(user);
 
     // Perform test
-    Recipe result = recipeService.getRecipe(recipe.getId());
+    Recipe result = recipeService.getRecipe(recipe.getId(), "Bearer accessToken");
 
     assertEquals(recipe.getCreatorId(), result.getCreatorId());
     assertEquals(recipe.getId(), result.getId());
@@ -139,10 +145,12 @@ public class RecipeServiceTest {
 
     // Mock DBSequence
     when(recipeRepository.getById(recipe.getId())).thenReturn(null);
+    when(jwtService.extractUsername(Mockito.any())).thenReturn("testUser");
+    when(userRepository.getByUsername(Mockito.any())).thenReturn(new User());
 
     // Perform test
     try {
-      recipeService.getRecipe(recipe.getId());
+      recipeService.getRecipe(recipe.getId(), "Bearer accessToken");
     } catch (ResponseStatusException e) {
       assertEquals(e.getStatus(), HttpStatus.NOT_FOUND);
     }

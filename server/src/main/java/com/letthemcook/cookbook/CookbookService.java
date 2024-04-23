@@ -62,10 +62,12 @@ public class CookbookService {
     // Extract user data
     accessToken = accessToken.substring(7);
     String username = jwtService.extractUsername(accessToken);
-    Cookbook cookbook = cookbookRepository.getByOwnerId(userRepository.getByUsername(username).getId());
+    Long ownerId = userRepository.getByUsername(username).getId();
+    Cookbook cookbook = cookbookRepository.getByOwnerId(ownerId);
+    Recipe recipe = recipeRepository.getById(recipeId);
 
     // Add recipe to cookbook
-    if(recipeRepository.getById(recipeId) == null) {
+    if(recipe == null || (recipe.getPrivacyStatus() == 1 && !Objects.equals(recipe.getCreatorId(), ownerId))) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
     if (cookbook.getRecipeIds().contains(recipeId)) {

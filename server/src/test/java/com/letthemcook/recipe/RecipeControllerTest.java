@@ -136,7 +136,7 @@ public class RecipeControllerTest {
   public void testGetRecipeSuccess() throws Exception {
     // Mock recipe service
     Recipe recipe = recipeRepository.getById(1L);
-    when(recipeService.getRecipe(1L)).thenReturn(recipe);
+    when(recipeService.getRecipe(1L, "accessToken")).thenReturn(recipe);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/recipe/1")

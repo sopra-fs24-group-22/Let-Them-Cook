@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
             .build();
   }
 
-  @ExceptionHandler({ExpiredJwtException.class})
+  @ExceptionHandler(ExpiredJwtException.class)
   public ResponseEntity<String> handleExpiredJwtException(ExpiredJwtException e, HttpServletResponse response) {
     log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
     Cookie cookie = new Cookie("refreshToken", null);
@@ -57,14 +57,6 @@ public class GlobalExceptionHandler {
     return ResponseEntity
             .status(HttpStatus.FORBIDDEN)
             .body("Token expired.");
-  }
-
-  @ExceptionHandler({MissingRequestCookieException.class})
-  public ResponseEntity<String> handleMissingCookieException(MissingRequestCookieException e) {
-    log.info("{}\n{}\n{}", e.getMessage(), e.getCause(), e.getClass());
-    return ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .body("No refreshToken");
   }
 
   @ExceptionHandler(IllegalArgumentException.class)

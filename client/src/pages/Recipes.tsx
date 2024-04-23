@@ -156,6 +156,7 @@ const RecipesPage = () => {
   useEffect(() => {
     fetchUser();
     fetchRecipes("ALL");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const buttonTopBar = (pageView === "ALL") ? (

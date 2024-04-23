@@ -1,6 +1,7 @@
 package com.letthemcook.cookbook;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -9,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -90,5 +94,22 @@ public class CookbookService {
     cookbookRepository.save(cookbook);
 
     return cookbook;
+  }
+
+  public ArrayList<Recipe> getCookbook(Long ownerId, String accessToken) {
+    // Extract user data
+    accessToken = accessToken.substring(7);
+    String username = jwtService.extractUsername(accessToken);
+    Long userId = userRepository.getByUsername(username).getId();
+    Cookbook cookbook = cookbookRepository.getByOwnerId(ownerId);
+
+    if(cookbook == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cookbook not found");
+    }
+    if(!Objects.equals(cookbook.getOwnerId(), userId)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden access");
+    }
+
+    return (ArrayList<Recipe>) recipeRepository.findAllById(cookbook.getRecipeIds());
   }
 }

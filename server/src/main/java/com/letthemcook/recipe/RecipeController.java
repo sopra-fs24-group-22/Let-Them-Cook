@@ -56,7 +56,7 @@ public class RecipeController {
   public ResponseEntity<ArrayList<RecipeGetDTO>> getRecipes(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
     List<Recipe> queriedRecipes = recipeService.getRecipes(limit, offset, allParams);
 
-    // Convert each user to the API representation
+    // Convert each recipe to the API representation
     ArrayList<RecipeGetDTO> recipesGetDTOS = new ArrayList<>();
     for (Recipe recipe : queriedRecipes) {
       recipesGetDTOS.add(DTORecipeMapper.INSTANCE.convertRecipeToRecipeGetDTO(recipe));

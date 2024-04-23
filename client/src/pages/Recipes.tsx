@@ -15,6 +15,7 @@ import { SecondaryIconButton } from '../components/ui/Icon';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Header2 } from '../components/ui/Header';
 import { getMyUser } from '../api/user.api';
+import { Tooltip } from 'react-tooltip'
 
 const RecipesPage = () => {
   // Vars for creating a new recipe
@@ -200,6 +201,8 @@ const RecipesPage = () => {
       <ButtonGroup style={{marginBottom: '20px'}}>
         { buttonTopBar }
       </ButtonGroup>
+      <Tooltip anchorSelect={".editRecipeIcon"} place="top">Edit recipe</Tooltip>
+      <Tooltip anchorSelect={".deleteRecipeIcon"} place="top">Delete recipe</Tooltip>
       <Container>
         <Row>
           {recipes.map((recipe, index) => (
@@ -219,6 +222,7 @@ const RecipesPage = () => {
                     {/* // TODO: only show if user is owner */}
                     { recipe.creatorId === userId && <>
                       <FontAwesomeIcon
+                        className="editRecipeIcon"
                         icon={ faPenToSquare }
                         style={{ cursor: 'pointer', fontSize: '12pt'}}
                         onClick={() => {
@@ -231,6 +235,7 @@ const RecipesPage = () => {
                           setShow(true);
                         }} />
                       <FontAwesomeIcon
+                        className="deleteRecipeIcon"
                         icon={ faTrashCan }
                         style={{ cursor: 'pointer', fontSize: '12pt'}}
                         onClick={() => {

@@ -93,7 +93,7 @@ public class SessionController {
   @GetMapping("/api/session/{id}/checklist")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+  public ResponseEntity<HashMap<Long, Integer>> getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
     HashMap<Long, Integer> checklist = sessionService.getChecklist(id, accessToken);
     return ResponseEntity.status(HttpStatus.OK).body(checklist);
   }

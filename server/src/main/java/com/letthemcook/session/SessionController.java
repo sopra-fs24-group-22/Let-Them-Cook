@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,14 +79,22 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
   }
 
-  @PutMapping("/session/{id}/check")
+  @PutMapping("/session/{id}/checklist")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
-  public ResponseEntity<Void> checkSession(@PathVariable Long id, @RequestBody CheckPutDTO checkPutDTO, @RequestHeader("Authorization") String accessToken) {
+  public ResponseEntity<Void> updateChecklist(@PathVariable Long id, @RequestBody CheckPutDTO checkPutDTO, @RequestHeader("Authorization") String accessToken) {
     ChecklistStep checklistStep = DTOChecklistMapper.INSTANCE.convertCheckPutDTOToEntity(checkPutDTO);
 
     sessionService.checkStep(id, checklistStep.getStepIndex(), checklistStep.getIsChecked(), accessToken);
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @GetMapping("/session/{id}/checklist")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    HashMap<Long, Integer> checklist = sessionService.getChecklist(id, accessToken);
+    return ResponseEntity.status(HttpStatus.OK).body(checklist);
   }
 }

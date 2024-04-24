@@ -782,7 +782,7 @@ Authorization: Bearer [access token]
 
 ## Update checklistCount in session
 
-**URL** : `/api/session/{id}/check`
+**URL** : `/api/session/{id}/checklist`
 
 **Method** : `PUT`
 
@@ -814,6 +814,51 @@ Authorization: Bearer [access token]
 ### Success Response
 
 **Code** : `204 NO CONTENT`
+
+### Error Response
+
+**Condition** : User is not part of the session
+
+**Code** : `401 UNAUTHORIZED`
+
+**Condition** Session does not exist
+
+**Code** : `404 NOT FOUND`
+
+## Get checklistCount in session
+
+**URL** : `/api/session/{id}/checklist`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "[Index of step in checklist]": "[Long]",
+}
+```
+
+**Content example**
+
+```json
+{
+  "0": 3,
+  "1": 2,
+  "2": 0
+}
+```
 
 ### Error Response
 

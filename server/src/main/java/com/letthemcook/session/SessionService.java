@@ -161,6 +161,21 @@ public class SessionService {
     sessionRepository.save(session);
   }
 
+  public HashMap<Long, Integer> getChecklist(Long sessionId, String accessToken) {
+    Session session = sessionRepository.getById(sessionId);
+
+    if (session == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+    }
+
+    // Authorize user against session
+    if (!checkIfUserIsParticipant(sessionId, jwtService.extractUsername(accessToken))) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed in this session");
+    }
+
+    return session.getChecklistCount();
+  }
+
   // ######################################### Util #########################################
 
   private Boolean checkIfUserIsParticipant(Long sessionId, String username) {

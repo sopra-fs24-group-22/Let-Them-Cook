@@ -11,7 +11,7 @@ function ViewerView() {
 
   //Playing the HLS stream when the playbackHlsUrl is present and it is playable
   useEffect(() => {
-    if (hlsUrls.playbackHlsUrl && hlsState == "HLS_PLAYABLE") {
+    if (hlsUrls.playbackHlsUrl && hlsState === "HLS_PLAYABLE") {
       if (Hls.isSupported()) {
         const hls = new Hls({
           maxLoadingDelay: 1, // max video loading delay used in automatic start level selection
@@ -44,7 +44,7 @@ function ViewerView() {
         }
       }
     }
-  }, [hlsUrls, hlsState, playerRef.current]);
+  }, [hlsUrls, hlsState]);
 
   return (
     <div>
@@ -52,12 +52,12 @@ function ViewerView() {
       <ViewerControls />
 
       {/* Showing message if HLS is not started or is stopped by HOST */}
-      {hlsState != "HLS_PLAYABLE" ? (
+      {hlsState !== "HLS_PLAYABLE" ? (
         <div>
           <p>The host didn't start the session yet. Please wait.</p>
         </div>
       ) : (
-        hlsState == "HLS_PLAYABLE" && (
+        hlsState === "HLS_PLAYABLE" && (
           <div>
             <video
               ref={playerRef}

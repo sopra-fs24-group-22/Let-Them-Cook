@@ -5,13 +5,13 @@ import { SpeakerControls } from "./SpeakerControls";
 
 const SpeakerView = () => {
   //Get the participants and HLS State from useMeeting
-  const { participants, hlsState } = useMeeting();
+  const { participants } = useMeeting();
 
   //Filtering the host/speakers from all the participants
   const speakers = useMemo(() => {
     const speakerParticipants = [...participants.values()].filter(
       (participant) => {
-        return participant.mode == Constants.modes.CONFERENCE;
+        return participant.mode === Constants.modes.CONFERENCE;
       }
     );
     return speakerParticipants;

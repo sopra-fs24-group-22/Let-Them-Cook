@@ -4,7 +4,7 @@ import ReactPlayer from "react-player";
 
 export const ParticipantView = (props: any) => {
   const micRef = useRef(null);
-  const { webcamStream, micStream, webcamOn, micOn, isLocal, displayName } =
+  const { webcamStream, micStream, webcamOn, micOn, isLocal } =
     useParticipant(props.participantId);
 
   const videoStream = useMemo(() => {

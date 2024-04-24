@@ -1,4 +1,4 @@
-import {useState, ChangeEvent, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import {PrimaryButton, SecondaryButton, ButtonGroup, JoinButton} from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import {Accordion, Container, Modal, Row} from 'react-bootstrap';
@@ -6,7 +6,6 @@ import MainLayout from "../components/Layout/MainLayout";
 import {getAllRecipesAPI, getAllSessionsAPI, postSessionAPI} from "../api/app.api";
 import { getMyUser } from '../api/user.api';
 import { useNavigate } from 'react-router-dom';
-import recipes from "./Recipes";
 
 
 const SessionsPage = () => {

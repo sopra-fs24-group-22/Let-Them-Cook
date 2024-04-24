@@ -12,7 +12,7 @@ const Container = (props: any) => {
     //callback for when a meeting is joined successfully
     onMeetingJoined: () => {
       //Pin the local participant if he joins in CONFERENCE mode
-      if (mMeetingRef.current.localParticipant.mode == "CONFERENCE") {
+      if (mMeetingRef.current.localParticipant.mode === "CONFERENCE") {
         mMeetingRef.current.localParticipant.pin("CAM");
       }
       setJoined("JOINED");
@@ -38,13 +38,13 @@ const Container = (props: any) => {
 
   return (
     <div className="container">
-      {joined && joined == "JOINED" ? (
-        mMeeting.localParticipant.mode == Constants.modes.CONFERENCE ? (
+      {joined && joined === "JOINED" ? (
+        mMeeting.localParticipant.mode === Constants.modes.CONFERENCE ? (
           <SpeakerView />
-        ) : mMeeting.localParticipant.mode == Constants.modes.VIEWER ? (
+        ) : mMeeting.localParticipant.mode === Constants.modes.VIEWER ? (
           <ViewerView />
         ) : null
-      ) : joined && joined == "JOINING" ? (
+      ) : joined && joined === "JOINING" ? (
         <p>Joining the session...</p>
       ) : (
         <PrimaryButton onClick={joinMeeting}>Join the session</PrimaryButton>

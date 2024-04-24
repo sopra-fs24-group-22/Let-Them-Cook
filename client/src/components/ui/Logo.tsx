@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import styled from "styled-components";
-import { SecondaryButton, PrimaryButton } from "./Button";
-import { Navigate, useNavigate } from "react-router-dom";
+import { SecondaryButton } from "./Button";
+import { useNavigate } from "react-router-dom";
 
 export default function Logo() {
   const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
   const navigate = useNavigate();
   const handleNavigateHome = () => {
-    if(window.location.pathname != '/home') {
+    if(window.location.pathname !== '/home') {
         navigate("/");
     }
   };

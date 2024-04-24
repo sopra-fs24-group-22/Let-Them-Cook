@@ -2,16 +2,11 @@ import {useState, ChangeEvent, useEffect} from 'react';
 import {PrimaryButton, SecondaryButton, ButtonGroup, JoinButton} from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import {Accordion, Container, Modal, Row} from 'react-bootstrap';
-import {
-  faTrashCan,
-  faCircleChevronDown,
-  faCircleChevronUp
-} from "@fortawesome/free-solid-svg-icons";
-import { SecondaryIconButton } from '../components/ui/Icon';
 import MainLayout from "../components/Layout/MainLayout";
 import {getAllRecipesAPI, getAllSessionsAPI, postSessionAPI} from "../api/app.api";
 import { getMyUser } from '../api/user.api';
 import { useNavigate } from 'react-router-dom';
+import recipes from "./Recipes";
 
 
 const SessionsPage = () => {
@@ -29,12 +24,12 @@ const SessionsPage = () => {
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
+      await fetchAllRecipes();
       // TODO: API CALL
       // await getAllSessionsAPI();
       const res = (view === "ALL") ?
-          await getAllSessionsAPI() : //await getAllSessionsAPI({ host: });//! DEV ONLY
-          [{"recipe": "Kottu Roti", "Start": "01.05.2024, 18:20", "Duration": "2h", "Participants": 2, "Chef": "Chef Dave"},
-          {"recipe": "Shawarma", "Start": "01.05.2024, 18:30", "Duration": "13h", "Participants": 14, "Chef": "Chef Ali"}]
+          await getAllSessionsAPI() : await getAllSessionsAPI();//! DEV ONLY
+
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");
@@ -52,22 +47,26 @@ const SessionsPage = () => {
   const handleClose = () => {
     setShow(false);
     setRecipe(undefined);
+    setSessionsName(undefined);
     setStart(undefined);
     setDuration(undefined);
     setParticipants(undefined);
-    setSingleSteps(['']);
   }
   const handleShow = async () => {
     await fetchAllRecipes();
     setShow(true);
   }
 
-  // Get all recipes for the New-Session-PopUp
+  // Get all recipes for the New-Session-PopUp/Session-Overview
   const [ownRecipes, setOwnRecipes] = useState<any[]>([]);
+  const [allRecipes, setAllRecipes] = useState<any[]>([]);
+
   const fetchAllRecipes = async () => {
     try {
-      const res = await getAllRecipesAPI(null, null, {"creatorName": userName});
-      setOwnRecipes(res);
+      const res1 = await getAllRecipesAPI(null, null, {"creatorName": userName});
+      setOwnRecipes(res1);
+      const res2 = await getAllRecipesAPI();
+      setAllRecipes(res2);
     } catch(e) {
       alert("Error while fetching all recipes. Please reload the page.");
     }
@@ -78,16 +77,16 @@ const SessionsPage = () => {
   const [start, setStart] = useState<Date>();
   const [duration, setDuration] = useState<number>();
   const [participants, setParticipants] = useState<number>();
-  const [singleSteps, setSingleSteps] = useState<string[]>(['']);
+  const [sessionName, setSessionsName] = useState<string>();
 
   // Function to save a new session
   const saveNewSession = async () => {
     const body = {
       recipe: recipe,
-      start: start,
+      sessionName: sessionName,
+      date: start,
       duration: duration,
-      participants: participants,
-      singleSteps: singleSteps
+      maxParticipantCount: participants,
     };
       try {
         await postSessionAPI(body);
@@ -98,31 +97,6 @@ const SessionsPage = () => {
       }
   };
 
-  // Functions for single steps
-  const addSingleStep = () => setSingleSteps([...singleSteps, '']);
-  const handleSingleStepsInputChange = (index: number, event: ChangeEvent<HTMLInputElement>) => {
-    const values = [...singleSteps];
-    values[index] = event.target.value;
-    setSingleSteps(values);
-  };
-  const removeSingleStep = (index: number) => {
-    const values = [...singleSteps];
-    values.splice(index, 1);
-    setSingleSteps(values);
-  };
-  const moveSingleStepDown = (index: number) => {
-    if (index === singleSteps.length - 1) return;
-    const values = [...singleSteps];
-    [values[index], values[index + 1]] = [values[index + 1], values[index]];
-    setSingleSteps(values);
-  };
-  const moveSingleStepUp = (index: number) => {
-    if (index === 0) return;
-    const values = [...singleSteps];
-    [values[index], values[index - 1]] = [values[index - 1], values[index]];
-    setSingleSteps(values);
-  };
-
   const [pageView, setPageView] = useState<"ALL" | "MY">('ALL');
   const [sessions, setSessions] = useState<any[]>([]);
 
@@ -130,7 +104,6 @@ const SessionsPage = () => {
     setPageView(view);
     await fetchSessions(view);
   }
-
 
   const buttonTopBar = (pageView === "ALL") ? (
       <>
@@ -175,7 +148,6 @@ const SessionsPage = () => {
           <PrimaryButton onClick={handleShow} style={{width: '100%'}}>
             Create new session
           </PrimaryButton>}>
-
         <ButtonGroup style={{marginBottom: '20px'}}>
           { buttonTopBar }
         </ButtonGroup>
@@ -184,17 +156,23 @@ const SessionsPage = () => {
           <Accordion>
             {sessions.map((session, index) => (
                 <Accordion.Item key={index} eventKey={String(index)} style={{ width: '100%', background: '#f0f0f0', marginTop: '5px'}}>
-                  <Accordion.Header style={{ display: 'flex', justifyContent: 'space-between', background: '#f0f0f0' }}>
-                  <div style={{ fontSize: '20px' }}>{session.recipe}</div>
-                  <div style={{ marginLeft: "90%" }}>
-                    <JoinButton onClick={() => navigate("/sessions/" + session.id)}>Join</JoinButton>
-                  </div>
-                </Accordion.Header>
+                  <Accordion.Header style={{ display: 'flex', background: '#f0f0f0' }}>
+                    <div style={{ fontSize: '20px' }}>{session.sessionName}</div>
+                    {/* Move the Join button to the right */}
+                    <div style={{ marginLeft: 'auto' }}>
+                      <JoinButton onClick={() => navigate("/sessions/" + session.id)}>Join</JoinButton>
+                    </div>
+                  </Accordion.Header>
                   <Accordion.Body style={{ background: '#f0f0f0' }}>
-                    <div>{session.Start}</div>
-                    <div>{session.Duration}</div>
-                    <div>{session.Participants}</div>
-                    <div>{session.Chef}</div>
+                    <div>Date & start time: {session.date}</div>
+                    <div>Host: {session.host}</div>
+                    <div>Max Participants: {session.maxParticipantCount}</div>
+                    {allRecipes.map(recipe => {
+                      if (recipe.id === session.recipe) {
+                        return <div key={recipe.id}>Recipe: {recipe.title}</div>;
+                      }
+                      return null;
+                    })}
                   </Accordion.Body>
                 </Accordion.Item>
             ))}
@@ -219,6 +197,10 @@ const SessionsPage = () => {
             ))}
           </Select>
 
+          <Label htmlFor="sessionname">Sessionname</Label>
+          <Input id="sessionname" type="text" placeholder="Session name" value={sessionName}
+            onChange={(e) => setSessionsName(String(e.target.value))}/>
+
           <Label htmlFor="start">Start date</Label>
           <Input id="start" type="datetime-local" value={start?.toISOString().slice(0, 16) || ''}
             onChange={(e) => setStart(new Date(e.target.value))} />
@@ -231,42 +213,6 @@ const SessionsPage = () => {
           <Input id="participants" type="number" placeholder="10" value={participants}
             onChange={(e) => setParticipants(Number(e.target.value))} />
 
-          <Label htmlFor="singleSteps">Single steps</Label>
-          {singleSteps.map((input, index) => (
-            <div key={index}>
-              <Input
-                type="text"
-                value={input}
-                onChange={(event) => handleSingleStepsInputChange(index, event)}
-                style = {{width: '80%', marginBottom: '0'}}
-                placeholder="Chop the carrots"
-              />
-              <SecondaryIconButton
-                icon={faCircleChevronDown}
-                style={{
-                  cursor: (index === singleSteps.length-1) ? '' : 'pointer',
-                  marginLeft: '5px',
-                  color: (index === singleSteps.length-1) ? '#ccc' : '#878787'}}
-                onClick={(index === singleSteps.length-1) ? () => {} : () => moveSingleStepDown(index)}
-              />
-              <SecondaryIconButton
-                icon={faCircleChevronUp}
-                style={{
-                  cursor: (index === 0) ? '' : 'pointer',
-                  marginLeft: '5px',
-                  color: (index === 0) ? '#ccc' : '#878787'}}
-                onClick={(index === 0) ? () => {} : () => moveSingleStepUp(index)}
-              />
-              <SecondaryIconButton
-                icon={faTrashCan}
-                style={{cursor: 'pointer', marginLeft: '5px'}}
-                onClick={() => removeSingleStep(index)}
-              />
-            </div>
-          ))}
-          <SecondaryButton onClick={addSingleStep} style={{margin: '10px 5px'}}>
-            Add step
-          </SecondaryButton>
         </Modal.Body>
         <Modal.Footer>
           <SecondaryButton onClick={handleClose}>

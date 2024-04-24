@@ -22,7 +22,7 @@ public class RecipeController {
     this.recipeService = recipeService;
   }
 
-  @PostMapping("/recipe")
+  @PostMapping("/api/recipe")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<Void> createRecipe(@RequestBody RecipePostDTO recipePostDTO, @RequestHeader("Authorization") String accessToken) {
@@ -32,7 +32,7 @@ public class RecipeController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @DeleteMapping("/recipe/{id}")
+  @DeleteMapping("/api/recipe/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> deleteRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
@@ -41,7 +41,7 @@ public class RecipeController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @GetMapping("/recipe/{id}")
+  @GetMapping("/api/recipe/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<RecipeGetDTO> getRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
@@ -50,7 +50,7 @@ public class RecipeController {
     return ResponseEntity.status(HttpStatus.OK).body(DTORecipeMapper.INSTANCE.convertRecipeToRecipeGetDTO(recipe));
   }
 
-  @GetMapping("/recipes")
+  @GetMapping("/api/recipes")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<ArrayList<RecipeGetDTO>> getRecipes(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {

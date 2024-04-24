@@ -27,7 +27,7 @@ public class SessionController {
     this.sessionService = sessionService;
   }
 
-  @PostMapping("/session")
+  @PostMapping("/api/session")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<Void> createSession(@RequestBody SessionPostDTO sessionPostDTO, @RequestHeader("Authorization") String accessToken) throws IOException {
@@ -37,7 +37,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @GetMapping("/session/{sessionId}")
+  @GetMapping("/api/session/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<SessionDTO> getSession(@PathVariable Long sessionId) {
@@ -46,7 +46,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));
   }
 
-  @DeleteMapping("/session/{sessionId}")
+  @DeleteMapping("/api/session/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<Void> deleteSession(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) {
@@ -55,7 +55,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 
-  @GetMapping("/session/credentials/{sessionId}")
+  @GetMapping("/api/session/credentials/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<SessionCredentialsDTO> getSessionCredentials(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) {
@@ -64,7 +64,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSessionCredentialsDTO(session));
   }
 
-  @GetMapping("/sessions")
+  @GetMapping("/api/sessions")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<ArrayList<SessionDTO>> getSessions(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
@@ -79,7 +79,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
   }
 
-  @PutMapping("/session/{id}/checklist")
+  @PutMapping("/api/session/{id}/checklist")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> updateChecklist(@PathVariable Long id, @RequestBody CheckPutDTO checkPutDTO, @RequestHeader("Authorization") String accessToken) {
@@ -90,7 +90,7 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 
-  @GetMapping("/session/{id}/checklist")
+  @GetMapping("/api/session/{id}/checklist")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {

@@ -24,20 +24,35 @@ public class JwtService {
   @Value("${refreshTokenExpirationMs}")
   private long REFRESH_TOKEN_EXPIRATION_MS;
 
+  public String removeBearer(String token) {
+    if(token.contains("Bearer ")) {
+      return token.substring(7);
+    }
+    return token;
+  }
+
   public String extractUsername(String token) {
+    token = removeBearer(token);
+
     return extractClaim(token, Claims::getSubject);
   }
 
   public Date extractExpiration(String token) {
+    token = removeBearer(token);
+
     return extractClaim(token, Claims::getExpiration);
   }
 
   public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+    token = removeBearer(token);
+
     final Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
   }
 
   private Claims extractAllClaims(String token) {
+    token = removeBearer(token);
+
     return Jwts
             .parserBuilder()
             .setSigningKey(getSignKey())
@@ -47,6 +62,8 @@ public class JwtService {
   }
 
   private Boolean isTokenExpired(String token) {
+    token = removeBearer(token);
+
     return extractExpiration(token).before(new Date());
   }
 

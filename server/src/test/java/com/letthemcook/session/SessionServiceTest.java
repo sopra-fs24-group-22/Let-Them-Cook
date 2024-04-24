@@ -1,6 +1,7 @@
 package com.letthemcook.session;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.recipe.RecipeRepository;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.videosdk.VideoSDKService;
@@ -21,6 +22,8 @@ public class SessionServiceTest {
   private JwtService jwtService;
   @Mock
   private UserRepository userRepository;
+  @Mock
+  private RecipeRepository recipeRepository;
   MongoTemplate mongoTemplate = Mockito.spy(
           //Instance the MongoTemplate, use any test framework
           new MongoTemplate(new SimpleMongoClientDbFactory("mongodb://localhost/test"))
@@ -34,7 +37,7 @@ public class SessionServiceTest {
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, mongoTemplate, videoSDKService);
+    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService);
   }
 
   @AfterEach

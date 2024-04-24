@@ -3,6 +3,7 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
+import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.videosdk.VideoSDKService;
@@ -43,12 +44,12 @@ public class SessionService {
   }
 
   public Session createSession(Session session, String accessToken) throws IOException {
-    accessToken = accessToken.substring(7);
     String username = jwtService.extractUsername(accessToken);
 
     session.setId(sequenceGeneratorService.getSequenceNumber(Session.SEQUENCE_NAME));
     session.setHostId(userRepository.getByUsername(username).getId());
     session.setParticipants(new ArrayList<>());
+    session.setCurrentParticipantCount(0);
 
     String roomID = videoSDKService.fetchRoomId();
     session.setRoomId(roomID);
@@ -77,15 +78,14 @@ public class SessionService {
   }
 
   public void deleteSession(Long sessionId, String accessToken) {
-    // Remove Bearer from string
-    String cutAccessToken = accessToken.substring(7);
+    String username = jwtService.extractUsername(accessToken);
 
     Session session = sessionRepository.getById(sessionId);
     if (session == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
     }
 
-    if (Objects.equals(session.getHostId(), userRepository.getByUsername(jwtService.extractUsername(cutAccessToken)).getId())) {
+    if (Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId())) {
       sessionRepository.deleteById(sessionId);
       return;
     }
@@ -125,15 +125,33 @@ public class SessionService {
   }
 
   public Session getSessionCredentials(Long sessionId, String accessToken) {
-    accessToken = accessToken.substring(7);
     String username = jwtService.extractUsername(accessToken);
+    User user = userRepository.getByUsername(username);
+    Session session = sessionRepository.getById(sessionId);
 
+    if (Objects.equals(session.getCurrentParticipantCount(), session.getMaxParticipantCount())) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This session is full");
+    }
+
+    // Add user to participants
+    ArrayList<Long> participants = session.getParticipants();
+    participants.add(user.getId());
+    session.setParticipants(participants);
+
+    // Increment currentParticipantCount
+    session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
+
+//    When implementing Session Join requests
 //    if (!checkIfUserIsParticipant(sessionId, username)) {
 //      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to get the credentials of this session");
 //    }
 
+    sessionRepository.save(session);
+
     return sessionRepository.getById(sessionId);
   }
+
+  // TODO: Implement a Leave session endpoint to decrement currentParticipantCount
 
   public void checkStep(Long sessionId, Long stepIndex, Boolean checked, String accessToken) {
     // TODO: Write tests

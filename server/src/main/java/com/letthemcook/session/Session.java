@@ -21,6 +21,7 @@ public class Session {
   private Long recipeId;
   private String sessionName;
   private Integer maxParticipantCount;
+  private Integer currentParticipantCount;
   private ArrayList<Long> participants;
   private HashMap<Long, Integer> checklistCount;
   private Date date;
@@ -40,6 +41,10 @@ public class Session {
 
   public String getSessionName() {
     return sessionName;
+  }
+
+  public Integer getCurrentParticipantCount() {
+    return currentParticipantCount;
   }
 
   public Integer getMaxParticipantCount() {
@@ -72,6 +77,10 @@ public class Session {
 
   public void setSessionName(String sessionName) {
     this.sessionName = sessionName;
+  }
+
+  public void setCurrentParticipantCount(Integer currentParticipantCount) {
+    this.currentParticipantCount = currentParticipantCount;
   }
 
   public void setMaxParticipantCount(Integer maxParticipantCount) {

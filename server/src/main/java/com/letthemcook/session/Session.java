@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 @Document("sessions")
 public class Session {
@@ -21,6 +22,7 @@ public class Session {
   private String sessionName;
   private Integer maxParticipantCount;
   private ArrayList<Long> participants;
+  private HashMap<Long, Integer> checklistCount;
   private Date date;
   private String roomId;
 
@@ -86,5 +88,13 @@ public class Session {
 
   public void setRoomId(String roomId) {
     this.roomId = roomId;
+  }
+
+  public HashMap<Long, Integer> getChecklistCount() {
+    return checklistCount;
+  }
+
+  public void setChecklistCount(HashMap<Long, Integer> checklistCount) {
+    this.checklistCount = checklistCount;
   }
 }

@@ -779,3 +779,48 @@ Authorization: Bearer [access token]
 ```
 401 UNAUTHORIZED "You are not authorized to get credentials for this session"
 ```
+
+## Update checklistCount in session
+
+**URL** : `/api/session/{id}/check`
+
+**Method** : `PUT`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "stepIndex": "[Index of step in checklist]",
+  "isChecked": "[Boolean]"
+}
+```
+
+**Data example**
+
+```json
+{
+    "stepIndex": 0,
+    "isChecked": true
+}
+```
+
+### Success Response
+
+**Code** : `204 NO CONTENT`
+
+### Error Response
+
+**Condition** : User is not part of the session
+
+**Code** : `401 UNAUTHORIZED`
+
+**Condition** Session does not exist
+
+**Code** : `404 NOT FOUND`

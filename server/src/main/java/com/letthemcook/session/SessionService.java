@@ -1,6 +1,8 @@
 package com.letthemcook.session;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.recipe.Recipe;
+import com.letthemcook.recipe.RecipeRepository;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.videosdk.VideoSDKService;
@@ -25,15 +27,17 @@ public class SessionService {
   private final SequenceGeneratorService sequenceGeneratorService;
   private final JwtService jwtService;
   private final UserRepository userRepository;
+  private final RecipeRepository recipeRepository;
   private final MongoTemplate mongoTemplate;
   private final VideoSDKService videoSDKService;
 
   @Autowired
-  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, MongoTemplate mongoTemplate, VideoSDKService videoSDKService) {
+  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService) {
     this.sessionRepository = sessionRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
     this.userRepository = userRepository;
+    this.recipeRepository = recipeRepository;
     this.mongoTemplate = mongoTemplate;
     this.videoSDKService = videoSDKService;
   }
@@ -44,9 +48,20 @@ public class SessionService {
 
     session.setId(sequenceGeneratorService.getSequenceNumber(Session.SEQUENCE_NAME));
     session.setHostId(userRepository.getByUsername(username).getId());
+    session.setParticipants(new ArrayList<>());
 
     String roomID = videoSDKService.fetchRoomId();
     session.setRoomId(roomID);
+
+    // Initialize checklistCount
+    HashMap<Long, Integer> checklistCount = new HashMap<>();
+    Recipe recipe = recipeRepository.getById(session.getRecipeId());
+
+    for (long i = 0; i < recipe.getChecklist().size(); i++) {
+      checklistCount.put(i, 0);
+    }
+
+    session.setChecklistCount(checklistCount);
 
     sessionRepository.save(session);
     // TODO: Add to my session
@@ -118,6 +133,32 @@ public class SessionService {
 //    }
 
     return sessionRepository.getById(sessionId);
+  }
+
+  public void checkStep(Long sessionId, Long stepIndex, Boolean checked, String accessToken) {
+    // TODO: Write tests
+    Session session = sessionRepository.getById(sessionId);
+
+    if (session == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+    }
+
+    // Authorize user against session
+    if (!checkIfUserIsParticipant(sessionId, jwtService.extractUsername(accessToken))) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed in this session");
+    }
+
+    HashMap<Long, Integer> checklistCount = session.getChecklistCount();
+
+    // Update checklist count according to state
+    if (checked) {
+      checklistCount.put(stepIndex, checklistCount.get(stepIndex) + 1);
+    } else {
+      checklistCount.put(stepIndex, checklistCount.get(stepIndex) - 1);
+    }
+
+    session.setChecklistCount(checklistCount);
+    sessionRepository.save(session);
   }
 
   // ######################################### Util #########################################

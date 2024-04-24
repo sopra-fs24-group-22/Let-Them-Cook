@@ -1,6 +1,5 @@
 package com.letthemcook.session.dto;
 
-import java.util.ArrayList;
 import java.util.Date;
 
 public class SessionPostDTO {
@@ -46,7 +45,6 @@ public class SessionPostDTO {
   public void setMaxParticipantCount(Integer maxParticipantCount) {
     this.maxParticipantCount = maxParticipantCount;
   }
-
 
   public void setDate(Date date) {
     this.date = date;

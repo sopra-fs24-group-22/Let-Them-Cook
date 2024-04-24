@@ -1,6 +1,8 @@
 package com.letthemcook.session;
 
+import com.letthemcook.rest.mapper.DTOChecklistMapper;
 import com.letthemcook.rest.mapper.DTOSessionMapper;
+import com.letthemcook.session.dto.CheckPutDTO;
 import com.letthemcook.session.dto.SessionCredentialsDTO;
 import com.letthemcook.session.dto.SessionDTO;
 import com.letthemcook.session.dto.SessionPostDTO;
@@ -74,5 +76,16 @@ public class SessionController {
     }
 
     return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
+  }
+
+  @PutMapping("/session/{id}/check")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ResponseBody
+  public ResponseEntity<Void> checkSession(@PathVariable Long id, @RequestBody CheckPutDTO checkPutDTO, @RequestHeader("Authorization") String accessToken) {
+    ChecklistStep checklistStep = DTOChecklistMapper.INSTANCE.convertCheckPutDTOToEntity(checkPutDTO);
+
+    sessionService.checkStep(id, checklistStep.getStepIndex(), checklistStep.getIsChecked(), accessToken);
+
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

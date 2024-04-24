@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
+import com.letthemcook.rest.mapper.DTOUserMapper;
+import com.letthemcook.user.dto.GetMeRequestDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
-import com.letthemcook.user.dto.RefreshRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,6 +27,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.Cookie;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -90,7 +94,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.loginUser(any(User.class))).thenReturn(token);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(loginRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -107,7 +111,7 @@ public class UserControllerTest {
 
     when(userService.loginUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(loginRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
@@ -122,17 +126,12 @@ public class UserControllerTest {
     token.setAccessToken("newAccessToken");
     token.setRefreshToken("validRefreshToken");
 
-    // Setup Request DTO
-    RefreshRequestDTO refreshRequestDTO = new RefreshRequestDTO();
-    refreshRequestDTO.setRefreshToken("validRefreshToken");
-
     // Mock userService
     when(userService.refreshAccessToken(anyString())).thenReturn(token);
 
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(refreshRequestDTO)))
+    mockMvc.perform(MockMvcRequestBuilders.get("/auth/refresh")
+                    .cookie(new Cookie("refreshToken", "validRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").value(token.getRefreshToken()));
@@ -140,18 +139,20 @@ public class UserControllerTest {
 
   @Test
   public void testReturnErrorWhenRefreshTokenIsInvalid() throws Exception {
-    // Setup Request DTO
-    RefreshRequestDTO refreshRequestDTO = new RefreshRequestDTO();
-    refreshRequestDTO.setRefreshToken("invalidRefreshToken");
-
     // Mock userService
     when(userService.refreshAccessToken(anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
 
     // Perform request
-    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(refreshRequestDTO)))
+    mockMvc.perform(MockMvcRequestBuilders.get("/auth/refresh")
+                    .cookie(new Cookie("refreshToken", "invalidRefreshToken")))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void testReturnErrorWhenRefreshTokenIsMissing() throws Exception {
+    // Perform request
+    mockMvc.perform(MockMvcRequestBuilders.get("/auth/refresh"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   // ######################################### Register Route #########################################
@@ -173,7 +174,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.createUser(any(User.class))).thenReturn(token);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -194,7 +195,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.createUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isConflict());
@@ -213,7 +214,7 @@ public class UserControllerTest {
     // Mock userService
     when(userService.createUser(any(User.class))).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(registerRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isConflict());
@@ -233,10 +234,81 @@ public class UserControllerTest {
     token.setAccessToken("accessToken");
     token.setRefreshToken("refreshToken");
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/logout")
+    mockMvc.perform(MockMvcRequestBuilders.post("/auth/logout")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(logoutRequestDTO)))
             .andExpect(MockMvcResultMatchers.status().isNoContent())
             .andExpect(MockMvcResultMatchers.jsonPath("$.Cookies").doesNotExist());
+  }
+
+  @Test
+  @Disabled
+  public void getUser_returnsUserDetails_whenAccessTokenIsValid() throws Exception {
+    // Given
+    //TODO: @Martin please fix
+    String validAccessToken = "validAccessToken";
+    User user = new User();
+    user.setUsername("test@test.com");
+    user.setPassword("password");
+    user.setFirstname("Test");
+    user.setLastname("User");
+    user.setEmail("test@user.com");
+
+    GetMeRequestDTO expectedResponse = DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user);
+
+    when(userService.getUser(validAccessToken)).thenReturn(user);
+
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me")
+                    .cookie(new Cookie("accessToken", validAccessToken)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(user.getUsername()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.firstname").value(user.getFirstname()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.lastname").value(user.getLastname()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()));
+  }
+
+  @Test
+  @Disabled
+  public void getUser_returnsUnauthorized_whenAccessTokenIsInvalid() throws Exception {
+    // Given
+    //TODO: @Martin please fix
+    String invalidAccessToken = "invalidAccessToken";
+
+    when(userService.getUser(invalidAccessToken)).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
+
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me")
+                    .cookie(new Cookie("accessToken", invalidAccessToken)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void getUser_returnsBadRequest_whenAccessTokenIsMissing() throws Exception {
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
+  // ######################################### User me #########################################
+
+  @Test
+  public void getUserReturnsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+    // Given
+    String invalidAccessToken = "invalidAccessToken";
+
+    when(userService.getUser(invalidAccessToken)).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
+
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me")
+                    .header("Authorization", invalidAccessToken))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void getUserReturnsBadRequestWhenAccessTokenIsMissing() throws Exception {
+    // When & Then
+    mockMvc.perform(MockMvcRequestBuilders.get("/user/me"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 }

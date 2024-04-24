@@ -3,6 +3,7 @@ package com.letthemcook.session.dto;
 import com.letthemcook.recipe.Recipe;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class SessionDTO {
   private Long id;
@@ -11,7 +12,7 @@ public class SessionDTO {
   private String sessionName;
   private Integer maxParticipantCount;
   private ArrayList<Long> participants;
-  private String date;
+  private Date date;
 
   public Long getId() {
     return id;
@@ -37,7 +38,7 @@ public class SessionDTO {
     return participants;
   }
 
-  public String getDate() {
+  public Date getDate() {
     return date;
   }
 
@@ -65,7 +66,7 @@ public class SessionDTO {
     this.participants = participants;
   }
 
-  public void setDate(String date) {
+  public void setDate(Date date) {
     this.date = date;
   }
 }

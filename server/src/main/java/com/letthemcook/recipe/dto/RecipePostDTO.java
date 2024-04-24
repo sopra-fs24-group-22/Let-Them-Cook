@@ -6,6 +6,8 @@ public class RecipePostDTO {
   private Long creatorId;
   private String title;
   private ArrayList<String> checklist;
+  private ArrayList<String> ingredients;
+  private int cookingTimeMin;
   private int privacyStatus;
 
   public Long getCreatorId() {
@@ -38,5 +40,21 @@ public class RecipePostDTO {
 
   public void setPrivacyStatus(int privacyStatus) {
     this.privacyStatus = privacyStatus;
+  }
+
+  public ArrayList<String> getIngredients() {
+    return ingredients;
+  }
+
+  public void setIngredients(ArrayList<String> ingredients) {
+    this.ingredients = ingredients;
+  }
+
+  public int getCookingTimeMin() {
+    return cookingTimeMin;
+  }
+
+  public void setCookingTimeMin(int cookingTimeMin) {
+    this.cookingTimeMin = cookingTimeMin;
   }
 }

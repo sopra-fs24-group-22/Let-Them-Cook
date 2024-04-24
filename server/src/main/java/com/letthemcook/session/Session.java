@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 @Document("sessions")
 public class Session {
@@ -15,23 +17,25 @@ public class Session {
 
   @Id
   private Long id;
-  private Long host;
-  private Long recipe;
+  private Long hostId;
+  private Long recipeId;
   private String sessionName;
   private Integer maxParticipantCount;
   private ArrayList<Long> participants;
-  private String date;
+  private HashMap<Long, Integer> checklistCount;
+  private Date date;
+  private String roomId;
 
   public Long getId() {
     return id;
   }
 
-  public Long getHost() {
-    return host;
+  public Long getHostId() {
+    return hostId;
   }
 
-  public Long getRecipe() {
-    return recipe;
+  public Long getRecipeId() {
+    return recipeId;
   }
 
   public String getSessionName() {
@@ -46,20 +50,24 @@ public class Session {
     return participants;
   }
 
-  public String getDate() {
+  public Date getDate() {
     return date;
+  }
+
+  public String getRoomId() {
+    return roomId;
   }
 
   public void setId(Long id) {
     this.id = id;
   }
 
-  public void setHost(Long host) {
-    this.host = host;
+  public void setHostId(Long hostId) {
+    this.hostId = hostId;
   }
 
-  public void setRecipe(Long recipe) {
-    this.recipe = recipe;
+  public void setRecipeId(Long recipeId) {
+    this.recipeId = recipeId;
   }
 
   public void setSessionName(String sessionName) {
@@ -74,7 +82,19 @@ public class Session {
     this.participants = participants;
   }
 
-  public void setDate(String date) {
+  public void setDate(Date date) {
     this.date = date;
+  }
+
+  public void setRoomId(String roomId) {
+    this.roomId = roomId;
+  }
+
+  public HashMap<Long, Integer> getChecklistCount() {
+    return checklistCount;
+  }
+
+  public void setChecklistCount(HashMap<Long, Integer> checklistCount) {
+    this.checklistCount = checklistCount;
   }
 }

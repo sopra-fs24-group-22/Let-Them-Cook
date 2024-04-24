@@ -3,11 +3,13 @@ package com.letthemcook.session;
 public enum QueryParams{
   SESSION_NAME("sessionName"),
   DATE("date"),
-  RECIPE("recipe"),
-  HOST("host"),
+  RECIPE_ID("recipeId"),
+  RECIPE_NAME("recipeName"),
+  HOST_ID("hostId"),
+  HOST_NAME("hostName"),
   MAX_PARTICIPANT_COUNT("maxParticipantCount"),
-  MAX_PARTICIPANTS("max_participants"),
-  MIN_PARTICIPANTS("min_participants");
+  MAX_PARTICIPANTS("maxParticipantCount"),
+  MIN_PARTICIPANTS("minParticipants");
 
   private final String value;
 

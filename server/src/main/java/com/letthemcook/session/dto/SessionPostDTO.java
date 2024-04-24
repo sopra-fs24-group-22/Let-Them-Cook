@@ -1,13 +1,13 @@
 package com.letthemcook.session.dto;
 
-import java.util.ArrayList;
+import java.util.Date;
 
 public class SessionPostDTO {
   private Long id;
   private Long recipe;
   private String sessionName;
   private Integer maxParticipantCount;
-  private String date;
+  private Date date;
 
   public Long getId() {
     return id;
@@ -26,7 +26,7 @@ public class SessionPostDTO {
   }
 
 
-  public String getDate() {
+  public Date getDate() {
     return date;
   }
 
@@ -46,8 +46,7 @@ public class SessionPostDTO {
     this.maxParticipantCount = maxParticipantCount;
   }
 
-
-  public void setDate(String date) {
+  public void setDate(Date date) {
     this.date = date;
   }
 }

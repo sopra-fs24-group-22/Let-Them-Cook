@@ -2,10 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/LoginLayout";
 import {
-  Title,
   Input,
   Button,
-  HLine,
   BorderlessButton,
 } from "../components/ui/Login";
 import { eMailIsValid } from "../helpers/eMailIsValid";
@@ -34,15 +32,15 @@ const RegisterPage = () => {
   const register = async () => {
     setIsLoading(true);
     const body = {
-      firstname,
-      lastname,
-      username,
-      email,
-      password,
+      firstname: firstname,
+      lastname: lastname,
+      username: username,
+      email: email,
+      password: password,
     };
     try {
       const res = await postRegisterAPI(body);
-      const { accessToken } = res;
+      const accessToken = res;
       setAccessToken(accessToken);
       navigate("/home");
     } catch (error) {
@@ -61,7 +59,6 @@ const RegisterPage = () => {
 
   return (
     <Layout>
-      <Title>Register</Title>
       <Input
         placeholder="First name"
         value={firstname}
@@ -98,7 +95,6 @@ const RegisterPage = () => {
         )}
       </Button>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <HLine />
       <BorderlessButton
         onClick={() => navigate("/login")}
         style={{ cursor: "pointer" }}

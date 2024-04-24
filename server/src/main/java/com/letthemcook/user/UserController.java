@@ -3,13 +3,14 @@ package com.letthemcook.user;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.auth.token.dto.TokenResponseDTO;
 import com.letthemcook.rest.mapper.DTOUserMapper;
+import com.letthemcook.user.dto.GetMeRequestDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
-import com.letthemcook.user.dto.RefreshRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -27,7 +28,7 @@ public class UserController {
     this.userService = userService;
   }
 
-  @PostMapping("/api/auth/login")
+  @PostMapping("/auth/login")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> loginUser(@RequestBody LoginRequestDTO loginRequestDTO, HttpServletResponse response) {
@@ -41,7 +42,7 @@ public class UserController {
 
   }
 
-  @PostMapping("/api/auth/logout")
+  @PostMapping("/auth/logout")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public ResponseEntity<Void> logoutUser(@RequestBody LogoutRequestDTO logoutRequestDTO, HttpServletResponse response) {
@@ -66,7 +67,7 @@ public class UserController {
     return ResponseEntity.noContent().build();
   }
 
-  @PostMapping("/api/auth/register")
+  @PostMapping("/auth/register")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public ResponseEntity<TokenResponseDTO> createUser(@RequestBody RegisterRequestDTO registerRequestDTO, HttpServletResponse response) {
@@ -80,13 +81,20 @@ public class UserController {
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
   }
 
-  @GetMapping("/api/auth/refresh")
+  @GetMapping("/auth/refresh")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<TokenResponseDTO> refreshToken(@RequestBody RefreshRequestDTO refreshRequestDTO) {
-    String refreshToken = refreshRequestDTO.getRefreshToken();
+  public ResponseEntity<TokenResponseDTO> refreshToken(@CookieValue String refreshToken) {
     Token token = userService.refreshAccessToken(refreshToken);
     return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToTokenDTO(token));
+  }
+
+  @GetMapping("user/me")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<GetMeRequestDTO> getUser(@RequestHeader("Authorization") String accessToken) {
+      User user = userService.getUser(accessToken);
+      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
   }
 
   // ######################################### Util #########################################

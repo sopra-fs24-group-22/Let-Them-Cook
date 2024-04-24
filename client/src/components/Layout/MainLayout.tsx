@@ -1,14 +1,14 @@
 import { ReactNode, useState } from "react";
 import styled from "styled-components";
-import Logo from "../../assets/img/logo.png";
-import {Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
-import { Modal } from 'react-bootstrap';
-import {PrimaryButton, SecondaryButton} from "../ui/Button";
-import {deleteRefreshToken, getRefreshToken, postLogoutAPI} from "../../api/app.api";
-import {deleteAccessToken} from "../../api/axios";
+import { Modal } from "react-bootstrap";
+import { PrimaryButton, SecondaryButton } from "../ui/Button";
+import { postLogoutAPI } from "../../api/app.api";
+import { deleteAccessToken } from "../../api/axios";
+import Logo from "../ui/Logo";
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -19,33 +19,23 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   children,
   sidebarContent,
 }) => {
-  const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
-  const [show, setShow] = useState(false);
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
+  const [showLogoutBox, setShowLogoutBox] = useState(false);
+  const handleShowLogoutBox = () => setShowLogoutBox(true);
+  const handleCloseLogoutBox = () => setShowLogoutBox(false);
   const navigate = useNavigate();
   const logout = async () => {
     try {
-      const refreshToken = getRefreshToken();
-      await postLogoutAPI(refreshToken);
-      deleteRefreshToken();
       deleteAccessToken();
+      await postLogoutAPI({});
       navigate("/login");
     } catch (error) {
-      alert(
-          "Something went wrong during logout"
-      )
+      alert("Something went wrong during logout");
     }
-  }
+  };
   return (
     <Wrapper>
       <Navbar>
-        <div className="logo-box">
-          {/* <img src={Logo} alt="" /> */}
-          <LogoText
-            onClick={() => {setEasterEggClickCounter(easterEggClickCounter + 1);}}
-          >Let them Cook</LogoText>
-        </div>
+        <Logo />
         <ul>
           <li>
             <Link to="/home">Home</Link>
@@ -69,7 +59,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           </li>
 
           <li>
-            <Link to="/chefs" onClick={(e) => { e.preventDefault(); handleShow(); }}>
+            <Link
+              to=""
+              onClick={(e) => {
+                e.preventDefault();
+                handleShowLogoutBox();
+              }}
+            >
               <FontAwesomeIcon icon={faSignOut} />
             </Link>
           </li>
@@ -79,30 +75,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Sidebar>{sidebarContent}</Sidebar>
         <Content>{children}</Content>
       </Main>
-      {/* Modal just for fun */}
-      <Modal show={easterEggClickCounter == 5}
-             onHide={() => setEasterEggClickCounter(0)}
-             backdrop="static"
-             keyboard={false}>
-        <Modal.Body>
-          <img src="gordon-ramsay-what-are-you.gif" width="100%" />
-        </Modal.Body>
-        <Modal.Footer>
-          <SecondaryButton onClick={() => setEasterEggClickCounter(0)}>I'm an idiot sandwich</SecondaryButton>
-        </Modal.Footer>
-      </Modal>
       {/*Modal for Logout confirmation*/}
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={showLogoutBox} onHide={handleCloseLogoutBox}>
         <Modal.Header>
           <Modal.Title>Are you sure you want to log out?</Modal.Title>
         </Modal.Header>
         <Modal.Footer>
-          <PrimaryButton onClick={logout}>
-            Yes, log out
-          </PrimaryButton>
-          <SecondaryButton onClick={handleClose}>
+          <SecondaryButton onClick={handleCloseLogoutBox}>
             No, stay logged in
           </SecondaryButton>
+          <PrimaryButton onClick={logout}>Yes, log out</PrimaryButton>
         </Modal.Footer>
       </Modal>
     </Wrapper>
@@ -140,21 +122,6 @@ const Navbar = styled.nav`
     height: 40px;
   }
   border-radius: 20px;
-  transition: top 0.2s;
-  &:hover {
-    top: 25px;
-  }
-
-  .logo-box {
-    font-family: "Pacifico", cursive;
-    font-weight: 400;
-    font-style: normal;
-    display: flex;
-    align-items: center;
-    font-size: 2.6rem;
-    font-weight: 500;
-    color: #b46733;
-  }
 
   ul {
     display: flex;
@@ -182,7 +149,7 @@ const Main = styled.main`
   padding: 130px 30px 30px 30px;
   display: flex;
   flex-direction: row;
-  height: 100%; 
+  height: 100%;
 `;
 
 const Sidebar = styled.div`
@@ -193,10 +160,6 @@ const Sidebar = styled.div`
   margin-right: 30px;
   border-radius: 20px;
   box-shadow: 0px 18px 0px -8px #0000004e;
-  transition: transform 0.2s;
-  &:hover {
-    transform: translateY(-5px);
-  }
 `;
 const Content = styled.div`
   padding: 30px;
@@ -204,18 +167,6 @@ const Content = styled.div`
   flex: 1;
   border-radius: 20px;
   box-shadow: 0px 18px 0px -8px #0000004e;
-  transition: transform 0.2s;
-  max-height: 600px;
+  max-height: 1000px;
   overflow-y: auto;
-  &:hover {
-    transform: translateY(-5px);
-  }
-`;
-const LogoText = styled.i`
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Old versions of Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 `;

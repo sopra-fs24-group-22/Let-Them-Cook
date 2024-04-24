@@ -2,10 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/LoginLayout";
 import {
-  Title,
   Input,
   Button,
-  HLine,
   BorderlessButton,
 } from "../components/ui/Login";
 import { postLoginAPI } from "../api/app.api";
@@ -24,12 +22,11 @@ const LoginPage = () => {
   const login = async () => {
     setIsLoading(true);
     const body = {
-      username,
-      password,
+      username: username,
+      password: password,
     };
     try {
-      const res = await postLoginAPI(body);
-      const { accessToken } = res;
+      const accessToken = await postLoginAPI(body);
       setAccessToken(accessToken);
       navigate("/home");
     } catch (error) {
@@ -39,7 +36,6 @@ const LoginPage = () => {
   };
   return (
     <Layout>
-      <Title>Login</Title>
       <Input
         placeholder="Username"
         type="username"
@@ -52,18 +48,14 @@ const LoginPage = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Button
-        onClick={login}
-        disabled={!(username && password) || isLoading}
-      >
+      <Button onClick={login} disabled={!(username && password) || isLoading}>
         {!isLoading ? (
-          "Log in"
+          "Login"
         ) : (
           <FontAwesomeIcon icon={faSpinner} spin={true} />
         )}
       </Button>
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <HLine />
       <BorderlessButton
         onClick={() => navigate("/register")}
         style={{ cursor: "pointer" }}

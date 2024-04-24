@@ -96,7 +96,7 @@ public class CookbookControllerTest {
     Cookbook cookbook = cookbookRepository.getByOwnerId(1L);
     when(cookbookService.addRecipeToCookbook(1L, "testToken")).thenReturn(cookbook);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/cookbook/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/cookbook/recipe/1")
                     .header("Authorization", "Bearer testToken")
                     .with(csrf())
                     .contentType("application/json"))
@@ -108,7 +108,7 @@ public class CookbookControllerTest {
   public void testAddRecipeToCookbookConflict() throws Exception {
     when(cookbookService.addRecipeToCookbook(anyLong(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/cookbook/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/cookbook/recipe/1")
                     .header("Authorization", "Bearer testToken")
                     .with(csrf())
                     .contentType("application/json"))
@@ -117,7 +117,7 @@ public class CookbookControllerTest {
 
   @Test
   public void testAddRecipeToCookbookUnauthorized() throws Exception {
-    mockMvc.perform(MockMvcRequestBuilders.post("/cookbook/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/cookbook/recipe/1")
                     .with(csrf())
                     .contentType("application/json"))
             .andExpect(status().isUnauthorized());
@@ -131,7 +131,7 @@ public class CookbookControllerTest {
     Cookbook cookbook = cookbookRepository.getByOwnerId(1L);
     when(cookbookService.removeRecipeFromCookbook(1L, "testToken")).thenReturn(cookbook);
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/cookbook/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/cookbook/recipe/1")
                     .header("Authorization", "Bearer testToken")
                     .with(csrf())
                     .contentType("application/json"))
@@ -143,7 +143,7 @@ public class CookbookControllerTest {
   public void testRemoveRecipeFromCookbookNotFound() throws Exception {
     when(cookbookService.removeRecipeFromCookbook(anyLong(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-    mockMvc.perform(MockMvcRequestBuilders.delete("/cookbook/recipe/1")
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/cookbook/recipe/1")
                     .header("Authorization", "Bearer testToken")
                     .with(csrf())
                     .contentType("application/json"))

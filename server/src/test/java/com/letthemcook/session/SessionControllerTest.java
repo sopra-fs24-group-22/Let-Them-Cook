@@ -95,7 +95,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       when(sessionService.createSession(Mockito.any(), Mockito.any())).thenReturn(session);
 
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.post("/session")
+      mockMvc.perform(MockMvcRequestBuilders.post("/api/session")
                       .header("Authorization", "Bearer testToken")
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON)
@@ -115,7 +115,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       sessionRequest.setDate(date);
 
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.post("/session")
+      mockMvc.perform(MockMvcRequestBuilders.post("/api/session")
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON)
                       .content(new ObjectMapper().writeValueAsString(sessionRequest)))
@@ -132,7 +132,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       when(sessionService.getSession(1L)).thenReturn(session);
 
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.get("/session/1")
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1")
                       .header("Authorization", "Bearer testToken")
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON))
@@ -142,7 +142,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     @Test
     public void testGetSessionFailureUnauthorized() throws Exception {
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.get("/session/1")
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1")
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
@@ -174,7 +174,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       when(sessionService.getSessions(null, null, null)).thenReturn(sessions);
 
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.get("/sessions")
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/sessions")
                       .header("Authorization", "Bearer testToken")
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON))
@@ -184,7 +184,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     @Test
     public void testGetSessionsFailureUnauthorized() throws Exception {
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.get("/sessions")
+      mockMvc.perform(MockMvcRequestBuilders.get("/api/sessions")
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }

@@ -29,6 +29,10 @@ export const getAllRecipesAPI = async (limit = null, offset = null, queryParams 
   const { data } = await axiosAuth.get("recipes?" + objectToUrlParams(queryParams));
   return data;
 };
+export const getRecipeAPI = async (id: number) => {
+  const { data } = await axiosAuth.get("recipe/" + id);
+  return data;
+};
 export const deleteRecipeAPI = async (id: string) => {
   await axiosAuth.delete("recipe/" + id);
 };

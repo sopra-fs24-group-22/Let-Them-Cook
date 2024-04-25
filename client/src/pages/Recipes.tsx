@@ -2,40 +2,50 @@ import { useState, ChangeEvent, useEffect } from 'react';
 import { ButtonGroup, PrimaryButton, SecondaryButton } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from 'react-bootstrap/Modal';
-import { deleteRecipeAPI, getAllRecipesAPI, getCookbookAPI, postRecipeAPI } from "../api/app.api";
+import { deleteRecipeAPI, getAllRecipesAPI, getCookbookAPI, postRecipeAPI, getRecipeAPI } from "../api/app.api";
 import MainLayout from '../components/Layout/MainLayout';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faTrashCan,
   faCircleChevronDown,
   faCircleChevronUp,
-  faPenToSquare
+  faPenToSquare,
+  faHourglass
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from '../components/ui/Icon';
-import { Container, Row, Col } from 'react-bootstrap';
-import { Header2 } from '../components/ui/Header';
+import { Container, Row, Col, ListGroup } from 'react-bootstrap';
+import { Header1, Header2, SecondaryText } from '../components/ui/Header';
 import { getMyUser } from '../api/user.api';
 import { Tooltip } from 'react-tooltip'
 
 const RecipesPage = () => {
   // Vars for creating a new recipe
   const [editingRecipeId, setEditingRecipeId] = useState<number>(0);
-  const [show, setShow] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [dishName, setDishName] = useState<string>();
   const [privacyStatus, setPrivacyStatus] = useState<0|1>(0);
   const [cookingTime, setCookingTime] = useState<number>();
   const [ingredients, setIngredients] = useState<string[]>(['']);
   const [singleSteps, setSingleSteps] = useState<string[]>(['']);
+  const [dishCreator, setDishCreator] = useState<string>('');
   const handleClose = () => {
-    setShow(false);
+    setShowForm(false);
+    setShowDetails(false);
     setDishName(undefined);
     setPrivacyStatus(0);
     setCookingTime(undefined);
     setIngredients(['']);
     setSingleSteps(['']);
+    setDishCreator('');
     setEditingRecipeId(0);
   }
-  const handleShow = () => { setEditingRecipeId(0); setShow(true); };
+  const handleShowForm = () => { setEditingRecipeId(0); setShowForm(true); };
+
+  const handleShowDetails = (id: number) => {
+    fetchRecipe(id);
+    setShowDetails(true);
+  }
 
   // Function to save a new session
   const saveRecipe = async () => {
@@ -61,6 +71,21 @@ const RecipesPage = () => {
       alert("Error while saving the recipe. Please try again.");
     }
   };
+
+  // Function to fetch a recipe
+  const fetchRecipe = async (id: number) => {
+    try {
+      const res = await getRecipeAPI(id);
+      setDishName(res.title);
+      setPrivacyStatus(res.privacyStatus);
+      setCookingTime(res.cookingTimeMin);
+      setIngredients(res.ingredients);
+      setSingleSteps(res.checklist);
+      setDishCreator(res.creatorName)
+    } catch(e) {
+      alert("Error while loading the recipe. Please try again.")
+    }
+  }
 
   const deleteRecipe = async (recipeId: number) => {
     try {
@@ -198,7 +223,7 @@ const RecipesPage = () => {
   return (<>
     <MainLayout
       sidebarContent = {
-        <PrimaryButton onClick={handleShow} style={{width: '100%'}}>
+        <PrimaryButton onClick={handleShowForm} style={{width: '100%'}}>
           Create new recipe
         </PrimaryButton>}>
       <ButtonGroup style={{marginBottom: '20px'}}>
@@ -217,9 +242,12 @@ const RecipesPage = () => {
               <Container>
                 <Row>
                   <Col xs={11}>
-                    <Header2>{recipe.title}</Header2>
+                    <Header2 style={{cursor: 'pointer'}}
+                      onClick={() => handleShowDetails(recipe.id)}>{recipe.title}</Header2>
                     <p style={{ fontSize: '10pt' }}>by {recipe.creatorName}</p>
-                    <p style={{ fontSize: '10pt' }}>{recipe.cookingTimeMin} minutes</p>
+                    <p style={{ fontSize: '10pt' }}>
+                      <FontAwesomeIcon icon={faHourglass} style={{margin: '0 5px 0 0'}} />
+                      {recipe.cookingTimeMin} minutes</p>
                   </Col>
                   <Col xs={1}>
                     { recipe.creatorId === userId && <>
@@ -234,7 +262,7 @@ const RecipesPage = () => {
                           setCookingTime(recipe.cookingTimeMin);
                           setIngredients(recipe.ingredients);
                           setSingleSteps(recipe.checklist);
-                          setShow(true);
+                          setShowForm(true);
                         }} />
                       <FontAwesomeIcon
                         className="deleteRecipeIcon"
@@ -258,7 +286,7 @@ const RecipesPage = () => {
     </MainLayout>
 
     {/* Modal for creating a new recipe */}
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={showForm} onHide={handleClose}>
       <Modal.Header>
         <Modal.Title>Create new recipe</Modal.Title>
       </Modal.Header>
@@ -358,6 +386,45 @@ const RecipesPage = () => {
         <PrimaryButton onClick={saveRecipe} disabled={!(dishName && cookingTime && ingredients && singleSteps)}>
           Save
         </PrimaryButton>
+      </Modal.Footer>
+    </Modal>
+
+    {/* Modal for detail view */}
+    <Modal show={showDetails} onHide={handleClose}>
+      <Modal.Header>
+        <Modal.Title><Header1>{ dishName }</Header1></Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <SecondaryText>
+          by {dishCreator} |
+          <FontAwesomeIcon icon={faHourglass} style={{margin: '0 5px'}} />
+          {cookingTime}min</SecondaryText>
+
+        <Header2 style={{margin: '20px 0'}}>Ingredients</Header2>
+        <ListGroup variant="flush">
+          {ingredients.map((input, index) => (
+              <ListGroup.Item>{input}</ListGroup.Item>
+          ))}
+        </ListGroup>
+
+        <Header2 style={{margin: '20px 0'}}>Steps</Header2>
+        <ListGroup variant="flush">
+        {singleSteps.map((input, index) => (
+              <ListGroup.Item>{input}</ListGroup.Item>
+          ))}
+        </ListGroup>
+
+      </Modal.Body>
+      <Modal.Footer>
+      <SecondaryButton onClick={() => {
+        setShowDetails(false);
+        setDishCreator('');
+        setShowForm(true); }}>
+          Copy recipe
+        </SecondaryButton>
+      <SecondaryButton onClick={handleClose}>
+          Close
+        </SecondaryButton>
       </Modal.Footer>
     </Modal>
   </>);

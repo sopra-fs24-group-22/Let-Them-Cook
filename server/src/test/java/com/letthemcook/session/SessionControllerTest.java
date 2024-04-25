@@ -27,7 +27,7 @@ import java.util.Date;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-  @WebMvcTest(SessionController.class)
+@WebMvcTest(SessionController.class)
   @WebAppConfiguration
   @ContextConfiguration
   public class SessionControllerTest {

@@ -9,7 +9,7 @@ const SpeakerControls = () => {
 
   return (
     <>
-    <Container><Row>
+    <Container style={{marginBottom: '20px'}}><Row>
       <Col xs={10}>
         <PrimaryButton onClick={() => { stopHls(); leave(); }} style={{marginRight: '5px'}}>Leave</PrimaryButton>
         { /* Stream is running */ }

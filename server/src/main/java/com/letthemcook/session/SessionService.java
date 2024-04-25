@@ -129,6 +129,10 @@ public class SessionService {
     User user = userRepository.getByUsername(username);
     Session session = sessionRepository.getById(sessionId);
 
+    if (session == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+    }
+
     if (Objects.equals(session.getCurrentParticipantCount(), session.getMaxParticipantCount())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This session is full");
     }
@@ -154,7 +158,6 @@ public class SessionService {
   // TODO: Implement a Leave session endpoint to decrement currentParticipantCount
 
   public void checkStep(Long sessionId, Long stepIndex, Boolean checked, String accessToken) {
-    // TODO: Write tests
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
@@ -179,7 +182,7 @@ public class SessionService {
     sessionRepository.save(session);
   }
 
-  public HashMap<Long, Integer> getChecklist(Long sessionId, String accessToken) {
+  public HashMap<Long, Integer> getChecklistCount(Long sessionId, String accessToken) {
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
@@ -201,6 +204,13 @@ public class SessionService {
     if (session == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
     }
-    return session.getParticipants().contains(userRepository.getByUsername(username).getId());
+
+    ArrayList<Long> participants = session.getParticipants();
+
+    if (participants == null) {
+      return false;
+    }
+
+    return participants.contains(userRepository.getByUsername(username).getId());
   }
 }

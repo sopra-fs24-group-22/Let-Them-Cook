@@ -1,7 +1,7 @@
-/*
 package com.letthemcook.recipe;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,11 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @WebAppConfiguration
 @ContextConfiguration
 @SpringBootTest
-@TestPropertySource(properties = {
-  "spring.data.mongodb.database=test",
-  "spring.data.mongodb.uri=mongodb://localhost:27017/test",
-  "videosdk.api.token=123"
-})
+@TestPropertySource("classpath:test_application.properties")
+@Disabled
 public class RecipeServiceIntegrationTest {
   //TODO: Integration tests
   @Autowired
@@ -36,7 +33,7 @@ public class RecipeServiceIntegrationTest {
     recipeRepository.deleteAll();
   }
 
-  // ######################################### Get Recipe Tests #########################################
+  // ######################################### Get Recipes Tests #########################################
 
   @Test
   public void testGetRecipesOnlyPublic() {
@@ -67,4 +64,3 @@ public class RecipeServiceIntegrationTest {
     assertEquals(1, recipeService.getRecipes(10, 0, new HashMap<>()).size());
   }
 }
-*/

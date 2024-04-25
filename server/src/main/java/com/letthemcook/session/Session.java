@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
-@Document("sessions")
+@Document
 public class Session {
   @Transient
   public static final String SEQUENCE_NAME = "sessions_sequence";

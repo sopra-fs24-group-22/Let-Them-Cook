@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-@Document("users")
+@Document
 public class User implements Serializable, UserDetails {
 
   @Transient

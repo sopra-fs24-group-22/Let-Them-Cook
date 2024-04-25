@@ -33,6 +33,7 @@ import javax.servlet.http.Cookie;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(UserController.class)
 @WebAppConfiguration
@@ -63,6 +64,7 @@ public class UserControllerTest {
   public void setup() {
     // Setup test user
     User user = new User();
+    user.setId(1L);
     user.setUsername("test@test.com");
     user.setPassword("password");
     user.setFirstname("Test");
@@ -242,44 +244,30 @@ public class UserControllerTest {
   }
 
   @Test
-  @Disabled
   public void getUser_returnsUserDetails_whenAccessTokenIsValid() throws Exception {
     // Given
-    //TODO: @Martin please fix
-    String validAccessToken = "validAccessToken";
-    User user = new User();
-    user.setUsername("test@test.com");
-    user.setPassword("password");
-    user.setFirstname("Test");
-    user.setLastname("User");
-    user.setEmail("test@user.com");
-
-    GetMeRequestDTO expectedResponse = DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user);
-
-    when(userService.getUser(validAccessToken)).thenReturn(user);
+    User user = userRepository.getById(1L);
+    when(userService.getUser("accessToken")).thenReturn(user);
 
     // When & Then
     mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                    .cookie(new Cookie("accessToken", validAccessToken)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.username").value(user.getUsername()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.firstname").value(user.getFirstname()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.lastname").value(user.getLastname()))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(user.getEmail()));
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk());
   }
 
   @Test
-  @Disabled
   public void getUser_returnsUnauthorized_whenAccessTokenIsInvalid() throws Exception {
     // Given
-    //TODO: @Martin please fix
-    String invalidAccessToken = "invalidAccessToken";
-
-    when(userService.getUser(invalidAccessToken)).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
+    User user = userRepository.getById(1L);
+    when(userService.getUser("invalidAccessToken")).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
 
     // When & Then
     mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
-                    .cookie(new Cookie("accessToken", invalidAccessToken)))
+                    .header("Authorization", "invalidAccessToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
 

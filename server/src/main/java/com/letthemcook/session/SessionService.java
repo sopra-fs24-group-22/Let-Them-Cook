@@ -129,6 +129,10 @@ public class SessionService {
     User user = userRepository.getByUsername(username);
     Session session = sessionRepository.getById(sessionId);
 
+    if (session == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+    }
+
     if (Objects.equals(session.getCurrentParticipantCount(), session.getMaxParticipantCount())) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This session is full");
     }

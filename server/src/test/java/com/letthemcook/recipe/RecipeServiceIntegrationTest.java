@@ -1,4 +1,3 @@
-/*
 package com.letthemcook.recipe;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +35,7 @@ public class RecipeServiceIntegrationTest {
     recipeRepository.deleteAll();
   }
 
-  // ######################################### Get Recipe Tests #########################################
+  // ######################################### Get Recipes Tests #########################################
 
   @Test
   public void testGetRecipesOnlyPublic() {
@@ -67,4 +66,3 @@ public class RecipeServiceIntegrationTest {
     assertEquals(1, recipeService.getRecipes(10, 0, new HashMap<>()).size());
   }
 }
-*/

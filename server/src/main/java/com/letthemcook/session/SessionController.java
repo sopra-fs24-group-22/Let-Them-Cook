@@ -94,7 +94,7 @@ public class SessionController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<HashMap<Long, Integer>> getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
-    HashMap<Long, Integer> checklist = sessionService.getChecklist(id, accessToken);
+    HashMap<Long, Integer> checklist = sessionService.getChecklistCount(id, accessToken);
     return ResponseEntity.status(HttpStatus.OK).body(checklist);
   }
 }

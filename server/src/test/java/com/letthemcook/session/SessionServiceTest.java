@@ -18,7 +18,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.management.Query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -237,71 +236,62 @@ public class SessionServiceTest {
       assertEquals(e.getStatus(), HttpStatus.NOT_FOUND);
     }
   }
-  /*
-  // ######################################### Get Sessions Tests #########################################
+
+  // ######################################### Get Checklist Tests #########################################
 
   @Test
-  public void testGetSessionsDefaultParamsSuccess() {
-    // Setup test sessions
-    ArrayList<Session> sessions = new ArrayList<>();
+  public void testGetChecklistCountReturnsExpectedChecklistCount() {
+    // Setup user
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
 
-    for(int i = 0; i < 15; i++) {
-      Session session = new Session();
-      session.setSessionName("Test Session");
-      session.setMaxParticipantCount(3);
-      session.setRecipeId(2L);
-      session.setDate("2025-01-01");
-      session.setHostId(1L);
-      session.setParticipants(new ArrayList<>());
-      session.setId((long) i);
-      sessions.add(session);
-    }
+    // Setup session
+    Long sessionId = 1L;
+    Session session = new Session();
+    session.setId(sessionId);
 
-    // Setup Query
-    Query query = new Query();
-    query.limit(10);
-    query.skip(0);
+    ArrayList<Long> participants = new ArrayList<>();
+    participants.add(1L);
+    session.setParticipants(participants);
 
-    // Mock sessionRepository
-    when(mongoTemplate.find(query, Session.class)).thenReturn(sessions.subList(0, 10));
+    HashMap<Long, Integer> checklistCount = new HashMap<>();
+    checklistCount.put(1L, 5);
+    checklistCount.put(2L, 3);
+    checklistCount.put(3L, 0);
+    session.setChecklistCount(checklistCount);
 
-    // Test getSession
-    List<Session> result = sessionService.getSessions(10, 0, new LinkedHashMap<>());
+    // Mock services
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+    when(jwtService.extractUsername("Bearer accessToken")).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(user);
 
-    // Verify result
-    assertEquals(sessions.subList(0, 10), result);
+    HashMap<Long, Integer> result = sessionService.getChecklistCount(sessionId, "Bearer accessToken");
+
+    assertEquals(checklistCount, result);
   }
 
   @Test
-  public void testGetSessionsSkip10ParamSuccess() {
-    // Setup test sessions
-    ArrayList<Session> sessions = new ArrayList<>();
+  public void testGetChecklistCountThrowsExceptionWhenSessionNotFound() {
+    Long sessionId = 1L;
+    when(sessionRepository.getById(sessionId)).thenReturn(null);
 
-    for(int i = 0; i < 15; i++) {
-      Session session = new Session();
-      session.setSessionName("Test Session");
-      session.setMaxParticipantCount(3);
-      session.setRecipeId(2L);
-      session.setDate("2025-01-01");
-      session.setHostId(1L);
-      session.setParticipants(new ArrayList<>());
-      session.setId((long) i);
-      sessions.add(session);
-    }
-
-    // Setup Query
-    Query query = new Query();
-    query.limit(10);
-    query.skip(10);
-
-    // Mock sessionRepository
-    when(mongoTemplate.find(query, Session.class)).thenReturn(sessions.subList(10, 15));
-
-    // Test getSession
-    List<Session> result = sessionService.getSessions(10, 10, new LinkedHashMap<>());
-
-    // Verify result
-    assertEquals(sessions.subList(10, 15), result);
+    assertThrows(ResponseStatusException.class, () -> sessionService.getChecklistCount(sessionId, "Bearer accessToken"));
   }
-*/
+
+  @Test
+  public void testGetChecklistCountThrowsExceptionWhenUserNotAuthorized() {
+    // Setup unauthorized user
+    Long sessionId = 1L;
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
+
+    // Setup session
+    Session session = new Session();
+    session.setId(sessionId);
+    session.setHostId(2L);
+
+    assertThrows(ResponseStatusException.class, () -> sessionService.getChecklistCount(sessionId, "Bearer accessToken"));
+  }
 }

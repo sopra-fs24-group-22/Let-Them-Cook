@@ -44,7 +44,6 @@ public class RecipeService {
   }
 
   public Recipe createRecipe(Recipe recipe, String accessToken) {
-    accessToken = accessToken.substring(7);
     String username = jwtService.extractUsername(accessToken);
 
     // Set recipe data
@@ -59,7 +58,7 @@ public class RecipeService {
 
   public void deleteRecipe(Long id, String accessToken) {
     // Remove Bearer from string
-    accessToken = accessToken.substring(7);
+    String username = jwtService.extractUsername(accessToken);
 
     // Check if recipe exists
     Recipe recipe = recipeRepository.getById(id);
@@ -68,7 +67,7 @@ public class RecipeService {
     }
 
     // Check if user is authorized to delete recipe
-    if(Objects.equals(recipe.getCreatorId(), userRepository.getByUsername(jwtService.extractUsername(accessToken)).getId())) {
+    if(Objects.equals(recipe.getCreatorId(), userRepository.getByUsername(username).getId())) {
       recipeRepository.deleteById(id);
 
       // Delete recipe from all cookbooks
@@ -85,7 +84,6 @@ public class RecipeService {
   public Recipe getRecipe(Long id, String accessToken) {
     Recipe recipe = recipeRepository.getById(id);
 
-    accessToken = accessToken.substring(7);
     User user = userRepository.getByUsername(jwtService.extractUsername(accessToken));
 
     if (recipe == null || (!Objects.equals(recipe.getCreatorId(), user.getId()) && recipe.getPrivacyStatus() == 1)) {

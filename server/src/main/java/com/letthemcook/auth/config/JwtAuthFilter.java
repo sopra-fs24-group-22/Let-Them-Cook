@@ -44,9 +44,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         return;
       }
 
-/*      if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      if (!authHeader.startsWith("Bearer ")) {
         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing or invalid Authorization header.");
-      }*/
+      }
 
       jwt = authHeader.substring(7);
       username = jwtService.extractUsername(jwt);

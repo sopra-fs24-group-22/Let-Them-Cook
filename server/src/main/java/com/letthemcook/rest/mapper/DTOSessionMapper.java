@@ -34,5 +34,6 @@ public interface DTOSessionMapper {
 
   @Mapping(source = "hostId", target = "hostId")
   @Mapping(source = "roomId", target = "roomId")
+  @Mapping(source = "id", target = "sessionId")
   SessionCredentialsDTO convertEntityToSessionCredentialsDTO(Session session);
 }

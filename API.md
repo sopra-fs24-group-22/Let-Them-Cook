@@ -661,6 +661,7 @@ Authorization: Bearer [access token]
       "host": "[Host user id]",
       "recipe": "[Recipe id]",
       "maxParticipantCount": "[Max participant count]",
+      "currentParticipantCount": "[Current participant count]",
       "participants": ["List of participant user ids"],
       "date": "[Date of session]"
     }
@@ -752,7 +753,8 @@ Authorization: Bearer [access token]
   "sessions": [
     {
       "host": "[Host user id]",
-      "roomId": "[(String) Room id]"
+      "roomId": "[(String) Room id]",
+      "sessionId": "[Session id]"
     }
   ]
 }
@@ -778,6 +780,16 @@ Authorization: Bearer [access token]
 
 ```
 401 UNAUTHORIZED "You are not authorized to get credentials for this session"
+```
+
+**Condition** : Session room is full.
+
+**Code** : ` 401 UNAUTHORIZED`
+
+**Content** :
+
+```
+401 UNAUTHORIZED "This session is full"
 ```
 
 ## Update checklistCount in session
@@ -846,7 +858,7 @@ Authorization: Bearer [access token]
 
 ```json
 {
-  "[Index of step in checklist]": "[Long]",
+  "[Index of step in checklist]": "[Long]"
 }
 ```
 

@@ -69,6 +69,7 @@ sonarqube {
 }
 
 jacocoTestReport {
+  dependsOn test
   reports {
     xml.enabled true
   }
@@ -76,6 +77,7 @@ jacocoTestReport {
 
 test {
   useJUnitPlatform()
+  finalizedBy jacocoTestReport
   testLogging.showStandardStreams = true
   maxParallelForks = 1
 }

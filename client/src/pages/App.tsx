@@ -1,17 +1,12 @@
-import { useSelector } from "react-redux";
-import { State } from "../features";
 import Layout from "../components/Layout/MainLayout";
+import { Header1 } from "../components/ui/Header";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faKitchenSet } from "@fortawesome/free-solid-svg-icons";
 
 const AppPage = () => {
-  const appState = useSelector((state: State) => state.app);
   return (
     <Layout>
-      App Page
-      <br />
-      App State: {JSON.stringify(appState)}
-      <br />
-      <br />
-      Group: sopra-fs24-group-22
+      <Header1>Let them Cook <FontAwesomeIcon icon={faKitchenSet} /></Header1>
     </Layout>
   );
 };

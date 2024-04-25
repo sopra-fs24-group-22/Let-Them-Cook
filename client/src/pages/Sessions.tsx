@@ -62,8 +62,10 @@ const SessionsPage = () => {
 
   const fetchAllRecipes = async () => {
     try {
+      // fetching own recipes
       const res1 = await getAllRecipesAPI(null, null, {"creatorName": userName});
       setOwnRecipes(res1);
+      // fetching all recipes
       const res2 = await getAllRecipesAPI();
       setAllRecipes(res2);
     } catch(e) {

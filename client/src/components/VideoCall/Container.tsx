@@ -3,8 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { SpeakerView } from "./SpeakerView";
 import { ViewerView } from "./ViewerView";
 import { PrimaryButton } from "../ui/Button";
+import { useNavigate } from "react-router-dom";
 
 const Container = (props: any) => {
+  const navigate = useNavigate();
   const [joined, setJoined] = useState<"JOINED"|"JOINING"|null>(null);
   //Get the method which will be used to join the meeting.
   const { join } = useMeeting();
@@ -47,7 +49,10 @@ const Container = (props: any) => {
       ) : joined && joined === "JOINING" ? (
         <p>Joining the session...</p>
       ) : (
-        <PrimaryButton onClick={joinMeeting}>Join the session</PrimaryButton>
+        <>
+          <PrimaryButton onClick={() => navigate("/sessions")} style={{marginRight: '5px'}}>Back</PrimaryButton>
+          <PrimaryButton onClick={joinMeeting}>Join the session</PrimaryButton>
+        </>
       )}
     </div>
   );

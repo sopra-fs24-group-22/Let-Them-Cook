@@ -16,11 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @WebAppConfiguration
 @ContextConfiguration
 @SpringBootTest
-@TestPropertySource(properties = {
-  "spring.data.mongodb.database=test",
-  "spring.data.mongodb.uri=mongodb://localhost:27017/test",
-  "videosdk.api.token=123"
-})
+@TestPropertySource("classpath:test_application.properties")
 public class RecipeServiceIntegrationTest {
   //TODO: Integration tests
   @Autowired

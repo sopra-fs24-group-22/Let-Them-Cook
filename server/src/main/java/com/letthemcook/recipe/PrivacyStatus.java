@@ -1,8 +1,8 @@
 package com.letthemcook.recipe;
 
 public enum PrivacyStatus {
-  PUBLIC(0),
-  PRIVATE(1);
+  PUBLIC(1),
+  PRIVATE(0);
 
   PrivacyStatus(int value) {
   }

@@ -14,11 +14,15 @@ const ErrorLayout: React.FC<ErrorLayoutProps> = ({ children, errorCode }) => {
     <Wrapper>
       <Navbar>
         <Logo />
-        <Header1 style={{
-          display: 'flex',
-          marginLeft: 'auto',
-          padding: '5px 0 0 0',
-        }}>Error {errorCode}</Header1>
+        <Header1
+          style={{
+            display: "flex",
+            marginLeft: "auto",
+            padding: "5px 0 0 0",
+          }}
+        >
+          Error {errorCode}
+        </Header1>
       </Navbar>
       <ErrorContainer>{children}</ErrorContainer>
     </Wrapper>

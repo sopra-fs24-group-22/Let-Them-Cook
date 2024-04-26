@@ -24,7 +24,7 @@ axiosAuth.interceptors.request.use(
     }
     return config;
   },
-  (error: any) => Promise.reject(error)
+  (error: any) => Promise.reject(error),
 );
 
 // Check if response is error 403, if yes refresh Access token
@@ -46,7 +46,7 @@ axiosAuth.interceptors.response.use(
       window.location.href = "/login";
       return Promise.reject(error);
     }
-  }
+  },
 );
 
 // To be called after login

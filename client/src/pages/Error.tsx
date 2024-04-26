@@ -11,13 +11,12 @@ const ErrorPage = () => {
       <img
         src={window.location.origin + "/gordon-ramsay-no.gif"}
         width="100%"
-				style={{margin: '20px 0'}}
+        style={{ margin: "20px 0" }}
         alt="Nope"
-        />
-      <Button
-        onClick={() => navigate("/")}
-        style={{margin: '0'}}>
-        Back to the Dashboard</Button>
+      />
+      <Button onClick={() => navigate("/")} style={{ margin: "0" }}>
+        Back to the Dashboard
+      </Button>
     </Layout>
   );
 };

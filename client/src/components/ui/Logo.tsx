@@ -8,8 +8,8 @@ export default function Logo() {
   const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
   const navigate = useNavigate();
   const handleNavigateHome = () => {
-    if(window.location.pathname !== '/home') {
-        navigate("/");
+    if (window.location.pathname !== "/home") {
+      navigate("/");
     }
   };
   return (

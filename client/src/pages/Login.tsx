@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/LoginLayout";
-import {
-  Input,
-  Button,
-  BorderlessButton,
-} from "../components/ui/Login";
+import { Input, Button, BorderlessButton } from "../components/ui/Login";
 import { postLoginAPI } from "../api/app.api";
 import { setAccessToken } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

@@ -15,7 +15,7 @@ export const Input = styled.input`
   padding: 5px 5px;
   margin: 10px 5px 20px 5px;
   border-radius: 5px;
-  border: 1px solid #d9d9d9; 
+  border: 1px solid #d9d9d9;
   box-shadow: 0 2px 5px #d9d9d9;
   &:disabled {
     cursor: default;
@@ -28,7 +28,7 @@ export const Select = styled.select`
   padding: 5px 5px;
   margin: 10px 5px 20px 5px;
   border-radius: 5px;
-  border: 1px solid #d9d9d9; 
+  border: 1px solid #d9d9d9;
   box-shadow: 0 2px 5px #d9d9d9;
   &:disabled {
     cursor: default;

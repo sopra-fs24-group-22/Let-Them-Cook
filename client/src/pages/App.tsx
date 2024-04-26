@@ -6,7 +6,9 @@ import { faKitchenSet } from "@fortawesome/free-solid-svg-icons";
 const AppPage = () => {
   return (
     <Layout>
-      <Header1>Let them Cook <FontAwesomeIcon icon={faKitchenSet} /></Header1>
+      <Header1>
+        Let them Cook <FontAwesomeIcon icon={faKitchenSet} />
+      </Header1>
     </Layout>
   );
 };

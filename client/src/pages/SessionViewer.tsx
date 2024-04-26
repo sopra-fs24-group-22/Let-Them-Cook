@@ -36,7 +36,6 @@ const SessionViewer = () => {
     // API-Call
     try {
       const res = await getSessionCredentialsAPI(Number(sessionID));
-      console.log(res);
       setDishName(res.dishName);
 
       // Set Meeting ID
@@ -65,9 +64,7 @@ const SessionViewer = () => {
     try {
       const session = await getSessionAPI(Number(sessionID));
       const res1 = await getRecipeAPI(Number(session.recipe));
-      console.log(res1);
       setRecipe(res1);
-      console.log(recipe);
     } catch (error) {
       alert("Error while loading the recipes. Please try again.");
     }

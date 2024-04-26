@@ -14,6 +14,7 @@ import CookbookPage from "../pages/Cookbook";
 import SessionViewerPage from "../pages/SessionViewer";
 import ChefsPage from "../pages/Chefs";
 import ChefsFollowedPage from "../pages/ChefsFollowed";
+import ErrorPage from "../pages/Error";
 
 const Router = () => {
   return (
@@ -73,7 +74,7 @@ const Router = () => {
         <Route path="/" element={<Navigate to="/home" replace />} />
 
         {/* Error 404 */}
-        <Route path="/*" element={<div>404</div>} />
+        <Route path="/*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
   );

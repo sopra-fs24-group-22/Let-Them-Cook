@@ -48,7 +48,8 @@ export const JoinButton = styled.button`
     font-size: 1.3rem;
     font-weight: 500;
     &:hover {
-        background-color: #7c5050;
+        background-color: #18af28;
+        color: #fff;
     }
 
     &:disabled {

@@ -12,6 +12,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {faSpinner} from "@fortawesome/free-solid-svg-icons";
 import {getChecklistAPI, getRecipeAPI, getSessionAPI, getSessionCredentialsAPI, putChecklistAPI} from "../api/app.api";
+import {ListGroup} from "react-bootstrap";
 
 const SessionViewer = () => {
   const { sessionID } = useParams();
@@ -82,12 +83,9 @@ const SessionViewer = () => {
 
   const fetchChecklistState = async () => {
     try {
-      const newStepCounts: { [key: number]: number } = {};
-      for (let index = 0; index < recipe.checklist.length; index++) {
-        const count = await getChecklistAPI(Number(sessionID), { stepIndex: index });
-        newStepCounts[index] = count;
-      }
-      setStepCounts(newStepCounts);
+      const count = await getChecklistAPI(Number(sessionID));
+
+      setStepCounts(count);
     } catch (error) {
       console.error("Error fetching checklist state:", error);
       // Handle error, e.g., show an error message to the user
@@ -115,11 +113,16 @@ const SessionViewer = () => {
     }
   };
 
+  const fetchAll5Seconds = async (): Promise<void> => {
+    await fetchChecklistState();
+    await fetchSessionInfo();
+    setTimeout(fetchAll5Seconds, 5000);
+  }
+
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
-    fetchChecklistState();
-    fetchSessionInfo();
+    fetchAll5Seconds();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -129,18 +132,19 @@ const SessionViewer = () => {
             recipe ? (
                 <>
                   <h1>Checklist</h1>
-                  <ul>
+                  <ListGroup variant="flush">
                     {recipe.checklist.map((item: string, index: number) => (
-                        <li key={index}>
+                        <ListGroup.Item key={index}>
                           <input
                               type="checkbox"
                               checked={checkedItems[index] || false}
                               onChange={() => handleCheckboxChange(index)}
+                              style={{marginRight: '10px'}}
                           />
                           {item} ({stepCounts[index] || 0} / {participantsCount})
-                        </li>
+                        </ListGroup.Item>
                     ))}
-                  </ul>
+                  </ListGroup>
                 </>
             ) : (
                 <p>Loading checklist...</p>

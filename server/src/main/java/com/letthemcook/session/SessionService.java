@@ -146,7 +146,7 @@ public class SessionService {
         tempId = participantId;
       }
     }
-    if (!Objects.equals(tempId, null)) {
+    if (Objects.equals(tempId, null)) {
       session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
 
         // Add user to participants

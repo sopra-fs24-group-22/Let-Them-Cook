@@ -185,6 +185,7 @@ public class SessionServiceTest {
     ArrayList<Long> participants = new ArrayList<>();
     participants.add(1L);
     session.setParticipants(participants);
+    session.setCurrentParticipantCount(1);
 
     when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
     when(userRepository.getByUsername(user.getUsername())).thenReturn(user);

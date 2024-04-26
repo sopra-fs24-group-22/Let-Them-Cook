@@ -86,7 +86,7 @@ public class RecipeService {
 
     User user = userRepository.getByUsername(jwtService.extractUsername(accessToken));
 
-    if (recipe == null || (!Objects.equals(recipe.getCreatorId(), user.getId()) && recipe.getPrivacyStatus() == 0)) {
+    if (recipe == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
     return recipe;

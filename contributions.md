@@ -64,3 +64,6 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/50
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/49
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/46
 
+### Gian Gyger
+(in WK)
+

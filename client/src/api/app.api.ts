@@ -68,7 +68,7 @@ export const getSessionCredentialsAPI = async (sessionId: number) => {
 export const putChecklistAPI = async (sessionId: number, body: any) => {
   await axiosAuth.put("session/" + sessionId + "/checklist", body);
 }
-export const getChecklistAPI = async (sessionId: number, body: any) => {
-  const { data } = await axiosAuth.get("session/" + sessionId + "/checklist", body);
+export const getChecklistAPI = async (sessionId: number) => {
+  const { data } = await axiosAuth.get("session/" + sessionId + "/checklist");
   return data;
 }

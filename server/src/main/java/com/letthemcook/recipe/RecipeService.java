@@ -109,7 +109,7 @@ public class RecipeService {
     }
 
     // Only find public recipes
-    query.addCriteria(Criteria.where("privacyStatus").is(0));
+    query.addCriteria(Criteria.where("privacyStatus").is(1L));
 
     return mongoTemplate.find(query, Recipe.class);
   }

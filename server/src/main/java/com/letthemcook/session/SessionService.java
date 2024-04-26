@@ -138,23 +138,20 @@ public class SessionService {
     }
 
     ArrayList<Long> participants = session.getParticipants();
-    Long tempId = null;
 
     // Increment currentParticipantCount
     for (Long participantId : participants) {
       if (Objects.equals(participantId, user.getId())) {
-        tempId = participantId;
+        return sessionRepository.getById(sessionId);
       }
     }
-    if (!Objects.equals(tempId, null)) {
-      session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
 
-        // Add user to participants
-        participants.add(user.getId());
-        session.setParticipants(participants);
-      }
+    session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
 
-//    When implementing Session Join requests
+    // Add user to participants
+    participants.add(user.getId());
+    session.setParticipants(participants);
+//  When implementing Session Join requests
 //    if (!checkIfUserIsParticipant(sessionId, username)) {
 //      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to get the credentials of this session");
 //    }

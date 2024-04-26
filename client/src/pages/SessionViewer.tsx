@@ -109,16 +109,16 @@ const SessionViewer = () => {
     }
   };
 
-  const fetchAll5Seconds = async (): Promise<void> => {
+  const fetchChecklistData = async (): Promise<void> => {
     await fetchChecklistState();
     await fetchSessionInfo();
-    setTimeout(fetchAll5Seconds, 5000);
+    setTimeout(fetchChecklistData, 3000);
   }
 
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
-    fetchAll5Seconds();
+    fetchChecklistData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -130,7 +130,7 @@ const SessionViewer = () => {
                   <h1>Checklist</h1>
                   <ListGroup variant="flush">
                     {recipe.checklist.map((item: string, index: number) => (
-                        <ListGroup.Item key={index}>
+                        <ListGroup.Item key={index} style={{backgroundColor: 'transparent'}}>
                           <input
                               type="checkbox"
                               checked={checkedItems[index] || false}

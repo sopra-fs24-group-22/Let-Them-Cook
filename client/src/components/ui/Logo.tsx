@@ -32,7 +32,7 @@ export default function Logo() {
       >
         <Modal.Body>
           <img
-            src="gordon-ramsay-what-are-you.gif"
+            src={window.location.origin + "/gordon-ramsay-what-are-you.gif"}
             width="100%"
             alt="Idiot sandwich"
           />

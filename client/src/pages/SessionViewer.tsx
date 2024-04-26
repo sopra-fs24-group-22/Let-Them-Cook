@@ -7,14 +7,6 @@ import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import {
-  getChecklistAPI,
-  getRecipeAPI,
-  getSessionAPI,
-  getSessionCredentialsAPI,
-  putChecklistAPI,
-} from "../api/app.api";
 import {faSpinner} from "@fortawesome/free-solid-svg-icons";
 import {getChecklistAPI, getRecipeAPI, getSessionAPI, getSessionCredentialsAPI, putChecklistAPI} from "../api/app.api";
 import {ListGroup} from "react-bootstrap";
@@ -87,14 +79,6 @@ const SessionViewer = () => {
 
   const fetchChecklistState = async () => {
     try {
-      const newStepCounts: { [key: number]: number } = {};
-      for (let index = 0; index < recipe.checklist.length; index++) {
-        const count = await getChecklistAPI(Number(sessionID), {
-          stepIndex: index,
-        });
-        newStepCounts[index] = count;
-      }
-      setStepCounts(newStepCounts);
       const count = await getChecklistAPI(Number(sessionID));
 
       setStepCounts(count);
@@ -134,9 +118,6 @@ const SessionViewer = () => {
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
-    fetchChecklistState();
-    fetchSessionInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchAll5Seconds();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

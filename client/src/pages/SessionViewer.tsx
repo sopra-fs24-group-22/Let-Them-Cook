@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import { Header1 } from "../components/ui/Header";
 import { getMyUser } from "../api/user.api";
-import {
-  MeetingProvider,
-  MeetingConsumer,
-} from "@videosdk.live/react-sdk";
+import { MeetingProvider, MeetingConsumer } from "@videosdk.live/react-sdk";
 import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  getChecklistAPI,
+  getRecipeAPI,
+  getSessionAPI,
+  getSessionCredentialsAPI,
+  putChecklistAPI,
+} from "../api/app.api";
 import {faSpinner} from "@fortawesome/free-solid-svg-icons";
 import {getChecklistAPI, getRecipeAPI, getSessionAPI, getSessionCredentialsAPI, putChecklistAPI} from "../api/app.api";
 import {ListGroup} from "react-bootstrap";
@@ -17,21 +22,23 @@ import {ListGroup} from "react-bootstrap";
 const SessionViewer = () => {
   const { sessionID } = useParams();
   const navigate = useNavigate();
-  
+
   // States for VideoCall
-  const [meetingId, setMeetingId] = useState<string|null>(null);
-  const onMeetingLeave = () => { setMeetingId(null); navigate("/sessions") };
-  const [mode, setMode] = useState<"CONFERENCE"|"VIEWER">("CONFERENCE");
+  const [meetingId, setMeetingId] = useState<string | null>(null);
+  const onMeetingLeave = () => {
+    setMeetingId(null);
+    navigate("/sessions");
+  };
+  const [mode, setMode] = useState<"CONFERENCE" | "VIEWER">("CONFERENCE");
 
   // Layout States
-  const [dishName, setDishName] = useState<string>('');
-  const [username, setUsername] = useState<string>('');
+  const [dishName, setDishName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
 
-  const getMeetingAndToken = async (id: string|null) => {
+  const getMeetingAndToken = async (id: string | null) => {
     // API-Call
     try {
       const res = await getSessionCredentialsAPI(Number(sessionID));
-      console.log(res);
       setDishName(res.dishName);
 
       // Set Meeting ID
@@ -42,15 +49,14 @@ const SessionViewer = () => {
       const user = await getMyUser();
       setUsername(user.username);
 
-      if(res.hostId === user.id) {
+      if (res.hostId === user.id) {
         setMode("CONFERENCE");
-      } else  {
+      } else {
         setMode("VIEWER");
       }
-
-    } catch(e) {
+    } catch (e) {
       alert("Error while loading the session. Please try again.");
-      navigate('/sessions');
+      navigate("/sessions");
     }
   };
 
@@ -60,10 +66,8 @@ const SessionViewer = () => {
   const fetchRecipes = async () => {
     try {
       const session = await getSessionAPI(Number(sessionID));
-      const res1= await getRecipeAPI(Number(session.recipe));
-      console.log(res1);
+      const res1 = await getRecipeAPI(Number(session.recipe));
       setRecipe(res1);
-      console.log(recipe)
     } catch (error) {
       alert("Error while loading the recipes. Please try again.");
     }
@@ -83,6 +87,14 @@ const SessionViewer = () => {
 
   const fetchChecklistState = async () => {
     try {
+      const newStepCounts: { [key: number]: number } = {};
+      for (let index = 0; index < recipe.checklist.length; index++) {
+        const count = await getChecklistAPI(Number(sessionID), {
+          stepIndex: index,
+        });
+        newStepCounts[index] = count;
+      }
+      setStepCounts(newStepCounts);
       const count = await getChecklistAPI(Number(sessionID));
 
       setStepCounts(count);
@@ -93,17 +105,17 @@ const SessionViewer = () => {
   };
 
   const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>(
-      {}
+    {}
   );
   const handleCheckboxChange = async (stepIndex: number) => {
     const isChecked = checkedItems[stepIndex] || false;
     setCheckedItems({
       ...checkedItems,
-      [stepIndex]: !isChecked
+      [stepIndex]: !isChecked,
     });
     const body = {
       stepIndex,
-      isChecked: !isChecked
+      isChecked: !isChecked,
     };
     try {
       await putChecklistAPI(Number(sessionID), body);
@@ -122,6 +134,9 @@ const SessionViewer = () => {
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
+    fetchChecklistState();
+    fetchSessionInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     fetchAll5Seconds();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -160,24 +175,32 @@ const SessionViewer = () => {
             webcamEnabled: true,
             name: username,
             mode: mode,
+
             debugMode: true, // TODO Sprint 2: turn off in production
           }}
           token={authToken}
         >
           <MeetingConsumer>
             {() => (
-              <Container meetingId={meetingId} onMeetingLeave={onMeetingLeave} />
+              <Container
+                meetingId={meetingId}
+                onMeetingLeave={onMeetingLeave}
+              />
             )}
           </MeetingConsumer>
         </MeetingProvider>
       ) : (
         <>
-          <p><FontAwesomeIcon icon={ faSpinner } spin={true} /></p>
-          <p><Link to="/sessions">Back to sessions overview</Link></p>
+          <p>
+            <FontAwesomeIcon icon={faSpinner} spin={true} />
+          </p>
+          <p>
+            <Link to="/sessions">Back to sessions overview</Link>
+          </p>
         </>
       )}
     </MainLayout>
-  )
+  );
 };
 
 export default SessionViewer;

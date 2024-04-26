@@ -11,6 +11,7 @@ public class SessionDTO {
   private Long recipe;
   private String sessionName;
   private Integer maxParticipantCount;
+  private Integer currentParticipantCount;
   private ArrayList<Long> participants;
   private Date date;
 
@@ -32,6 +33,10 @@ public class SessionDTO {
 
   public Integer getMaxParticipantCount() {
     return maxParticipantCount;
+  }
+
+  public Integer getCurrentParticipantCount() {
+    return currentParticipantCount;
   }
 
   public ArrayList<Long> getParticipants() {
@@ -60,6 +65,10 @@ public class SessionDTO {
 
   public void setMaxParticipantCount(Integer maxParticipantCount) {
     this.maxParticipantCount = maxParticipantCount;
+  }
+
+  public void setCurrentParticipantCount(Integer currentParticipantCount) {
+    this.currentParticipantCount = currentParticipantCount;
   }
 
   public void setParticipants(ArrayList<Long> participants) {

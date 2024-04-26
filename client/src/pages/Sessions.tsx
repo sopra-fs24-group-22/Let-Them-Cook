@@ -1,11 +1,12 @@
 import {useState, useEffect} from 'react';
 import {PrimaryButton, SecondaryButton, ButtonGroup, JoinButton} from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import {Accordion, Container, Modal, Row} from 'react-bootstrap';
+import {Accordion, Col, Container, Modal, Row} from 'react-bootstrap';
 import MainLayout from "../components/Layout/MainLayout";
 import {getAllRecipesAPI, getAllSessionsAPI, getCookbookAPI, postSessionAPI} from "../api/app.api";
 import { getMyUser } from '../api/user.api';
 import { useNavigate } from 'react-router-dom';
+import { Header2 } from '../components/ui/Header';
 
 
 const SessionsPage = () => {
@@ -151,15 +152,18 @@ const SessionsPage = () => {
         </ButtonGroup>
         <Container fluid>
         <Row>
-          <Accordion>
+          <Accordion style={{padding: '0'}}>
             {sessions.map((session, index) => (
                 <Accordion.Item key={index} eventKey={String(index)} style={{ width: '100%', background: '#f0f0f0', marginTop: '5px'}}>
                   <Accordion.Header style={{ display: 'flex', background: '#f0f0f0' }}>
-                    <div style={{ fontSize: '20px' }}>{session.sessionName}</div>
-                    {/* Move the Join button to the right */}
-                    <div style={{ marginLeft: 'auto' }}>
-                      <JoinButton onClick={() => navigate("/sessions/" + session.id)}>Join</JoinButton>
-                    </div>
+                    <Container>
+                      <Row>
+                        <Col xs={11}><Header2>{session.sessionName}</Header2></Col>
+                        <Col xs={1}>
+                          <JoinButton onClick={() => navigate("/sessions/" + session.id)}>Join</JoinButton>
+                        </Col>
+                      </Row>
+                    </Container>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: '#f0f0f0' }}>
                     <div>Date & start time: {session.date}</div>

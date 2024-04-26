@@ -155,7 +155,7 @@ const Main = styled.main`
 const Sidebar = styled.div`
   padding: 30px;
   background-color: #ffffffe2;
-  height: 200px;
+  min-height: 200px;
   width: 300px;
   margin-right: 30px;
   border-radius: 20px;

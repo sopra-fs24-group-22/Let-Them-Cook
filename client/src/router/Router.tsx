@@ -17,9 +17,8 @@ import ChefsFollowedPage from "../pages/ChefsFollowed";
 
 const Router = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/">
       <Routes>
-
         {/* Login-Page */}
         <Route path="/login" element={<LoginGuard />}>
           <Route path="/login" element={<LoginPage />} />
@@ -71,15 +70,10 @@ const Router = () => {
         </Route>
 
         {/* Empty redirection */}
-        <Route path="/" element={
-          <Navigate to="/home" replace />
-        } />
+        <Route path="/" element={<Navigate to="/home" replace />} />
 
         {/* Error 404 */}
-        <Route path="/*" element={
-          <div>404</div>
-        } />
-
+        <Route path="/*" element={<div>404</div>} />
       </Routes>
     </BrowserRouter>
   );

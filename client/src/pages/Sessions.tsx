@@ -3,18 +3,17 @@ import {PrimaryButton, SecondaryButton, ButtonGroup, JoinButton} from "../compon
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import {Accordion, Container, Modal, Row} from 'react-bootstrap';
 import MainLayout from "../components/Layout/MainLayout";
-import {getAllRecipesAPI, getAllSessionsAPI, postSessionAPI} from "../api/app.api";
+import {getAllRecipesAPI, getAllSessionsAPI, getCookbookAPI, postSessionAPI} from "../api/app.api";
 import { getMyUser } from '../api/user.api';
 import { useNavigate } from 'react-router-dom';
 
 
 const SessionsPage = () => {
   const navigate = useNavigate();
-  const [userName, setUserName] = useState<String>("");
   const fetchUser = async () => {
     try {
       const user = await getMyUser();
-      setUserName(user.username);
+      await fetchAllRecipes(user.id);
     } catch(e) {
       alert("Error while fetching the user. Please reload the page.");
     }
@@ -23,7 +22,6 @@ const SessionsPage = () => {
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
-      await fetchAllRecipes();
       // TODO: API CALL
       // await getAllSessionsAPI();
       const res = (view === "ALL") ?
@@ -52,19 +50,18 @@ const SessionsPage = () => {
     setParticipants(undefined);
   }
   const handleShow = async () => {
-    await fetchAllRecipes();
     setShow(true);
   }
 
   // Get all recipes for the New-Session-PopUp/Session-Overview
-  const [ownRecipes, setOwnRecipes] = useState<any[]>([]);
+  const [cookbookRecipes, setCookbookRecipes] = useState<any[]>([]);
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
 
-  const fetchAllRecipes = async () => {
+  const fetchAllRecipes = async (userId: number) => {
     try {
-      // fetching own recipes
-      const res1 = await getAllRecipesAPI(null, null, {"creatorName": userName});
-      setOwnRecipes(res1);
+      // fetching cookbook
+      const res1 = await getCookbookAPI(userId);
+      setCookbookRecipes(res1);
       // fetching all recipes
       const res2 = await getAllRecipesAPI();
       setAllRecipes(res2);
@@ -193,7 +190,7 @@ const SessionsPage = () => {
             onChange={(e) => setRecipe(Number(e.target.value))}>
             <Option disabled selected>Select a recipe</Option>
             <Option disabled>{"-".repeat(40)}</Option>
-            {ownRecipes.map((e) => (
+            {cookbookRecipes.map((e) => (
               <Option key={e.id} value={e.id} selected={recipe === Number(e.id)}>{e.title}</Option>
             ))}
           </Select>

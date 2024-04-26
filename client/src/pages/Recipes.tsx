@@ -288,7 +288,9 @@ const RecipesPage = () => {
     {/* Modal for creating a new recipe */}
     <Modal show={showForm} onHide={handleClose}>
       <Modal.Header>
-        <Modal.Title>Create new recipe</Modal.Title>
+        <Modal.Title>
+          {(editingRecipeId === 0) ? "Create new recipe" : "Edit recipe \"" + dishName + "\""}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Label htmlFor="dishName">Dish name</Label>

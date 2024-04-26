@@ -31,6 +31,7 @@ const SessionViewer = () => {
     // API-Call
     try {
       const res = await getSessionCredentialsAPI(Number(sessionID));
+      // TODO: get dish name
       setDishName(res.dishName);
 
       // Set Meeting ID

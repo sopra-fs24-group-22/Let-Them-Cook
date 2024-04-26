@@ -137,13 +137,22 @@ public class SessionService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This session is full");
     }
 
-    // Add user to participants
     ArrayList<Long> participants = session.getParticipants();
-    participants.add(user.getId());
-    session.setParticipants(participants);
+    Long tempId = null;
 
     // Increment currentParticipantCount
-    session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
+    for (Long participantId : participants) {
+      if (Objects.equals(participantId, user.getId())) {
+        tempId = participantId;
+      }
+    }
+    if (!Objects.equals(tempId, null)) {
+      session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
+
+        // Add user to participants
+        participants.add(user.getId());
+        session.setParticipants(participants);
+      }
 
 //    When implementing Session Join requests
 //    if (!checkIfUserIsParticipant(sessionId, username)) {

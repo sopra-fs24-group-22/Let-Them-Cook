@@ -30,15 +30,12 @@ const SessionViewer = () => {
   const [mode, setMode] = useState<"CONFERENCE" | "VIEWER">("CONFERENCE");
 
   // Layout States
-  const [dishName, setDishName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
   const getMeetingAndToken = async (id: string | null) => {
     // API-Call
     try {
       const res = await getSessionCredentialsAPI(Number(sessionID));
-      // TODO: get dish name
-      setDishName(res.dishName);
 
       // Set Meeting ID
       const meetingId = id === null ? res.roomId : id;
@@ -119,7 +116,9 @@ const SessionViewer = () => {
   const fetchChecklistData = async (): Promise<void> => {
     await fetchChecklistState();
     await fetchSessionInfo();
-    setTimeout(fetchChecklistData, 3000);
+    // Only call again if we are still on the session page
+    if (window.location.pathname.startsWith("/sessions/"))
+      setTimeout(fetchChecklistData, 3000);
   };
 
   useEffect(() => {
@@ -157,7 +156,8 @@ const SessionViewer = () => {
         )
       }
     >
-      <Header1 style={{ marginBottom: "20px" }}>{dishName}</Header1>
+      {(recipe && recipe.title) ?
+        (<Header1 style={{ marginBottom: "20px" }}>{recipe.title}</Header1>) : (<></>)}
       {meetingId !== null ? (
         <MeetingProvider
           config={{
@@ -166,7 +166,6 @@ const SessionViewer = () => {
             webcamEnabled: true,
             name: username,
             mode: mode,
-
             debugMode: true, // TODO Sprint 2: turn off in production
           }}
           token={authToken}

@@ -12,7 +12,7 @@ const SpeakerView = () => {
     const speakerParticipants = [...participants.values()].filter(
       (participant) => {
         return participant.mode === Constants.modes.CONFERENCE;
-      }
+      },
     );
     return speakerParticipants;
   }, [participants]);
@@ -27,6 +27,6 @@ const SpeakerView = () => {
       ))}
     </div>
   );
-}
+};
 
 export { SpeakerView };

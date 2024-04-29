@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout/LoginLayout";
-import {
-  Input,
-  Button,
-  BorderlessButton,
-} from "../components/ui/Login";
+import { Input, Button, BorderlessButton } from "../components/ui/Login";
 import { postLoginAPI } from "../api/app.api";
 import { setAccessToken } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,10 +17,12 @@ const LoginPage = () => {
 
   const login = async () => {
     setIsLoading(true);
+
     const body = {
       username: username,
       password: password,
     };
+
     try {
       const accessToken = await postLoginAPI(body);
       setAccessToken(accessToken);
@@ -34,6 +32,12 @@ const LoginPage = () => {
     }
     setIsLoading(false);
   };
+
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && username && password)
+      login();
+  };
+
   return (
     <Layout>
       <Input
@@ -41,12 +45,14 @@ const LoginPage = () => {
         type="username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
       />
       <Input
         placeholder="Password"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
       />
       <Button onClick={login} disabled={!(username && password) || isLoading}>
         {!isLoading ? (

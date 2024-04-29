@@ -8,8 +8,8 @@ export default function Logo() {
   const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
   const navigate = useNavigate();
   const handleNavigateHome = () => {
-    if(window.location.pathname !== '/home') {
-        navigate("/");
+    if (window.location.pathname !== "/home") {
+      navigate("/");
     }
   };
   return (
@@ -32,7 +32,7 @@ export default function Logo() {
       >
         <Modal.Body>
           <img
-            src="gordon-ramsay-what-are-you.gif"
+            src={window.location.origin + "/gordon-ramsay-what-are-you.gif"}
             width="100%"
             alt="Idiot sandwich"
           />

@@ -30,7 +30,7 @@ export const loadAccessTokenAndUser = createAsyncThunk(
     setAccessToken(accessToken);
     const { user } = await getMyUser();
     return user as User;
-  }
+  },
 );
 
 // Reducers

@@ -7,9 +7,15 @@ import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faSpinner} from "@fortawesome/free-solid-svg-icons";
-import {getChecklistAPI, getRecipeAPI, getSessionAPI, getSessionCredentialsAPI, putChecklistAPI} from "../api/app.api";
-import {ListGroup} from "react-bootstrap";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import {
+  getChecklistAPI,
+  getRecipeAPI,
+  getSessionAPI,
+  getSessionCredentialsAPI,
+  putChecklistAPI,
+} from "../api/app.api";
+import { ListGroup } from "react-bootstrap";
 
 const SessionViewer = () => {
   const { sessionID } = useParams();
@@ -24,14 +30,12 @@ const SessionViewer = () => {
   const [mode, setMode] = useState<"CONFERENCE" | "VIEWER">("CONFERENCE");
 
   // Layout States
-  const [dishName, setDishName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 
   const getMeetingAndToken = async (id: string | null) => {
     // API-Call
     try {
       const res = await getSessionCredentialsAPI(Number(sessionID));
-      setDishName(res.dishName);
 
       // Set Meeting ID
       const meetingId = id === null ? res.roomId : id;
@@ -89,7 +93,7 @@ const SessionViewer = () => {
   };
 
   const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>(
-    {}
+    {},
   );
   const handleCheckboxChange = async (stepIndex: number) => {
     const isChecked = checkedItems[stepIndex] || false;
@@ -109,54 +113,59 @@ const SessionViewer = () => {
     }
   };
 
-  const fetchAll5Seconds = async (): Promise<void> => {
+  const fetchChecklistData = async (): Promise<void> => {
     await fetchChecklistState();
     await fetchSessionInfo();
-    setTimeout(fetchAll5Seconds, 5000);
-  }
+    // Only call again if we are still on the session page
+    if (window.location.pathname.startsWith("/sessions/"))
+      setTimeout(fetchChecklistData, 3000);
+  };
 
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
-    fetchAll5Seconds();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchChecklistData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-      <MainLayout
-          sidebarContent={
-            recipe ? (
-                <>
-                  <h1>Checklist</h1>
-                  <ListGroup variant="flush">
-                    {recipe.checklist.map((item: string, index: number) => (
-                        <ListGroup.Item key={index}>
-                          <input
-                              type="checkbox"
-                              checked={checkedItems[index] || false}
-                              onChange={() => handleCheckboxChange(index)}
-                              style={{marginRight: '10px'}}
-                          />
-                          {item} ({stepCounts[index] || 0} / {participantsCount})
-                        </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </>
-            ) : (
-                <p>Loading checklist...</p>
-            )
-          }
-      >
-        <Header1 style={{marginBottom: '20px'}}>{dishName}</Header1>
-        {meetingId !== null ? (
-            <MeetingProvider
-                config={{
-                  meetingId,
-                  micEnabled: true,
+    <MainLayout
+      sidebarContent={
+        recipe ? (
+          <>
+            <h1>Checklist</h1>
+            <ListGroup variant="flush">
+              {recipe.checklist.map((item: string, index: number) => (
+                <ListGroup.Item
+                  key={index}
+                  style={{ backgroundColor: "transparent" }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checkedItems[index] || false}
+                    onChange={() => handleCheckboxChange(index)}
+                    style={{ marginRight: "10px" }}
+                  />
+                  {item} ({stepCounts[index] || 0} / {participantsCount})
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </>
+        ) : (
+          <p>Loading checklist...</p>
+        )
+      }
+    >
+      {(recipe && recipe.title) ?
+        (<Header1 style={{ marginBottom: "20px" }}>{recipe.title}</Header1>) : (<></>)}
+      {meetingId !== null ? (
+        <MeetingProvider
+          config={{
+            meetingId,
+            micEnabled: true,
             webcamEnabled: true,
             name: username,
             mode: mode,
-
             debugMode: true, // TODO Sprint 2: turn off in production
           }}
           token={authToken}

@@ -6,10 +6,14 @@ const ViewerControls = () => {
 
   return (
     <PrimaryButton
-      onClick={() => { navigate("/sessions") }}
-      style={{marginBottom: '20px'}}
-    >Leave</PrimaryButton>
+      onClick={() => {
+        navigate("/sessions");
+      }}
+      style={{ marginBottom: "20px" }}
+    >
+      Leave
+    </PrimaryButton>
   );
-}
+};
 
 export { ViewerControls };

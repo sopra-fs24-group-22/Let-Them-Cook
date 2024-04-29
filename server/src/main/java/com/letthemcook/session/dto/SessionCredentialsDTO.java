@@ -4,6 +4,7 @@ public class SessionCredentialsDTO {
   private Long hostId;
   private String roomId;
   private Long sessionId;
+  private Long recipeId;
 
   public Long getHostId() {
     return hostId;
@@ -17,6 +18,10 @@ public class SessionCredentialsDTO {
     return sessionId;
   }
 
+  public Long getRecipeId() {
+    return recipeId;
+  }
+
   public void setHostId(Long hostId) {
     this.hostId = hostId;
   }
@@ -27,5 +32,9 @@ public class SessionCredentialsDTO {
 
   public void setSessionId(Long sessionId) {
     this.sessionId = sessionId;
+  }
+
+  public void setRecipeId(Long recipeId) {
+    this.recipeId = recipeId;
   }
 }

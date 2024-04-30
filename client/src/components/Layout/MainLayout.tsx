@@ -72,8 +72,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         </ul>
       </Navbar>
       <Main>
-        <Sidebar>{sidebarContent}</Sidebar>
+        <Sidebar
+          style={{
+            backgroundColor: sidebarContent ? "#ffffffe2" : "transparent",
+            boxShadow: sidebarContent ? "0px 18px 0px -8px #0000004e" : "none",
+            width: sidebarContent ? "300px" : "135px",
+          }}
+        >
+          {sidebarContent}
+        </Sidebar>
         <Content>{children}</Content>
+        {!sidebarContent && <Sidebar style={{ width: "135px" }}></Sidebar>}
       </Main>
       {/*Modal for Logout confirmation*/}
       <Modal show={showLogoutBox} onHide={handleCloseLogoutBox}>
@@ -154,12 +163,9 @@ const Main = styled.main`
 
 const Sidebar = styled.div`
   padding: 30px;
-  background-color: #ffffffe2;
   min-height: 200px;
-  width: 300px;
   margin-right: 30px;
   border-radius: 20px;
-  box-shadow: 0px 18px 0px -8px #0000004e;
 `;
 const Content = styled.div`
   padding: 30px;

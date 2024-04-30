@@ -54,8 +54,7 @@ const RegisterPage = () => {
     password;
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && isValid())
-      register();
+    if (e.key === "Enter" && isValid()) register();
   };
 
   return (

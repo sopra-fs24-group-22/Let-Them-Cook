@@ -156,8 +156,11 @@ const SessionViewer = () => {
         )
       }
     >
-      {(recipe && recipe.title) ?
-        (<Header1 style={{ marginBottom: "20px" }}>{recipe.title}</Header1>) : (<></>)}
+      {recipe && recipe.title ? (
+        <Header1 style={{ marginBottom: "20px" }}>{recipe.title}</Header1>
+      ) : (
+        <></>
+      )}
       {meetingId !== null ? (
         <MeetingProvider
           config={{

@@ -34,8 +34,7 @@ const LoginPage = () => {
   };
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && username && password)
-      login();
+    if (e.key === "Enter" && username && password) login();
   };
 
   return (

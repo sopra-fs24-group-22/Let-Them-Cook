@@ -2,7 +2,6 @@ package com.letthemcook.sessionrequest;
 
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.user.UserRepository;
-import com.letthemcook.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;

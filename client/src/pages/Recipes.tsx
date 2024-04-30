@@ -171,7 +171,6 @@ const RecipesPage = () => {
 
   const [pageView, setPageView] = useState<"ALL" | "MY">("ALL");
   const [recipes, setRecipes] = useState<any[]>([]);
-  const [cookbook, setCookbook] = useState<any[]>([]);
   const [cookbookRecipeIds, setCookbookRecipeIds] = useState<any[]>([]);
 
   const changeView = async (view: "ALL" | "MY") => {
@@ -191,7 +190,6 @@ const RecipesPage = () => {
         resCookbook = resRecipes;
       }
       setRecipes(resRecipes);
-      setCookbook(resCookbook);
       setCookbookRecipeIds(resCookbook.map((e: any) => e.id));
 
       console.log(resRecipes);
@@ -370,8 +368,8 @@ const RecipesPage = () => {
                                 // eslint-disable-next-line no-restricted-globals
                                 confirm(
                                   'Are you sure you want to delete the recipe "' +
-                                    recipe.title +
-                                    '"?',
+                                  recipe.title +
+                                  '"?',
                                 )
                               ) {
                                 deleteRecipe(recipe.id);
@@ -475,7 +473,7 @@ const RecipesPage = () => {
                 }}
                 onClick={
                   index === ingredients.length - 1
-                    ? () => {}
+                    ? () => { }
                     : () => moveIngredientsDown(index)
                 }
               />
@@ -487,7 +485,7 @@ const RecipesPage = () => {
                   color: index === 0 ? "#ccc" : "#878787",
                 }}
                 onClick={
-                  index === 0 ? () => {} : () => moveIngredientsUp(index)
+                  index === 0 ? () => { } : () => moveIngredientsUp(index)
                 }
               />
               <SecondaryIconButton
@@ -523,7 +521,7 @@ const RecipesPage = () => {
                 }}
                 onClick={
                   index === singleSteps.length - 1
-                    ? () => {}
+                    ? () => { }
                     : () => moveSingleStepDown(index)
                 }
               />
@@ -534,7 +532,7 @@ const RecipesPage = () => {
                   marginLeft: "5px",
                   color: index === 0 ? "#ccc" : "#878787",
                 }}
-                onClick={index === 0 ? () => {} : () => moveSingleStepUp(index)}
+                onClick={index === 0 ? () => { } : () => moveSingleStepUp(index)}
               />
               <SecondaryIconButton
                 icon={faTrashCan}

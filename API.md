@@ -837,6 +837,7 @@ Authorization: Bearer [access token]
 
 **Code** : `404 NOT FOUND`
 
+
 ## Get checklistCount in session
 
 **URL** : `/api/session/{id}/checklist`
@@ -858,7 +859,11 @@ Authorization: Bearer [access token]
 
 ```json
 {
-  "[Index of step in checklist]": "[Long]"
+  "sessionId": "[Session id]",
+  "recipeSteps": "[Total number of steps in recipe]",
+  "currentStepValues": {
+    "userId": ["Boolean values for each step"]
+  }
 }
 ```
 
@@ -866,11 +871,15 @@ Authorization: Bearer [access token]
 
 ```json
 {
-  "0": 3,
-  "1": 2,
-  "2": 0
+  "sessionId": 1,
+  "recipeSteps": 3,
+  "currentStepValues": {
+    2: ["true", "false", "false"]
+  }
 }
 ```
+
+*Note: Null Boolean values within currentStepValues means user has joined but not ticked off the index yet.*
 
 ### Error Response
 

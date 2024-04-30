@@ -1,9 +1,11 @@
 package com.letthemcook.rest.mapper;
 
 import com.letthemcook.session.Session;
+import com.letthemcook.session.SessionUserState;
 import com.letthemcook.session.dto.SessionCredentialsDTO;
 import com.letthemcook.session.dto.SessionDTO;
 import com.letthemcook.session.dto.SessionPostDTO;
+import com.letthemcook.session.dto.SessionUserStateDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -38,4 +40,12 @@ public interface DTOSessionMapper {
   @Mapping(source = "id", target = "sessionId")
   @Mapping(source = "recipeId", target = "recipeId")
   SessionCredentialsDTO convertEntityToSessionCredentialsDTO(Session session);
+
+  // ######################################### SessionUserState #########################################
+
+  @Mapping(source = "sessionId", target = "sessionId")
+  @Mapping(source = "recipeSteps", target = "recipeSteps")
+  @Mapping(source = "currentStepValues", target = "currentStepValues")
+  SessionUserStateDTO convertEntityToSessionUserStateDTO(SessionUserState sessionUserState);
+
 }

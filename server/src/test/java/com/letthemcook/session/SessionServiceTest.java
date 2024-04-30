@@ -63,13 +63,23 @@ public class SessionServiceTest {
     Session session = new Session();
     session.setRecipeId(1L);
     String accessToken = "accessToken";
+
     User user = new User();
     user.setId(1L);
     String username = "username";
     Long userId = 1L;
     String roomId = "roomId";
+
     Recipe recipe = new Recipe();
-    recipe.setChecklist(new ArrayList<>());
+    ArrayList<String> checklist = new ArrayList<>();
+    checklist.add("Step 1");
+    recipe.setChecklist(checklist);
+
+    SessionUserState sessionUserState = new SessionUserState();
+    sessionUserState.setSessionId(1L);
+    HashMap<Long, Boolean[]> currentStepValues = new HashMap<>();
+    currentStepValues.put(1L, new Boolean[recipe.getChecklist().size()]);
+    sessionUserState.setCurrentStepValues(currentStepValues);
 
     when(jwtService.extractUsername(accessToken)).thenReturn(username);
     when(userRepository.getByUsername("username")).thenReturn(user);
@@ -82,7 +92,9 @@ public class SessionServiceTest {
     assertEquals(1L, result.getId());
     assertEquals(userId, result.getHostId());
     assertEquals(roomId, result.getRoomId());
-    assertEquals(new HashMap<Long, Integer>(), result.getChecklistCount());
+    assertEquals(sessionUserState.getSessionId(), result.getSessionUserState().getSessionId());
+    assertEquals(0, result.getCurrentParticipantCount());
+    assertEquals(0, result.getSessionUserState().getCurrentStepValues().size());
   }
 
   @Test
@@ -256,20 +268,22 @@ public class SessionServiceTest {
     participants.add(1L);
     session.setParticipants(participants);
 
-    HashMap<Long, Integer> checklistCount = new HashMap<>();
-    checklistCount.put(1L, 5);
-    checklistCount.put(2L, 3);
-    checklistCount.put(3L, 0);
-    session.setChecklistCount(checklistCount);
+    SessionUserState sessionUserState = new SessionUserState();
+    sessionUserState.setSessionId(sessionId);
+    sessionUserState.setRecipeSteps(5);
+    HashMap<Long, Boolean[]> currentStepValues = new HashMap<>();
+    currentStepValues.put(1L, new Boolean[sessionUserState.getRecipeSteps()]);
+    sessionUserState.setCurrentStepValues(currentStepValues);
+    session.setSessionUserState(sessionUserState);
 
     // Mock services
     when(sessionRepository.getById(sessionId)).thenReturn(session);
     when(jwtService.extractUsername("Bearer accessToken")).thenReturn("username");
     when(userRepository.getByUsername("username")).thenReturn(user);
 
-    HashMap<Long, Integer> result = sessionService.getChecklistCount(sessionId, "Bearer accessToken");
+    SessionUserState result = sessionService.getSessionUserState(sessionId, "Bearer accessToken");
 
-    assertEquals(checklistCount, result);
+    assertEquals(sessionUserState, result);
   }
 
   @Test
@@ -277,7 +291,7 @@ public class SessionServiceTest {
     Long sessionId = 1L;
     when(sessionRepository.getById(sessionId)).thenReturn(null);
 
-    assertThrows(ResponseStatusException.class, () -> sessionService.getChecklistCount(sessionId, "Bearer accessToken"));
+    assertThrows(ResponseStatusException.class, () -> sessionService.getSessionUserState(sessionId, "Bearer accessToken"));
   }
 
   @Test
@@ -293,6 +307,6 @@ public class SessionServiceTest {
     session.setId(sessionId);
     session.setHostId(2L);
 
-    assertThrows(ResponseStatusException.class, () -> sessionService.getChecklistCount(sessionId, "Bearer accessToken"));
+    assertThrows(ResponseStatusException.class, () -> sessionService.getSessionUserState(sessionId, "Bearer accessToken"));
   }
 }

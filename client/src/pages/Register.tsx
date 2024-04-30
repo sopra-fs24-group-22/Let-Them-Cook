@@ -53,28 +53,36 @@ const RegisterPage = () => {
     eMailIsValid(email) &&
     password;
 
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && isValid()) register();
+  };
+
   return (
     <Layout>
       <Input
         placeholder="First name"
         value={firstname}
         onChange={(e) => setFirstname(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
       />
       <Input
         placeholder="Last name"
         value={lastname}
         onChange={(e) => setLastname(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
       />
       <Input
         placeholder="Username"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
       />
       <Input
         placeholder="E-Mail"
         type="email"
         value={email}
         onChange={(e) => changeMail(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
         style={emailIsValid ? {} : { border: "1px solid #f00" }}
       />
       <Input
@@ -82,6 +90,7 @@ const RegisterPage = () => {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        onKeyDown={(e) => handleEnter(e)}
       />
       <Button onClick={register} disabled={!isValid() || isLoading}>
         {!isLoading ? (

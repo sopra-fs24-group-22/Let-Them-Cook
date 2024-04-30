@@ -387,7 +387,7 @@ Authorization: Bearer [access token]
 
 Used to add a recipeId to the users personal cookbook.
 
-**URL** : `/api/cookbook/recipeId/{id}`
+**URL** : `/api/cookbook/recipe/{id}`
 
 **Method** : `POST`
 
@@ -443,7 +443,7 @@ Authorization: Bearer [access token]
 
 Used to remove a recipeId from the users personal cookbook.
 
-**URL** : `/api/cookbook/recipeId/{id}`
+**URL** : `/api/cookbook/recipe/{id}`
 
 **Method** : `DELETE`
 

@@ -28,7 +28,7 @@ const AppPage = () => {
       });
       setSessions(session);
     } catch (e) {
-      alert(ERROR_LOADING_DASHBOARD);
+      // alert(ERROR_LOADING_DASHBOARD);
     }
   };
 
@@ -39,9 +39,9 @@ const AppPage = () => {
       <Header1>Let {user?.firstname ? user.firstname : "them"} Cook!</Header1>
 
       {/* My Sessions */}
-      <Container style={{ margin: "20px 0 0 0" }}>
+      <Container style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
         <Row>
-          <Tile title="My sessions" xs={12}>
+          <Tile title="My upcoming sessions" xs={12}>
             <Container>
               <Row>
                 {sessions.map((s: any) => (

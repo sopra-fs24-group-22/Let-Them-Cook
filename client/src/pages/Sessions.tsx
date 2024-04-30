@@ -266,11 +266,13 @@ const SessionsPage = () => {
             onChange={(e) => setStart(new Date(e.target.value))}
           />
 
-          <Label htmlFor="duration">Duration</Label>
+          <Label htmlFor="duration">Duration (minutes)</Label>
           <Input
             id="duration"
             type="number"
-            placeholder="2.5 hours"
+            min={1}
+            max={500}
+            placeholder="90"
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
           />
@@ -279,6 +281,8 @@ const SessionsPage = () => {
           <Input
             id="participants"
             type="number"
+            min={1}
+            max={30}
             placeholder="10"
             value={participants}
             onChange={(e) => setParticipants(Number(e.target.value))}
@@ -288,7 +292,19 @@ const SessionsPage = () => {
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
           <PrimaryButton
             onClick={saveNewSession}
-            disabled={!(recipe && start && duration && participants)}
+            disabled={
+              !(
+                recipe &&
+                sessionName &&
+                start &&
+                duration &&
+                1 <= duration &&
+                duration <= 500 &&
+                participants &&
+                1 <= participants &&
+                participants <= 30
+              )
+            }
           >
             Save
           </PrimaryButton>

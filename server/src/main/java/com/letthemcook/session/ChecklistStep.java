@@ -1,7 +1,7 @@
 package com.letthemcook.session;
 
 public class ChecklistStep {
-  private Long stepIndex;
+  private Integer stepIndex;
   private Boolean isChecked;
 
   public Boolean getIsChecked() {
@@ -12,11 +12,11 @@ public class ChecklistStep {
     isChecked = checked;
   }
 
-  public Long getStepIndex() {
+  public Integer getStepIndex() {
     return stepIndex;
   }
 
-  public void setStepIndex(Long stepIndex) {
+  public void setStepIndex(Integer stepIndex) {
     this.stepIndex = stepIndex;
   }
 }

@@ -3,6 +3,7 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.CookbookService;
+import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,9 @@ public class UserServiceTest {
   @Mock
   private CookbookService cookbookService;
 
+  @Mock
+  private SessionRequestService sessionRequestService;
+
   @InjectMocks
   private UserService userService;
 
@@ -48,7 +52,7 @@ public class UserServiceTest {
 
   @BeforeEach
   public void setup() {
-    userService = new UserService(userRepository, cookbookService, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService);
+    userService = new UserService(userRepository, cookbookService, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService, sessionRequestService);
   }
 
   @AfterEach

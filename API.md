@@ -754,7 +754,8 @@ Authorization: Bearer [access token]
     {
       "host": "[Host user id]",
       "roomId": "[(String) Room id]",
-      "sessionId": "[Session id]"
+      "sessionId": "[Session id]",
+      "recipeId": "[Recipe id]"
     }
   ]
 }
@@ -791,6 +792,8 @@ Authorization: Bearer [access token]
 ```
 401 UNAUTHORIZED "This session is full"
 ```
+
+
 
 ## Update checklistCount in session
 
@@ -890,3 +893,46 @@ Authorization: Bearer [access token]
 **Condition** Session does not exist
 
 **Code** : `404 NOT FOUND`
+
+# Session Request Endpoints
+
+## Post Session Request
+
+Used to send a request to join a session.
+
+**URL** : `/api/session_request/{sessionId}`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `201 CREATED`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User has already sent a request to this session.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "You have already sent a session request for this session"
+```

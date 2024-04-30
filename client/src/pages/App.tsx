@@ -7,8 +7,8 @@ import { SessionTile, Tile } from "../components/ui/Dashboard";
 import { getAllSessionsAPI } from "../api/app.api";
 
 const AppPage = () => {
-  const ERROR_LOADING_DASHBOARD =
-    "Error while loading the dashboard. Please reload the page.";
+  // const ERROR_LOADING_DASHBOARD =
+  //   "Error while loading the dashboard. Please reload the page.";
   useEffect(() => {
     fetchUserAndSessions();
     // eslint-disable-next-line react-hooks/exhaustive-deps

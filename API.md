@@ -942,3 +942,137 @@ Authorization: Bearer [access token]
 ```
 409 CONFLICT "You have already sent a session request for this session"
 ```
+
+## Post Session Request Accept
+
+Used to accept a session request.
+
+**URL** : `/api/session_request/{sessionId}/accept`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "userId": "[The Id of the user who sent the request]"
+}
+```
+
+**Data example**
+
+```json
+{
+    "userId": 1
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User has not sent a request to this session.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "The user has not sent a session request for this session"
+```
+
+**Condition** : The request of the user has already been processed.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "The request has already been accepted or rejected"
+```
+
+## Post Session Request Deny
+
+Used to deny a session request.
+
+**URL** : `/api/session_request/{sessionId}/deny`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "userId": "[The Id of the user who sent the request]"
+}
+```
+
+**Data example**
+
+```json
+{
+    "userId": 1
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User has not sent a request to this session.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "The user has not sent a session request for this session"
+```
+
+**Condition** : The request of the user has already been processed.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "The request has already been accepted or rejected"
+```

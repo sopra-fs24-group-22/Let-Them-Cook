@@ -17,6 +17,7 @@ import {
 import { getMyUser } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2 } from "../components/ui/Header";
+import { formatDateTime } from "../helpers/formatDateTime";
 
 const SessionsPage = () => {
   const navigate = useNavigate();
@@ -206,7 +207,7 @@ const SessionsPage = () => {
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
                     <div>
                       Date & start time:{" "}
-                      {new Date(session.date).toLocaleString()}
+                      {formatDateTime(session.date)}
                     </div>
                     <div>Host: {session.host}</div>
                     <div>Max Participants: {session.maxParticipantCount}</div>
@@ -266,7 +267,7 @@ const SessionsPage = () => {
             id="start"
             type="datetime-local"
             value={start?.toISOString().slice(0, 16) || ""}
-            onChange={(e) => setStart(new Date(e.target.value))}
+            onChange={(e) => setStart(new Date(e.target.value + ":00.000Z"))}
           />
 
           <Label htmlFor="duration">Duration (minutes)</Label>

@@ -67,7 +67,7 @@ public class CookbookService {
     Recipe recipe = recipeRepository.getById(recipeId);
 
     // Add recipe to cookbook
-    if(recipe == null || (recipe.getPrivacyStatus() == 1 && !Objects.equals(recipe.getCreatorId(), ownerId))) {
+    if(recipe == null || (recipe.getPrivacyStatus() == 0 && !Objects.equals(recipe.getCreatorId(), ownerId))) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
     if (cookbook.getRecipeIds().contains(recipeId)) {

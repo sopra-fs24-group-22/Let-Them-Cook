@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -55,14 +56,15 @@ public class SessionService {
     session.setRoomId(roomID);
 
     // Initialize checklistCount
-    HashMap<Long, Integer> checklistCount = new HashMap<>();
+    SessionUserState sessionUserState = new SessionUserState();
+
+    sessionUserState.setSessionId(session.getId());
     Recipe recipe = recipeRepository.getById(session.getRecipeId());
+    sessionUserState.setRecipeSteps(recipe.getChecklist().size());
+    sessionUserState.setCurrentStepValues(new HashMap<>());
+    sessionUserState.setLastActiveUsers(new HashMap<>());
 
-    for (long i = 0; i < recipe.getChecklist().size(); i++) {
-      checklistCount.put(i, 0);
-    }
-
-    session.setChecklistCount(checklistCount);
+    session.setSessionUserState(sessionUserState);
 
     sessionRepository.save(session);
     // TODO: Add to my session
@@ -151,6 +153,7 @@ public class SessionService {
     // Add user to participants
     participants.add(user.getId());
     session.setParticipants(participants);
+
 //  When implementing Session Join requests
 //    if (!checkIfUserIsParticipant(sessionId, username)) {
 //      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to get the credentials of this session");
@@ -163,7 +166,7 @@ public class SessionService {
 
   // TODO: Implement a Leave session endpoint to decrement currentParticipantCount
 
-  public void checkStep(Long sessionId, Long stepIndex, Boolean checked, String accessToken) {
+  public Session checkStep(Long sessionId, Integer stepIndex, Boolean isChecked, String accessToken) {
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
@@ -175,20 +178,17 @@ public class SessionService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed in this session");
     }
 
-    HashMap<Long, Integer> checklistCount = session.getChecklistCount();
+    // Update sessionUserState with new checklist state
+    SessionUserState sessionUserState = session.getSessionUserState();
+    sessionUserState.updateCheckpoint(userRepository.getByUsername(jwtService.extractUsername(accessToken)).getId(), stepIndex, isChecked);
+    session.setSessionUserState(sessionUserState);
 
-    // Update checklist count according to state
-    if (checked) {
-      checklistCount.put(stepIndex, checklistCount.get(stepIndex) + 1);
-    } else {
-      checklistCount.put(stepIndex, checklistCount.get(stepIndex) - 1);
-    }
-
-    session.setChecklistCount(checklistCount);
     sessionRepository.save(session);
+
+    return session;
   }
 
-  public HashMap<Long, Integer> getChecklistCount(Long sessionId, String accessToken) {
+  public SessionUserState getSessionUserState(Long sessionId, String accessToken) {
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
@@ -196,11 +196,24 @@ public class SessionService {
     }
 
     // Authorize user against session
-    if (!checkIfUserIsParticipant(sessionId, jwtService.extractUsername(accessToken))) {
+    String username = jwtService.extractUsername(accessToken);
+    if (!checkIfUserIsParticipant(sessionId, username)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not allowed in this session");
     }
 
-    return session.getChecklistCount();
+    SessionUserState sessionUserState = session.getSessionUserState();
+
+    // Add user to step count if they are not already in it
+    Long userId = userRepository.getByUsername(username).getId();
+
+    if (sessionUserState.getCurrentStepValues().get(userId) == null) {
+      sessionUserState.addUserToStepCount(userId);
+    }
+
+    session.setSessionUserState(sessionUserState);
+    sessionRepository.save(session);
+
+    return session.getSessionUserState();
   }
 
   // ######################################### Util #########################################
@@ -213,10 +226,44 @@ public class SessionService {
 
     ArrayList<Long> participants = session.getParticipants();
 
-    if (participants == null) {
+    if (participants == null & !Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId())) {
       return false;
     }
 
-    return participants.contains(userRepository.getByUsername(username).getId());
+    boolean isParticipant = false;
+    isParticipant = participants.contains(userRepository.getByUsername(username).getId()) || Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId());
+
+    return isParticipant;
   }
+
+  /**
+   * Removes user from stepcount if they have been inactive for 60 seconds
+   */
+  @Scheduled(fixedRate = 60000)
+  private void userTimeout() {
+    // TODO: Write Tests
+    List<Session> sessions = sessionRepository.findAll();
+
+    // Go through all sessions, check if participants have been active
+    for (Session session : sessions) {
+      if (session.getParticipants() != null) {
+        SessionUserState sessionUserState = session.getSessionUserState();
+
+        for (Long participantId : session.getParticipants()) {
+          Date lastActive = sessionUserState.getLastActiveUsers().get(participantId);
+
+          if(lastActive != null) {
+            if (new Date().getTime() - lastActive.getTime() > 60000) {
+              sessionUserState.removeUserFromStepCount(participantId);
+              session.setSessionUserState(sessionUserState);
+              sessionRepository.save(session);
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  // TODO: Scheduled task to delete sessions whose start date + length + epsilon is due
 }

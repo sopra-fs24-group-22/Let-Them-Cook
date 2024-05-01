@@ -3,6 +3,8 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
+import com.letthemcook.sessionrequest.SessionRequest;
+import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.cookbook.CookbookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,16 +33,18 @@ public class UserService {
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
+  private final SessionRequestService sessionRequestService;
   Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService) {
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.authenticationManager = authenticationManager;
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
+    this.sessionRequestService = sessionRequestService;
   }
 
   public Token createUser(User newUser) {
@@ -54,6 +58,9 @@ public class UserService {
     // Create cookbook
     Cookbook cookbook = cookbookService.createCookbook(newUser.getId());
     newUser.setCookbookId(cookbook.getId());
+
+    // Create session request
+    sessionRequestService.createSessionRequest(newUser.getId());
 
     // Create token
     Token token = new Token();

@@ -12,6 +12,8 @@ import {
   getCookbookAPI,
   postRecipeAPI,
   getRecipeAPI,
+  addRecipeToCookbookAPI,
+  removeRecipeFromCookbookAPI,
 } from "../api/app.api";
 import MainLayout from "../components/Layout/MainLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,6 +23,8 @@ import {
   faCircleChevronUp,
   faPenToSquare,
   faHourglass,
+  faMinus,
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from "../components/ui/Icon";
 import { Container, Row, Col, ListGroup } from "react-bootstrap";
@@ -79,7 +83,7 @@ const RecipesPage = () => {
         alert("Updating an existing recipe isn't possible yet :)");
       }
       handleClose();
-      await fetchRecipes(pageView);
+      await fetchRecipes(pageView, userId);
     } catch (error) {
       alert("Error while saving the recipe. Please try again.");
     }
@@ -103,7 +107,7 @@ const RecipesPage = () => {
   const deleteRecipe = async (recipeId: number) => {
     try {
       await deleteRecipeAPI(recipeId.toString());
-      await fetchRecipes(pageView);
+      await fetchRecipes(pageView, userId);
     } catch (error) {
       alert("Error while deleting the recipe. Please try again.");
     }
@@ -167,39 +171,72 @@ const RecipesPage = () => {
 
   const [pageView, setPageView] = useState<"ALL" | "MY">("ALL");
   const [recipes, setRecipes] = useState<any[]>([]);
+  const [cookbookRecipeIds, setCookbookRecipeIds] = useState<any[]>([]);
 
   const changeView = async (view: "ALL" | "MY") => {
     setPageView(view);
-    await fetchRecipes(view);
+    await fetchRecipes(view, userId);
   };
 
-  const fetchRecipes = async (view: "ALL" | "MY") => {
+  const fetchRecipes = async (view: "ALL" | "MY", UserId: number) => {
     try {
-      var res = [];
+      var resRecipes = [];
+      var resCookbook = [];
       if (view === "ALL") {
-        res = await getAllRecipesAPI();
+        resRecipes = await getAllRecipesAPI();
+        resCookbook = await getCookbookAPI(UserId);
       } else {
-        res = await getCookbookAPI(userId);
+        resRecipes = await getCookbookAPI(UserId);
+        resCookbook = resRecipes;
       }
-      setRecipes(res);
+      setRecipes(resRecipes);
+      setCookbookRecipeIds(resCookbook.map((e: any) => e.id));
+
+      console.log(resRecipes);
     } catch (error) {
       alert("Error while loading the recipes. Please try again.");
     }
   };
 
+  const reloadRecipes = async () => {
+    await fetchRecipes(pageView, userId);
+  };
+
+  const addRecipeToCookbook = async (recipeId: number) => {
+    try {
+      await addRecipeToCookbookAPI(recipeId);
+      await reloadRecipes();
+    } catch (error) {
+      alert(
+        "Error while adding the recipe to your cookbook. Please try again.",
+      );
+    }
+  };
+
+  const removeRecipeFromCookbook = async (recipeId: number) => {
+    try {
+      await removeRecipeFromCookbookAPI(recipeId);
+      await reloadRecipes();
+    } catch (error) {
+      alert(
+        "Error while adding the recipe to your cookbook. Please try again.",
+      );
+    }
+  };
+
   const [userId, setUserId] = useState<number>(0);
-  const fetchUser = async () => {
+  const initFetch = async () => {
     try {
       const user = await getMyUser();
       setUserId(user.id);
+      fetchRecipes("ALL", user.id);
     } catch (e) {
-      alert("Error while fetching the user. Please reload the page.");
+      alert("Error while fetching the data. Please reload the page.");
     }
   };
 
   useEffect(() => {
-    fetchUser();
-    fetchRecipes("ALL");
+    initFetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -268,6 +305,12 @@ const RecipesPage = () => {
         <Tooltip anchorSelect={".deleteRecipeIcon"} place="top">
           Delete recipe
         </Tooltip>
+        <Tooltip anchorSelect={".addRecipeToCookbookIcon"} place="top">
+          Add recipe to cookbook
+        </Tooltip>
+        <Tooltip anchorSelect={".removeRecipeFromCookbookIcon"} place="top">
+          Remove recipe from cookbook
+        </Tooltip>
         <Container>
           <Row>
             {recipes.map((recipe, index) => (
@@ -335,6 +378,28 @@ const RecipesPage = () => {
                           />
                         </>
                       )}
+                      {recipe.creatorId !== userId &&
+                        !cookbookRecipeIds.includes(recipe.id) && (
+                          <FontAwesomeIcon
+                            className="addRecipeToCookbookIcon"
+                            icon={faPlus}
+                            style={{ cursor: "pointer", fontSize: "12pt" }}
+                            onClick={() => {
+                              addRecipeToCookbook(recipe.id);
+                            }}
+                          />
+                        )}
+                      {recipe.creatorId !== userId &&
+                        cookbookRecipeIds.includes(recipe.id) && (
+                          <FontAwesomeIcon
+                            className="removeRecipeFromCookbookIcon"
+                            icon={faMinus}
+                            style={{ cursor: "pointer", fontSize: "12pt" }}
+                            onClick={() => {
+                              removeRecipeFromCookbook(recipe.id);
+                            }}
+                          />
+                        )}
                     </Col>
                   </Row>
                 </Container>

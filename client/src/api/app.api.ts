@@ -34,16 +34,22 @@ export const getRecipeAPI = async (id: number) => {
 export const deleteRecipeAPI = async (id: string) => {
   await axiosAuth.delete("recipe/" + id);
 };
+export const postRecipeAPI = async (body: any) => {
+  const { data } = await axiosAuth.post("recipe", body);
+  return data;
+};
 
 // Cookbooks
 export const getCookbookAPI = async (userId: number) => {
   const { data } = await axiosAuth.get("cookbook/" + userId);
   return data;
 };
-
-export const postRecipeAPI = async (body: any) => {
-  const { data } = await axiosAuth.post("recipe", body);
+export const addRecipeToCookbookAPI = async (recipeId: number) => {
+  const { data } = await axiosAuth.post("cookbook/recipe/" + recipeId);
   return data;
+};
+export const removeRecipeFromCookbookAPI = async (recipeId: number) => {
+  await axiosAuth.delete("cookbook/recipe/" + recipeId);
 };
 
 // Sessions

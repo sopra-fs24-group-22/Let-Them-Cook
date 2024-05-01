@@ -2,10 +2,7 @@ package com.letthemcook.session;
 
 import com.letthemcook.rest.mapper.DTOChecklistMapper;
 import com.letthemcook.rest.mapper.DTOSessionMapper;
-import com.letthemcook.session.dto.CheckPutDTO;
-import com.letthemcook.session.dto.SessionCredentialsDTO;
-import com.letthemcook.session.dto.SessionDTO;
-import com.letthemcook.session.dto.SessionPostDTO;
+import com.letthemcook.session.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -93,8 +89,9 @@ public class SessionController {
   @GetMapping("/api/session/{id}/checklist")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<HashMap<Long, Integer>> getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
-    HashMap<Long, Integer> checklist = sessionService.getChecklistCount(id, accessToken);
-    return ResponseEntity.status(HttpStatus.OK).body(checklist);
+  public ResponseEntity<SessionUserStateDTO> getChecklist(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+    SessionUserState checklist = sessionService.getSessionUserState(id, accessToken);
+
+    return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSessionUserStateDTO(checklist));
   }
 }

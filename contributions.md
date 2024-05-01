@@ -67,3 +67,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/46
 ### Gian Gyger
 (in WK)
 
+## 03.05.2024
+### Claudio Fleischmann
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/122
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/128

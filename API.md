@@ -387,7 +387,7 @@ Authorization: Bearer [access token]
 
 Used to add a recipeId to the users personal cookbook.
 
-**URL** : `/api/cookbook/recipeId/{id}`
+**URL** : `/api/cookbook/recipe/{id}`
 
 **Method** : `POST`
 
@@ -443,7 +443,7 @@ Authorization: Bearer [access token]
 
 Used to remove a recipeId from the users personal cookbook.
 
-**URL** : `/api/cookbook/recipeId/{id}`
+**URL** : `/api/cookbook/recipe/{id}`
 
 **Method** : `DELETE`
 
@@ -754,7 +754,8 @@ Authorization: Bearer [access token]
     {
       "host": "[Host user id]",
       "roomId": "[(String) Room id]",
-      "sessionId": "[Session id]"
+      "sessionId": "[Session id]",
+      "recipeId": "[Recipe id]"
     }
   ]
 }
@@ -791,6 +792,8 @@ Authorization: Bearer [access token]
 ```
 401 UNAUTHORIZED "This session is full"
 ```
+
+
 
 ## Update checklistCount in session
 
@@ -837,6 +840,7 @@ Authorization: Bearer [access token]
 
 **Code** : `404 NOT FOUND`
 
+
 ## Get checklistCount in session
 
 **URL** : `/api/session/{id}/checklist`
@@ -858,7 +862,11 @@ Authorization: Bearer [access token]
 
 ```json
 {
-  "[Index of step in checklist]": "[Long]"
+  "sessionId": "[Session id]",
+  "recipeSteps": "[Total number of steps in recipe]",
+  "currentStepValues": {
+    "userId": ["Boolean values for each step"]
+  }
 }
 ```
 
@@ -866,11 +874,15 @@ Authorization: Bearer [access token]
 
 ```json
 {
-  "0": 3,
-  "1": 2,
-  "2": 0
+  "sessionId": 1,
+  "recipeSteps": 3,
+  "currentStepValues": {
+    2: ["true", "false", "false"]
+  }
 }
 ```
+
+*Note: Null Boolean values within currentStepValues means user has joined but not ticked off the index yet.*
 
 ### Error Response
 
@@ -881,3 +893,46 @@ Authorization: Bearer [access token]
 **Condition** Session does not exist
 
 **Code** : `404 NOT FOUND`
+
+# Session Request Endpoints
+
+## Post Session Request
+
+Used to send a request to join a session.
+
+**URL** : `/api/session_request/{sessionId}`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `201 CREATED`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User has already sent a request to this session.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "You have already sent a session request for this session"
+```

@@ -551,8 +551,14 @@ Used to fetch all sessions based on query params.
 
 **Query params**
   - `hostId` - ID of the hostId user
+  - `hostName` - Name of the host user
   - `recipeId` - ID of the recipeId used in the session
+  - `recipeName` - Name of the recipe used in the session
   - `sessionName` - Name of the session
+  - `date` - Sessions occurring after this date
+  - `maxParticipantCount` - Maximum number of participants allowed in the session
+  - `maxParticipants` - Maximum number of participants in the session
+  - `minParticipants` - Minimum number of participants in the session
   - `limit` - Limit of sessions to fetch
   - `offset` - Offset of sessions to fetch
   - *More query params to be implemented*

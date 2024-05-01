@@ -47,6 +47,11 @@ public class SessionUserState {
     // Initialize last Active Date
     lastActiveUsers.put(userId, new Date());
 
+    // Check if user already exists in StepCount
+    if (currentStepValues.containsKey(userId)) {
+      return;
+    }
+
     currentStepValues.put(userId, userSteps);
   }
 
@@ -55,7 +60,7 @@ public class SessionUserState {
   }
 
   public void updateCheckpoint(Long userId, Integer stepIndex, Boolean isChecked) {
-    if(stepIndex >= recipeSteps) {
+    if(stepIndex >= recipeSteps || stepIndex < 0) {
       throw new IllegalArgumentException("Step index is out of bounds");
     }
 

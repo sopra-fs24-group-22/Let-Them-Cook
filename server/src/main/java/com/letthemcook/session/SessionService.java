@@ -166,7 +166,7 @@ public class SessionService {
 
   // TODO: Implement a Leave session endpoint to decrement currentParticipantCount
 
-  public void checkStep(Long sessionId, Integer stepIndex, Boolean checked, String accessToken) {
+  public Session checkStep(Long sessionId, Integer stepIndex, Boolean isChecked, String accessToken) {
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
@@ -180,10 +180,12 @@ public class SessionService {
 
     // Update sessionUserState with new checklist state
     SessionUserState sessionUserState = session.getSessionUserState();
-    sessionUserState.updateCheckpoint(userRepository.getByUsername(jwtService.extractUsername(accessToken)).getId(), stepIndex, checked);
+    sessionUserState.updateCheckpoint(userRepository.getByUsername(jwtService.extractUsername(accessToken)).getId(), stepIndex, isChecked);
     session.setSessionUserState(sessionUserState);
 
     sessionRepository.save(session);
+
+    return session;
   }
 
   public SessionUserState getSessionUserState(Long sessionId, String accessToken) {
@@ -239,6 +241,7 @@ public class SessionService {
    */
   @Scheduled(fixedRate = 60000)
   private void userTimeout() {
+    // TODO: Write Tests
     List<Session> sessions = sessionRepository.findAll();
 
     // Go through all sessions, check if participants have been active
@@ -260,4 +263,7 @@ public class SessionService {
       }
     }
   }
+
+
+  // TODO: Scheduled task to delete sessions whose start date + length + epsilon is due
 }

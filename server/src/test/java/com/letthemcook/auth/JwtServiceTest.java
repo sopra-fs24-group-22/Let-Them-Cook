@@ -18,6 +18,8 @@ public class JwtServiceTest {
   private JwtService jwtService;
   private UserDetails userDetails;
 
+  // ######################################### Setup & Teardown #########################################
+
   @BeforeEach
   public void setup() {
     jwtService = new JwtService();
@@ -26,6 +28,8 @@ public class JwtServiceTest {
     ReflectionTestUtils.setField(jwtService, "REFRESH_TOKEN_EXPIRATION_MS", 2000);
     userDetails = new User("testUser", "testPassword", Collections.emptyList());
   }
+
+  // ######################################### Tests #########################################
 
   @Test
   public void testExtractUsernameFromToken() {

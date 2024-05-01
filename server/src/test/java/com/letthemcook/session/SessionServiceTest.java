@@ -20,11 +20,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +42,10 @@ public class SessionServiceTest {
   private RecipeRepository recipeRepository;
   @Mock
   private VideoSDKService videoSDKService;
-  @Mock MongoTemplate mongoTemplate;
+  @Mock
+  private MongoTemplate mongoTemplate;
+  @Mock
+  private SessionUserState sessionUserState;
 
   @InjectMocks
   private SessionService sessionService;
@@ -50,6 +54,27 @@ public class SessionServiceTest {
   @BeforeEach
   public void setup() {
     sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService);
+    // Setup session
+    Session session = new Session();
+    session.setId(1L);
+    session.setHostId(1L);
+    session.setRecipeId(1L);
+    session.setRoomId("roomId");
+    session.setCurrentParticipantCount(0);
+    session.setParticipants(new ArrayList<>());
+    session.setMaxParticipantCount(2);
+    session.setSessionName("sessionName");
+    session.setDate(new Date());
+
+    SessionUserState sessionUserState = new SessionUserState();
+    sessionUserState.setSessionId(session.getId());
+    sessionUserState.setRecipeSteps(5);
+    HashMap<Long, Boolean[]> currentStepValues = new HashMap<>();
+    currentStepValues.put(1L, new Boolean[sessionUserState.getRecipeSteps()]);
+    sessionUserState.setCurrentStepValues(currentStepValues);
+    session.setSessionUserState(sessionUserState);
+
+    when(sessionRepository.getById(1L)).thenReturn(session);
   }
 
   @AfterEach
@@ -60,15 +85,14 @@ public class SessionServiceTest {
 
   @Test
   public void createSessionReturnsExpectedSession() throws IOException {
-    Session session = new Session();
-    session.setRecipeId(1L);
-    String accessToken = "accessToken";
+    Session session = sessionRepository.getById(1L);
 
     User user = new User();
     user.setId(1L);
     String username = "username";
     Long userId = 1L;
     String roomId = "roomId";
+    String accessToken = "accessToken";
 
     Recipe recipe = new Recipe();
     ArrayList<String> checklist = new ArrayList<>();
@@ -99,7 +123,7 @@ public class SessionServiceTest {
 
   @Test
   public void createSessionThrowsIOExceptionWhenFetchRoomIdFails() throws IOException {
-    Session session = new Session();
+    Session session = sessionRepository.getById(1L);
     String accessToken = "accessToken";
     User user = new User();
     user.setId(1L);
@@ -113,11 +137,10 @@ public class SessionServiceTest {
   }
 
   // ######################################### Get Session Tests #########################################
+
   @Test
   public void getSessionReturnsExpectedSession() {
-    Session expectedSession = new Session();
-    expectedSession.setId(1L);
-    when(sessionRepository.getById(1L)).thenReturn(expectedSession);
+    Session expectedSession = sessionRepository.getById(1L);
 
     Session result = sessionService.getSession(1L);
 
@@ -139,9 +162,7 @@ public class SessionServiceTest {
     Long sessionId = 1L;
     User user = new User();
     user.setId(1L);
-    Session session = new Session();
-    session.setId(sessionId);
-    session.setHostId(user.getId());
+    Session session = sessionRepository.getById(sessionId);
 
     when(jwtService.extractUsername(accessToken)).thenReturn("username");
     when(userRepository.getByUsername("username")).thenReturn(user);
@@ -189,11 +210,7 @@ public class SessionServiceTest {
     User user = new User();
     user.setId(1L);
     user.setUsername("username");
-    Session session = new Session();
-    session.setId(sessionId);
-    session.setHostId(user.getId());
-    session.setCurrentParticipantCount(0);
-    session.setMaxParticipantCount(2);
+    Session session = sessionRepository.getById(sessionId);
     ArrayList<Long> participants = new ArrayList<>();
     participants.add(1L);
     session.setParticipants(participants);
@@ -216,12 +233,8 @@ public class SessionServiceTest {
     User user = new User();
     user.setId(1L);
     user.setUsername("username");
-    Session session = new Session();
-    session.setId(sessionId);
-    session.setHostId(user.getId());
+    Session session = sessionRepository.getById(sessionId);
     session.setCurrentParticipantCount(2);
-    session.setMaxParticipantCount(2);
-
 
     when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
     when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
@@ -261,16 +274,13 @@ public class SessionServiceTest {
 
     // Setup session
     Long sessionId = 1L;
-    Session session = new Session();
-    session.setId(sessionId);
+    Session session = sessionRepository.getById(sessionId);
 
     ArrayList<Long> participants = new ArrayList<>();
     participants.add(1L);
     session.setParticipants(participants);
 
-    SessionUserState sessionUserState = new SessionUserState();
-    sessionUserState.setSessionId(sessionId);
-    sessionUserState.setRecipeSteps(5);
+    SessionUserState sessionUserState = session.getSessionUserState();
     HashMap<Long, Boolean[]> currentStepValues = new HashMap<>();
     currentStepValues.put(1L, new Boolean[sessionUserState.getRecipeSteps()]);
     sessionUserState.setCurrentStepValues(currentStepValues);
@@ -303,10 +313,117 @@ public class SessionServiceTest {
     user.setUsername("username");
 
     // Setup session
-    Session session = new Session();
+    Session session = sessionRepository.getById(sessionId);
     session.setId(sessionId);
     session.setHostId(2L);
 
+    // Mock Services
+    when(jwtService.extractUsername("Bearer accessToken")).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(user);
+
     assertThrows(ResponseStatusException.class, () -> sessionService.getSessionUserState(sessionId, "Bearer accessToken"));
   }
+
+  // ######################################### Checkstep Tests #########################################
+
+  @Test
+  public void testCheckStepSuccess() {
+    // Setup User
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
+
+    // Setup Session
+    Session session = sessionRepository.getById(1L);
+    SessionUserState sessionUserState = session.getSessionUserState();
+    HashMap<Long, Boolean[]> currentStepValues = sessionUserState.getCurrentStepValues();
+    Boolean[] userSteps = currentStepValues.get(user.getId());
+
+    Integer stepIndex = 0;
+    Boolean isChecked = true;
+    userSteps[stepIndex] = isChecked;
+    currentStepValues.put(user.getId(), userSteps);
+    sessionUserState.setCurrentStepValues(currentStepValues);
+    session.setSessionUserState(sessionUserState);
+
+    // Mock Services
+    when(sessionRepository.save(session)).thenReturn(session);
+    when(jwtService.extractUsername("accessToken")).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(user);
+
+    // Perform test
+    Session result = sessionService.checkStep(1L, stepIndex, isChecked, "accessToken");
+
+    assertEquals(session, result);
+  }
+
+  @Test
+  public void testCheckStepThrowsExceptionWhenStepIndexOutOfBounds() {
+    // Setup User
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
+
+    // Setup Session
+    Session session = sessionRepository.getById(1L);
+    SessionUserState sessionUserState = session.getSessionUserState();
+    HashMap<Long, Boolean[]> currentStepValues = sessionUserState.getCurrentStepValues();
+
+    Integer stepIndex = 5;
+    Boolean isChecked = true;
+
+    // Mock Services
+    when(jwtService.extractUsername("accessToken")).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(user);
+
+    // Perform test
+    assertThrows(IllegalArgumentException.class, () -> sessionService.checkStep(1L, stepIndex, isChecked, "accessToken"));
+  }
+
+  @Test
+  public void testCheckStepThrowsExceptionWhenSTepIndexNegative() {
+    // Setup User
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
+
+    // Setup Session
+    Session session = sessionRepository.getById(1L);
+    SessionUserState sessionUserState = session.getSessionUserState();
+    HashMap<Long, Boolean[]> currentStepValues = sessionUserState.getCurrentStepValues();
+
+    Integer stepIndex = -1;
+    Boolean isChecked = true;
+
+    // Mock Services
+    when(jwtService.extractUsername("accessToken")).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(user);
+
+    // Perform test
+    assertThrows(IllegalArgumentException.class, () -> sessionService.checkStep(1L, stepIndex, isChecked, "accessToken"));
+  }
+
+  @Test
+  public void testCheckStepThrowsExceptionWhenUserNotAuthorized() {
+    // Setup User
+    User user = new User();
+    user.setId(2L);
+    user.setUsername("username");
+
+    // Setup Session
+    Session session = sessionRepository.getById(1L);
+    SessionUserState sessionUserState = session.getSessionUserState();
+    HashMap<Long, Boolean[]> currentStepValues = sessionUserState.getCurrentStepValues();
+
+    Integer stepIndex = 0;
+    Boolean isChecked = true;
+
+    // Mock Services
+    when(jwtService.extractUsername("accessToken")).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(user);
+
+    // Perform test
+    assertThrows(ResponseStatusException.class, () -> sessionService.checkStep(1L, stepIndex, isChecked, "accessToken"));
+  }
+
 }

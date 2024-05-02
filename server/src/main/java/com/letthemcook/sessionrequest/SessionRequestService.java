@@ -1,6 +1,7 @@
 package com.letthemcook.sessionrequest;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.sessionrequest.dto.SessionRequestDTO;
 import com.letthemcook.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -45,6 +46,26 @@ public class SessionRequestService {
     }
     sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
 
+    sessionRequestRepository.save(sessionRequest);
+  }
+
+  public void processSessionRequest(Long sessionId, SessionRequest sessionRequestUser, Boolean evaluate) {
+    Long userId = sessionRequestUser.getUserId();
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
+
+    if (!sessionRequest.getUserSessions().containsKey(sessionId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user has not sent a session request for this session");
+    }
+
+    if (sessionRequest.getUserSessions().get(sessionId) == QueueStatus.ACCEPTED || sessionRequest.getUserSessions().get(sessionId) == QueueStatus.REJECTED) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "The request has already been accepted or rejected");
+    }
+
+    if (evaluate) {
+      sessionRequest.getUserSessions().put(sessionId, QueueStatus.ACCEPTED);
+    } else {
+      sessionRequest.getUserSessions().put(sessionId, QueueStatus.REJECTED);
+    }
     sessionRequestRepository.save(sessionRequest);
   }
 }

@@ -71,3 +71,11 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/46
 ### Claudio Fleischmann
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/122
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/128
+
+### Tristan Koning
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/84
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/130
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/115
+
+### Gian Gyger
+(in WK)

@@ -19,9 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,7 +65,7 @@ public class SessionServiceTest {
     session.setParticipants(new ArrayList<>());
     session.setMaxParticipantCount(2);
     session.setSessionName("sessionName");
-    session.setDate(new Date());
+    session.setDate(LocalDateTime.now().plusDays(1));
 
     SessionUserState sessionUserState = new SessionUserState();
     sessionUserState.setSessionId(session.getId());
@@ -424,6 +425,134 @@ public class SessionServiceTest {
 
     // Perform test
     assertThrows(ResponseStatusException.class, () -> sessionService.checkStep(1L, stepIndex, isChecked, "accessToken"));
+  }
+
+  // ######################################### Get sessions Tests #########################################
+
+  @Test
+  public void testGetSessionsNoParamsSuccess() {
+    // Setup
+    Integer limit = 10;
+    Integer offset = 0;
+    HashMap<String, String> allParams = new HashMap<>();
+
+    Session session = new Session();
+    session.setId(2L);
+    session.setHostId(1L);
+    session.setRecipeId(1L);
+    session.setRoomId("roomId");
+    session.setCurrentParticipantCount(0);
+    session.setParticipants(new ArrayList<>());
+    session.setMaxParticipantCount(2);
+    session.setSessionName("sessionName");
+    session.setDate(LocalDateTime.now().plusDays(1));
+
+    // Mock Services
+    List<Session> sessions = new ArrayList<>();
+    sessions.add(session);
+    sessions.add(sessionRepository.getById(1L));
+    when(mongoTemplate.find(any(), eq(Session.class))).thenReturn(sessions);
+
+    // Perform test
+    List<Session> result = sessionService.getSessions(limit, offset, allParams);
+
+    assertEquals(2, result.size());
+  }
+
+  @Test
+  public void testGetSessionsByNameSuccess() {
+    // Setup
+    Integer limit = 10;
+    Integer offset = 0;
+    HashMap<String, String> allParams = new HashMap<>();
+    allParams.put(QueryParams.SESSION_NAME.getValue(), "name");
+
+    Session session = new Session();
+    session.setId(2L);
+    session.setHostId(1L);
+    session.setRecipeId(1L);
+    session.setRoomId("roomId");
+    session.setCurrentParticipantCount(0);
+    session.setParticipants(new ArrayList<>());
+    session.setMaxParticipantCount(2);
+    session.setSessionName("testSession");
+    session.setDate(LocalDateTime.now().plusDays(1));
+
+    // Mock Services
+    List<Session> sessions = new ArrayList<>();
+    sessions.add(sessionRepository.getById(1L));
+
+    when(mongoTemplate.find(any(), eq(Session.class))).thenReturn(sessions);
+
+    // Perform test
+    List<Session> result = sessionService.getSessions(limit, offset, allParams);
+
+    assertEquals(1, result.size());
+    assertEquals(sessionRepository.getById(1L), result.get(0));
+  }
+
+  @Test
+  public void testGetSessionsByDateSuccess() {
+    // Setup
+    Integer limit = 10;
+    Integer offset = 0;
+    HashMap<String, String> allParams = new HashMap<>();
+    allParams.put(QueryParams.DATE.getValue(), LocalDateTime.parse("2021-01-01T00:00:00").toString());
+
+    Session session = new Session();
+    session.setId(2L);
+    session.setHostId(1L);
+    session.setRecipeId(1L);
+    session.setRoomId("roomId");
+    session.setCurrentParticipantCount(0);
+    session.setParticipants(new ArrayList<>());
+    session.setMaxParticipantCount(2);
+    session.setSessionName("sessionName");
+    session.setDate(LocalDateTime.now().plusDays(1));
+
+    // Mock Services
+    List<Session> sessions = new ArrayList<>();
+    sessions.add(session);
+    sessions.add(sessionRepository.getById(1L));
+    when(mongoTemplate.find(any(), eq(Session.class))).thenReturn(sessions);
+
+    // Perform test
+    List<Session> result = sessionService.getSessions(limit, offset, allParams);
+
+    assertEquals(2, result.size());
+    assertEquals(session, result.get(0));
+  }
+
+  @Test
+  public void testGetSessionsByDateAndNameSuccess() {
+    // Setup
+    Integer limit = 10;
+    Integer offset = 0;
+    HashMap<String, String> allParams = new HashMap<>();
+    allParams.put(QueryParams.DATE.getValue(), LocalDateTime.now().plusDays(1).toString());
+    allParams.put(QueryParams.SESSION_NAME.getValue(), "name");
+
+    Session session = new Session();
+    session.setId(2L);
+    session.setHostId(1L);
+    session.setRecipeId(1L);
+    session.setRoomId("roomId");
+    session.setCurrentParticipantCount(0);
+    session.setParticipants(new ArrayList<>());
+    session.setMaxParticipantCount(2);
+    session.setSessionName("sessionName");
+    session.setDate(LocalDateTime.now());
+
+    // Mock Services
+    List<Session> sessions = new ArrayList<>();
+    sessions.add(sessionRepository.getById(1L));
+    when(mongoTemplate.find(any(), eq(Session.class))).thenReturn(sessions);
+
+    // Perform test
+    List<Session> result = sessionService.getSessions(limit, offset, allParams);
+
+    assertEquals(1, result.size());
+    assertEquals(sessionRepository.getById(1L), result.get(0));
   }
 
 }

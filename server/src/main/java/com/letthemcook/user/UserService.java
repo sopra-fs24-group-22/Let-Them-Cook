@@ -3,12 +3,14 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
-import com.letthemcook.sessionrequest.SessionRequest;
 import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.cookbook.CookbookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -34,10 +39,11 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final SessionRequestService sessionRequestService;
+  private final MongoTemplate mongoTemplate;
   Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate) {
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
     this.sequenceGeneratorService = sequenceGeneratorService;
@@ -45,6 +51,7 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
     this.sessionRequestService = sessionRequestService;
+    this.mongoTemplate = mongoTemplate;
   }
 
   public Token createUser(User newUser) {
@@ -119,6 +126,25 @@ public class UserService {
       logger.info("Error generating refreshToken: " + e.getMessage());
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
     }
+  }
+
+  public List<User> getUsers(Integer limit, Integer offset, Map<String, String> allParams) {
+    Query query = new Query();
+    query.limit(limit);
+    query.skip(offset);
+
+    for (Map.Entry<String, String> param : allParams.entrySet()) {
+      if (Stream.of(QueryParams.values()).anyMatch(e -> e.getValue().equals(param.getKey()))) {
+        if (param.getKey().toUpperCase().contains("NAME")) {
+          query.addCriteria(Criteria.where(param.getKey()).regex(".*" + param.getValue() + ".*", "i"));
+        }
+      }
+    }
+
+    // Sort alphabetically
+    query.with(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Order.asc("username")));
+
+    return mongoTemplate.find(query, User.class);
   }
 
   // ######################################### Util #########################################

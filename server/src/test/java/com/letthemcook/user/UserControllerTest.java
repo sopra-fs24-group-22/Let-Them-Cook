@@ -4,15 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
-import com.letthemcook.rest.mapper.DTOUserMapper;
-import com.letthemcook.user.dto.GetMeRequestDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,6 +27,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.servlet.http.Cookie;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -71,7 +72,7 @@ public class UserControllerTest {
     user.setLastname("User");
     user.setEmail("test@user.com");
 
-    userRepository.save(user);
+    when(userRepository.getById(1L)).thenReturn(user);
   }
 
   @AfterEach
@@ -298,5 +299,34 @@ public class UserControllerTest {
     // When & Then
     mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
+  // ######################################### GET users #########################################
+
+  @Test
+  public void getUsersReturnsAllUsers() throws Exception {
+    // Setup
+    User user1 = userRepository.getById(1L);
+
+    User user = new User();
+    user.setId(2L);
+    user.setUsername("test");
+
+    List<User> users = new ArrayList<User>();
+    users.add(user1);
+    users.add(user);
+
+    // Mock Services
+    when(userService.getUsers(Mockito.anyInt(), Mockito.anyInt(), Mockito.any())).thenReturn(users);
+
+    // Perform Test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(user1.getId()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(user.getId()));
+
   }
 }

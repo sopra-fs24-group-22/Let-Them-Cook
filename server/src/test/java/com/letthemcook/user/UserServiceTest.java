@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,10 +19,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +49,9 @@ public class UserServiceTest {
   @Mock
   private SessionRequestService sessionRequestService;
 
+  @Mock
+  private MongoTemplate mongoTemplate;
+
   @InjectMocks
   private UserService userService;
 
@@ -52,7 +59,7 @@ public class UserServiceTest {
 
   @BeforeEach
   public void setup() {
-    userService = new UserService(userRepository, cookbookService, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService, sessionRequestService);
+    userService = new UserService(userRepository, cookbookService, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService, sessionRequestService, mongoTemplate);
   }
 
   @AfterEach
@@ -168,6 +175,60 @@ public class UserServiceTest {
 
     assertEquals(HttpStatus.FORBIDDEN, exception.getStatus());
     assertEquals("invalid refresh token!", exception.getReason());
+  }
+
+  // ######################################### Get Users Tests #########################################
+
+  @Test
+  public void testGetUsersNoParamsReturnsAllUsers() {
+    // Setup
+    Integer limit = 10;
+    Integer offset = 0;
+    HashMap<String, String> allParams = new HashMap<>();
+
+    List<User> users = new ArrayList<>();
+
+    User user = new User();
+    user.setUsername("testUser");
+    user.setId(1L);
+    users.add(user);
+
+    user = new User();
+    user.setUsername("User2");
+    user.setId(2L);
+    users.add(user);
+
+    // Mock Services
+    when(mongoTemplate.find(any(), eq(User.class))).thenReturn(users);
+
+    // Perform test
+    List<User> result = userService.getUsers(limit, offset, allParams);
+
+    assertEquals(users, result);
+  }
+
+  @Test
+  public void testGetUsersByUsername() {
+    // Setup
+    Integer limit = 10;
+    Integer offset = 0;
+    HashMap<String, String> allParams = new HashMap<>();
+    allParams.put("username", "testUser");
+
+    List<User> users = new ArrayList<>();
+
+    User user = new User();
+    user.setUsername("testUser");
+    user.setId(1L);
+    users.add(user);
+
+    // Mock Services
+    when(mongoTemplate.find(any(), eq(User.class))).thenReturn(users);
+
+    // Perform test
+    List<User> result = userService.getUsers(limit, offset, allParams);
+
+    assertEquals(users, result);
   }
 }
 

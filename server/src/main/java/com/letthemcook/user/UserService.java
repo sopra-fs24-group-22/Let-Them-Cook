@@ -139,7 +139,7 @@ public class UserService {
           query.addCriteria(Criteria.where(param.getKey()).regex(".*" + param.getValue() + ".*", "i"));
         }
         else if (param.getKey().toUpperCase().contains("ID")) {
-          query.addCriteria(Criteria.where(param.getKey()).is(param.getValue()));
+          query.addCriteria(Criteria.where(param.getKey()).is(Long.parseLong(param.getValue())));
         }
       }
     }

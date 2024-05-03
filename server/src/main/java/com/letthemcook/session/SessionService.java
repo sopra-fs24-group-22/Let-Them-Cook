@@ -279,6 +279,17 @@ public class SessionService {
     }
   }
 
+  /**
+   * Removes session from repository after its completion
+   */
+  @Scheduled(fixedRate = 1800000)
+  private void deleteSessions() {
+    List<Session> sessions = sessionRepository.findAll();
 
-  // TODO: Scheduled task to delete sessions whose start date + length + epsilon is due
+    for (Session session : sessions) {
+      if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(session.getDuration()).plusHours(12L))) {
+        sessionRepository.deleteById(session.getId());
+      }
+    }
+  }
 }

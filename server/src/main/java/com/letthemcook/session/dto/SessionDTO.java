@@ -1,6 +1,5 @@
 package com.letthemcook.session.dto;
 
-import com.letthemcook.recipe.Recipe;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +13,7 @@ public class SessionDTO {
   private Integer currentParticipantCount;
   private ArrayList<Long> participants;
   private Date date;
+  private Integer duration;
 
   public Long getId() {
     return id;
@@ -77,5 +77,13 @@ public class SessionDTO {
 
   public void setDate(Date date) {
     this.date = date;
+  }
+
+  public Integer getDuration() {
+    return duration;
+  }
+
+  public void setDuration(Integer duration) {
+    this.duration = duration;
   }
 }

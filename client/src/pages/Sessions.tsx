@@ -33,11 +33,13 @@ const SessionsPage = () => {
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
-      // TODO: API CALL
-      // await getAllSessionsAPI();
       const res =
         view === "ALL" ? await getAllSessionsAPI() : await getAllSessionsAPI(); //! DEV ONLY
-
+      for (const session of res) {
+        const hostId = session.hostId;
+        // const host = await getUsers(hostId);
+        //session.hostName = host.username;
+      }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");
@@ -205,10 +207,7 @@ const SessionsPage = () => {
                     </Container>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
-                    <div>
-                      Date & start time:{" "}
-                      {formatDateTime(session.date)}
-                    </div>
+                    <div>Date & start time: {formatDateTime(session.date)}</div>
                     <div>Host: {session.host}</div>
                     <div>Max Participants: {session.maxParticipantCount}</div>
                     {allRecipes.map((recipe) => {

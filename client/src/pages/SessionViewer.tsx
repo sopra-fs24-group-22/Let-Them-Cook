@@ -68,14 +68,14 @@ const SessionViewer = () => {
       alert("Error while loading the recipes. Please try again.");
     }
   };
-  const [participantsCount, setMaxParticipantCount] = useState<number>(0);
+  const [currentParticipantsCount, setCurrentParticipantCount] =
+    useState<number>(0);
   const fetchSessionInfo = async () => {
     try {
-      const sessionInfo = await getSessionAPI(Number(sessionID)); // Assuming this function exists and returns session info including maxParticipantCount
-      setMaxParticipantCount(sessionInfo.currentParticipantCount);
+      const sessionInfo = await getSessionAPI(Number(sessionID));
+      setCurrentParticipantCount(sessionInfo.currentParticipantCount);
     } catch (error) {
       console.error("Error fetching session info:", error);
-      // Handle error, e.g., show an error message to the user
     }
   };
 
@@ -96,9 +96,9 @@ const SessionViewer = () => {
     {},
   );
   const handleCheckboxChange = async (stepIndex: number) => {
-    const isChecked = checkedItems[stepIndex] || false;
-    setCheckedItems({
-      ...checkedItems,
+    const isChecked = userChecklistData[stepIndex] || false;
+    setUserChecklistData({
+      ...userChecklistData,
       [stepIndex]: !isChecked,
     });
     const body = {
@@ -109,22 +109,66 @@ const SessionViewer = () => {
       await putChecklistAPI(Number(sessionID), body);
     } catch (error) {
       console.error("Error updating checklist item:", error);
-      // Handle error, e.g., show an error message to the user
     }
   };
 
+  const [userChecklistData, setUserChecklistData] = useState<{
+    [key: number]: boolean;
+  }>({});
+
   const fetchChecklistData = async (): Promise<void> => {
-    await fetchChecklistState();
+    try {
+      const checklistData = await getChecklistAPI(Number(sessionID));
+      const { currentStepValues, recipeSteps } = checklistData;
+
+      // Ensure userID is not null before accessing currentStepValues
+      const userChecklist = userID ? currentStepValues[userID] || {} : {};
+      setUserChecklistData(userChecklist);
+
+      const stepCounts: { [key: number]: number } = {};
+      for (let stepIndex = 0; stepIndex < recipeSteps; stepIndex++) {
+        let count = 0;
+        for (const userId in currentStepValues) {
+          if (currentStepValues[userId][stepIndex]) {
+            count++;
+          }
+        }
+        stepCounts[stepIndex] = count;
+      }
+
+      setStepCounts(stepCounts);
+    } catch (error) {
+      console.error("Error fetching checklist state:", error);
+    }
+
+    // Fetch session info and schedule next fetch
     await fetchSessionInfo();
-    // Only call again if we are still on the session page
-    if (window.location.pathname.startsWith("/sessions/"))
+    if (window.location.pathname.startsWith("/sessions/")) {
       setTimeout(fetchChecklistData, 3000);
+    }
+  };
+
+  const [userID, setUserID] = useState<number | null>(null);
+
+  const fetchData = async () => {
+    try {
+      const user = await getMyUser();
+      setUserID(user.id);
+
+      // Fetch checklist data only after user ID is set
+      await fetchChecklistData();
+
+      // Other API calls or data fetching can also be placed here
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   };
 
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
     fetchChecklistData();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -142,11 +186,11 @@ const SessionViewer = () => {
                 >
                   <input
                     type="checkbox"
-                    checked={checkedItems[index] || false}
+                    checked={userChecklistData[index] === true}
                     onChange={() => handleCheckboxChange(index)}
                     style={{ marginRight: "10px" }}
                   />
-                  {item} ({stepCounts[index] || 0} / {participantsCount})
+                  {item} ({stepCounts[index] || 0} / {currentParticipantsCount})
                 </ListGroup.Item>
               ))}
             </ListGroup>

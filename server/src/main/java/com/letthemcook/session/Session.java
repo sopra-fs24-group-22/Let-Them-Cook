@@ -27,6 +27,7 @@ public class Session {
   private SessionUserState sessionUserState;
   private LocalDateTime date;
   private String roomId;
+  private Integer duration;
 
   public Long getId() {
     return id;
@@ -110,5 +111,13 @@ public class Session {
 
   public void setSessionUserState(SessionUserState sessionUserState) {
     this.sessionUserState = sessionUserState;
+  }
+
+  public Integer getDuration() {
+    return duration;
+  }
+
+  public void setDuration(Integer duration) {
+    this.duration = duration;
   }
 }

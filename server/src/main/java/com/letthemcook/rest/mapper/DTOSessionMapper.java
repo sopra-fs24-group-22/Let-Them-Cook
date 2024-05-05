@@ -20,6 +20,7 @@ public interface DTOSessionMapper {
   @Mapping(source = "recipe", target = "recipeId")
   @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
   @Mapping(source = "date", target = "date")
+  @Mapping(source = "duration", target = "duration")
   Session convertSingleSessionDTOToEntity(SessionPostDTO sessionPostDTO);
 
 // ######################################### GET single session #########################################
@@ -31,6 +32,7 @@ public interface DTOSessionMapper {
   @Mapping(source = "currentParticipantCount", target = "currentParticipantCount")
   @Mapping(source = "participants", target = "participants")
   @Mapping(source = "date", target = "date")
+  @Mapping(source = "duration", target = "duration")
   SessionDTO convertEntityToSingleSessionDTO(Session session);
 
   // ######################################### GET session credentials #########################################

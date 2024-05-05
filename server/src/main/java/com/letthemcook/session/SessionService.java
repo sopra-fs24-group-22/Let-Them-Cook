@@ -138,7 +138,6 @@ public class SessionService {
     query.with(org.springframework.data.domain.Sort.by(QueryParams.DATE.getValue()).ascending());
 
     return mongoTemplate.find(query, Session.class);
-
   }
 
   public Session getSessionCredentials(Long sessionId, String accessToken) {
@@ -231,6 +230,22 @@ public class SessionService {
     return session.getSessionUserState();
   }
 
+  public List<Session> getSessionsByUser(String accessToken) {
+    // TODO: Add pending requests
+    String username = jwtService.extractUsername(accessToken);
+
+    List<Session> sessions = sessionRepository.findAll();
+    List<Session> userSessions = new ArrayList<>();
+
+    for (Session session : sessions) {
+      if (Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId()) || session.getParticipants().contains(userRepository.getByUsername(username).getId())) {
+        userSessions.add(session);
+      }
+    }
+
+    return userSessions;
+  }
+
   // ######################################### Util #########################################
 
   private Boolean checkIfUserIsParticipant(Long sessionId, String username) {
@@ -279,6 +294,18 @@ public class SessionService {
     }
   }
 
+  /**
+   * Removes session from repository after its completion
+   */
+  @Scheduled(fixedRate = 1800000)
+  private void deleteSessions() {
+    // TODO: Write tests
+    List<Session> sessions = sessionRepository.findAll();
 
-  // TODO: Scheduled task to delete sessions whose start date + length + epsilon is due
+    for (Session session : sessions) {
+      if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(session.getDuration()).plusHours(12L))) {
+        sessionRepository.deleteById(session.getId());
+      }
+    }
+  }
 }

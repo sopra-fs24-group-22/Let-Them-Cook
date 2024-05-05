@@ -33,11 +33,13 @@ const SessionsPage = () => {
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
-      // TODO: API CALL
-      // await getAllSessionsAPI();
       const res =
         view === "ALL" ? await getAllSessionsAPI() : await getAllSessionsAPI(); //! DEV ONLY
-
+      for (const session of res) {
+        const hostId = session.hostId;
+        // const host = await getUsers(hostId);
+        //session.hostName = host.username;
+      }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");

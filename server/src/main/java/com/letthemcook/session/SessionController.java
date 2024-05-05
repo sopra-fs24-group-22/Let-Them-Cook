@@ -94,4 +94,20 @@ public class SessionController {
 
     return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSessionUserStateDTO(checklist));
   }
+
+  // TODO: GET personal sessions.
+  @GetMapping("/api/session/me")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<ArrayList<SessionDTO>> getPersonalSessions(@RequestHeader("Authorization") String accessToken) {
+    List<Session> queriedSessions = sessionService.getSessionsByUser(accessToken);
+
+    // Convert each user to the API representation
+    ArrayList<SessionDTO> sessionsGetDTOS = new ArrayList<>();
+    for (Session session : queriedSessions) {
+      sessionsGetDTOS.add(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
+  }
 }

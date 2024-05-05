@@ -8,6 +8,7 @@ public class SessionPostDTO {
   private String sessionName;
   private Integer maxParticipantCount;
   private Date date;
+  private Integer duration;
 
   public Long getId() {
     return id;
@@ -48,5 +49,13 @@ public class SessionPostDTO {
 
   public void setDate(Date date) {
     this.date = date;
+  }
+
+  public Integer getDuration() {
+    return duration;
+  }
+
+  public void setDuration(Integer duration) {
+    this.duration = duration;
   }
 }

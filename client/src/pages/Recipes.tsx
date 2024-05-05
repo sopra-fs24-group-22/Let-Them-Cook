@@ -31,8 +31,12 @@ import { Container, Row, Col, ListGroup } from "react-bootstrap";
 import { Header1, Header2, SecondaryText } from "../components/ui/Header";
 import { getMyUser } from "../api/user.api";
 import { Tooltip } from "react-tooltip";
+import { useParams } from "react-router-dom";
 
 const RecipesPage = () => {
+  // Get the recipeId from the URL
+  const { recipeId: URLrecipeId } = useParams();
+
   // Vars for creating a new recipe
   const [editingRecipeId, setEditingRecipeId] = useState<number>(0);
   const [showForm, setShowForm] = useState(false);
@@ -235,8 +239,15 @@ const RecipesPage = () => {
     }
   };
 
+  const initShowRecipeDetails = () => {
+    if (URLrecipeId) {
+      handleShowDetails(Number(URLrecipeId));
+    }
+  };
+
   useEffect(() => {
     initFetch();
+    initShowRecipeDetails();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

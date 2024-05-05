@@ -41,8 +41,6 @@ interface SessionTileProps {
 }
 
 export const SessionTile: React.FC<SessionTileProps> = ({ name, id, date }) => {
-  const navigate = useNavigate();
-  const [isHovered, setIsHovered] = useState(false);
   const [dateString, setDateString] = useState("" as string);
 
   const generateDateString = () => {
@@ -71,6 +69,51 @@ export const SessionTile: React.FC<SessionTileProps> = ({ name, id, date }) => {
   });
 
   return (
+    <BaseTile
+      textLeft={name}
+      textRight={dateString}
+      id={id}
+      baseUrl="sessions"
+    />
+  );
+};
+
+interface RecipeTileProps {
+  name?: string;
+  id?: number;
+  creatorName?: string;
+}
+
+export const RecipeTile: React.FC<RecipeTileProps> = ({
+  name,
+  id,
+  creatorName,
+}) => (
+  <BaseTile
+    textLeft={name}
+    textRight={"by " + creatorName}
+    id={id}
+    baseUrl="recipes"
+  />
+);
+
+interface BaseTileProps {
+  textLeft?: string;
+  textRight?: string;
+  id?: number;
+  baseUrl?: string;
+}
+
+const BaseTile: React.FC<BaseTileProps> = ({
+  textLeft,
+  textRight,
+  id,
+  baseUrl,
+}) => {
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
     <Col
       style={{
         margin: "5px",
@@ -82,12 +125,14 @@ export const SessionTile: React.FC<SessionTileProps> = ({ name, id, date }) => {
         cursor: "pointer",
         backgroundColor: isHovered ? "#e5dcd0" : "",
       }}
-      onClick={() => navigate("/sessions/" + id)}
+      onClick={() => navigate("/" + baseUrl + "/" + id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {name}
-      <span style={{ float: "right" }}>{dateString}</span>
+      {textLeft}
+      <span style={{ float: "right", fontSize: "80%", marginTop: "3px" }}>
+        {textRight}
+      </span>
     </Col>
   );
 };

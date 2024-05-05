@@ -6,4 +6,4 @@ export const formatDateTime = (date: string) => {
   const i = date.slice(14, 16);
 
   return `${d}.${m}.${y} ${h}:${i}`;
-}
+};

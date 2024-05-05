@@ -205,10 +205,7 @@ const SessionsPage = () => {
                     </Container>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
-                    <div>
-                      Date & start time:{" "}
-                      {formatDateTime(session.date)}
-                    </div>
+                    <div>Date & start time: {formatDateTime(session.date)}</div>
                     <div>Host: {session.host}</div>
                     <div>Max Participants: {session.maxParticipantCount}</div>
                     {allRecipes.map((recipe) => {

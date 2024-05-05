@@ -87,3 +87,15 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/132
 
 ### Gian Gyger
 (in WK)
+
+## 10.05.2024
+### Claudio Fleischmann
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/123
+
+### Tristan Koning
+
+### Martin Fähnrich
+
+### David Lanz
+
+### Gian Gyger

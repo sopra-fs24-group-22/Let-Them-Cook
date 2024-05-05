@@ -81,20 +81,20 @@ const SessionViewer = () => {
 
   const [stepCounts, setStepCounts] = useState<{ [key: number]: number }>({});
 
-  const fetchChecklistState = async () => {
-    try {
-      const count = await getChecklistAPI(Number(sessionID));
+  // const fetchChecklistState = async () => {
+  //   try {
+  //     const count = await getChecklistAPI(Number(sessionID));
 
-      setStepCounts(count);
-    } catch (error) {
-      console.error("Error fetching checklist state:", error);
-      // Handle error, e.g., show an error message to the user
-    }
-  };
+  //     setStepCounts(count);
+  //   } catch (error) {
+  //     console.error("Error fetching checklist state:", error);
+  //     // Handle error, e.g., show an error message to the user
+  //   }
+  // };
 
-  const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>(
-    {},
-  );
+  // const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>(
+  //   {},
+  // );
   const handleCheckboxChange = async (stepIndex: number) => {
     const isChecked = userChecklistData[stepIndex] || false;
     setUserChecklistData({

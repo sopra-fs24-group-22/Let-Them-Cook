@@ -35,11 +35,11 @@ const SessionsPage = () => {
     try {
       const res =
         view === "ALL" ? await getAllSessionsAPI() : await getAllSessionsAPI(); //! DEV ONLY
-      for (const session of res) {
-        const hostId = session.hostId;
+      // for (const session of res) {
+        // const hostId = session.hostId;
         // const host = await getUsers(hostId);
         //session.hostName = host.username;
-      }
+      // }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");

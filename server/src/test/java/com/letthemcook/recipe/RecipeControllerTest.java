@@ -2,6 +2,7 @@ package com.letthemcook.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.recipe.dto.RecipeGetDTO;
 import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,12 +22,17 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(RecipeController.class)
 @WebAppConfiguration
@@ -178,5 +185,54 @@ public class RecipeControllerTest {
               .andExpect(MockMvcResultMatchers.jsonPath("$[0].checklist[0]").value("Test Step"))
               .andExpect(MockMvcResultMatchers.jsonPath("$[0].ingredients[0]").value("Test Ingredient"))
               .andExpect(MockMvcResultMatchers.jsonPath("$[0].cookingTimeMin").value(10));
+  }
+
+  // ######################################### Put Recipes Tests #########################################
+  @Test
+  @WithMockUser
+  public void updateRecipeSuccess() throws Exception {
+    RecipeGetDTO recipeGetDTO = new RecipeGetDTO();
+    recipeGetDTO.setId(1L);
+    recipeGetDTO.setTitle("Updated Recipe");
+    Recipe recipe = new Recipe();
+
+    doNothing().when(recipeService).updateRecipe(Mockito.any(), Mockito.any());
+
+    mockMvc.perform(put("/api/recipe")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(recipeGetDTO)))
+            .andExpect(status().isOk());
+  }
+
+  @Test
+  public void updateRecipeFailureUnauthorized() throws Exception {
+    RecipeGetDTO recipeGetDTO = new RecipeGetDTO();
+    recipeGetDTO.setId(1L);
+    recipeGetDTO.setTitle("Updated Recipe");
+
+    mockMvc.perform(put("/api/recipe")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(recipeGetDTO)))
+            .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser
+  public void updateRecipeFailureNotFound() throws Exception {
+    RecipeGetDTO recipeGetDTO = new RecipeGetDTO();
+    recipeGetDTO.setId(999L);
+    recipeGetDTO.setTitle("Updated Recipe");
+
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(recipeService).updateRecipe(any(Recipe.class), anyString());
+
+    mockMvc.perform(put("/api/recipe")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(recipeGetDTO)))
+            .andExpect(status().isNotFound());
   }
 }

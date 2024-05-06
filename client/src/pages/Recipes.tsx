@@ -1,6 +1,7 @@
 import { useState, ChangeEvent, useEffect } from "react";
 import {
   ButtonGroup,
+  HLine,
   PrimaryButton,
   SecondaryButton,
 } from "../components/ui/Button";
@@ -28,7 +29,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from "../components/ui/Icon";
 import { Container, Row, Col, ListGroup } from "react-bootstrap";
-import { Header1, Header2, SecondaryText } from "../components/ui/Header";
+import {
+  Header1,
+  Header2,
+  Header3,
+  SecondaryText,
+} from "../components/ui/Header";
 import { getMyUser } from "../api/user.api";
 import { Tooltip } from "react-tooltip";
 import { useParams } from "react-router-dom";
@@ -177,6 +183,28 @@ const RecipesPage = () => {
   const [recipes, setRecipes] = useState<any[]>([]);
   const [cookbookRecipeIds, setCookbookRecipeIds] = useState<any[]>([]);
 
+  // Filter variables for recipe fetch
+  const [recipeTitleFilter, setRecipeTitleFilter] = useState<
+    string | undefined
+  >(undefined);
+  const [creatorNameFilter, setCreatorNameFilter] = useState<
+    string | undefined
+  >(undefined);
+  const [maxCookingTimeFilter, setMaxCookingTimeFilter] = useState<
+    number | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (userId && userId !== 0) reloadRecipes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipeTitleFilter, creatorNameFilter, maxCookingTimeFilter]);
+
+  const deleteFilter = async () => {
+    setRecipeTitleFilter(undefined);
+    setCreatorNameFilter(undefined);
+    setMaxCookingTimeFilter(undefined);
+  };
+
   const changeView = async (view: "ALL" | "MY") => {
     setPageView(view);
     await fetchRecipes(view, userId);
@@ -186,8 +214,17 @@ const RecipesPage = () => {
     try {
       var resRecipes = [];
       var resCookbook = [];
+
+      // build object for filtering
+      var filter = {};
+      if (maxCookingTimeFilter)
+        filter = { ...filter, cookingTimeMin: maxCookingTimeFilter };
+      if (recipeTitleFilter) filter = { ...filter, title: recipeTitleFilter };
+      if (creatorNameFilter)
+        filter = { ...filter, creatorName: creatorNameFilter };
+
       if (view === "ALL") {
-        resRecipes = await getAllRecipesAPI();
+        resRecipes = await getAllRecipesAPI(filter);
         resCookbook = await getCookbookAPI(UserId);
       } else {
         resRecipes = await getCookbookAPI(UserId);
@@ -195,8 +232,6 @@ const RecipesPage = () => {
       }
       setRecipes(resRecipes);
       setCookbookRecipeIds(resCookbook.map((e: any) => e.id));
-
-      console.log(resRecipes);
     } catch (error) {
       alert("Error while loading the recipes. Please try again.");
     }
@@ -240,7 +275,7 @@ const RecipesPage = () => {
   };
 
   const initShowRecipeDetails = () => {
-    if (URLrecipeId) {
+    if (URLrecipeId && URLrecipeId !== "0") {
       handleShowDetails(Number(URLrecipeId));
     }
   };
@@ -302,9 +337,61 @@ const RecipesPage = () => {
     <>
       <MainLayout
         sidebarContent={
-          <PrimaryButton onClick={handleShowForm} style={{ width: "100%" }}>
-            Create new recipe
-          </PrimaryButton>
+          <>
+            <PrimaryButton onClick={handleShowForm} style={{ width: "100%" }}>
+              Create new recipe
+            </PrimaryButton>
+
+            {pageView === "ALL" && (
+              <>
+                <HLine />
+
+                <Header3 style={{ marginBottom: "20px" }}>Filter:</Header3>
+
+                <Label htmlFor="recipeTitleFilter" style={{ marginLeft: "0" }}>
+                  Name of the recipe
+                </Label>
+                <Input
+                  id="recipeTitleFilter"
+                  type="text"
+                  style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+                  value={recipeTitleFilter ? recipeTitleFilter : ""}
+                  onChange={(e) => setRecipeTitleFilter(e.target.value)}
+                />
+
+                <Label htmlFor="creatorNameFilter" style={{ marginLeft: "0" }}>
+                  Creator name
+                </Label>
+                <Input
+                  id="creatorNameFilter"
+                  type="text"
+                  style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+                  value={creatorNameFilter ? creatorNameFilter : ""}
+                  onChange={(e) => setCreatorNameFilter(e.target.value)}
+                />
+
+                <Label htmlFor="cookingTimeFilter" style={{ marginLeft: "0" }}>
+                  Cooking time (minutes)
+                </Label>
+                <Input
+                  id="cookingTimeFilter"
+                  type="number"
+                  style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+                  value={maxCookingTimeFilter ? maxCookingTimeFilter : ""}
+                  onChange={(e) =>
+                    setMaxCookingTimeFilter(Number(e.target.value))
+                  }
+                />
+
+                <SecondaryButton
+                  onClick={deleteFilter}
+                  style={{ width: "100%" }}
+                >
+                  Delete all filter
+                </SecondaryButton>
+              </>
+            )}
+          </>
         }
       >
         <ButtonGroup style={{ marginBottom: "20px" }}>

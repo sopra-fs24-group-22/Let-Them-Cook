@@ -91,6 +91,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/132
 ## 10.05.2024
 ### Claudio Fleischmann
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/123
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/139
 
 ### Tristan Koning
 

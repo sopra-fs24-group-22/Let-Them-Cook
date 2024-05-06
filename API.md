@@ -276,6 +276,84 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
+## Put recipe
+
+Used to update an existing recipe.
+
+**URL** : `/api/recipe`
+
+**Method** : `PUT`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "id": "[recipe id]",
+  "title": "[Recipe title]",
+  "checklist": ["List of checklist items"],
+  "ingredients": ["List of ingredients"],
+  "cookingTimeMin": "Integer: Cooking time in minutes,",
+  "privacyStatus": "[PUBLIC = 1 / PRIVATE = 0]"
+}
+```
+
+**Data example**
+
+```json
+{
+  "id": 1,
+  "title": "Butter Chicken",
+  "checklist": ["Chop Onions", "Cook chicken"],
+  "ingredients": ["200g chicken", "1 Onion", "Clove of garlic"],
+  "cookingTimeMin": 60
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**No Content**
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : Recipe was not found.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "Recipe not found"
+```
+
+**Condition** : User tries to update a recipe they do not own.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN "User is not allowed to update this recipe"
+```
+
 ## Delete recipe
 
 Used to delete a recipe.

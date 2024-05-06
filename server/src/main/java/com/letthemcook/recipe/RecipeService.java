@@ -16,9 +16,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+
+import static org.springframework.util.ClassUtils.getMethod;
 
 @Service
 @Transactional
@@ -33,7 +39,7 @@ public class RecipeService {
   //Logger logger = LoggerFactory.getLogger(RecipeService.class);
 
   @Autowired
-  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService , UserRepository userRepository, CookbookService cookbookService, CookbookRepository cookbookRepository, MongoTemplate mongoTemplate) {
+  public RecipeService(@Qualifier("recipeRepository") RecipeRepository recipeRepository, SequenceGeneratorService sequenceGeneratorService, JwtService jwtService, UserRepository userRepository, CookbookService cookbookService, CookbookRepository cookbookRepository, MongoTemplate mongoTemplate) {
     this.recipeRepository = recipeRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
@@ -56,8 +62,29 @@ public class RecipeService {
     return recipe;
   }
 
+  public void updateRecipe(Recipe recipe, String accessToken) {
+    String username = jwtService.extractUsername(accessToken);
+
+    Long recipeId = recipe.getId();
+    // Check if recipe exists
+    Recipe existingRecipe = recipeRepository.getById(recipe.getId());
+    if (existingRecipe == null) {
+      //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
+    }
+
+    // Check if user is authorized to update recipe
+    if (!Objects.equals(existingRecipe.getCreatorId(), userRepository.getByUsername(username).getId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to update this recipe");
+    }
+
+    // Set recipe data
+    recipe = updateRecipeData(existingRecipe, recipe);
+
+    recipeRepository.save(recipe);
+  }
+
   public void deleteRecipe(Long id, String accessToken) {
-    // Remove Bearer from string
     String username = jwtService.extractUsername(accessToken);
 
     // Check if recipe exists
@@ -67,7 +94,7 @@ public class RecipeService {
     }
 
     // Check if user is authorized to delete recipe
-    if(Objects.equals(recipe.getCreatorId(), userRepository.getByUsername(username).getId())) {
+    if (Objects.equals(recipe.getCreatorId(), userRepository.getByUsername(username).getId())) {
       recipeRepository.deleteById(id);
 
       // Delete recipe from all cookbooks
@@ -112,5 +139,39 @@ public class RecipeService {
     query.addCriteria(Criteria.where("privacyStatus").is(1L));
 
     return mongoTemplate.find(query, Recipe.class);
+  }
+
+  // ######################################### Util #########################################
+
+  private Recipe updateRecipeData(Recipe existingRecipe, Recipe recipe) {
+
+    Method[] getters = {
+            getMethod(Recipe.class, "getTitle"),
+            getMethod(Recipe.class, "getChecklist"),
+            getMethod(Recipe.class, "getIngredients"),
+            getMethod(Recipe.class, "getCookingTimeMin"),
+            getMethod(Recipe.class, "getPrivacyStatus")
+    };
+
+    Method[] setters = {
+            getMethod(Recipe.class, "setTitle", String.class),
+            getMethod(Recipe.class, "setChecklist", ArrayList.class),
+            getMethod(Recipe.class, "setIngredients", ArrayList.class),
+            getMethod(Recipe.class, "setCookingTimeMin", int.class),
+            getMethod(Recipe.class, "setPrivacyStatus", int.class)
+    };
+
+    for (int i = 0; i < getters.length; i++) {
+      try {
+        Object value = getters[i].invoke(recipe);
+        if (value != null) {
+          setters[i].invoke(existingRecipe, value);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    return existingRecipe;
   }
 }

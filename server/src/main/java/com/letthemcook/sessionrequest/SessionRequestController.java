@@ -21,7 +21,7 @@ public class SessionRequestController {
   @PostMapping("/api/session_request/{sessionId}")
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
-  public ResponseEntity<Void> createSessionRequest(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) throws IOException {
+  public ResponseEntity<Void> createSessionRequest(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) {
     sessionRequestService.sendSessionRequest(sessionId, accessToken);
 
     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -30,7 +30,7 @@ public class SessionRequestController {
   @PostMapping("/api/session_request/{sessionId}/accept")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<Void> acceptSessionRequest(@PathVariable Long sessionId, @RequestBody SessionRequestDTO sessionRequestDTO, @RequestHeader("Authorization") String accessToken) throws IOException {
+  public ResponseEntity<Void> acceptSessionRequest(@PathVariable Long sessionId, @RequestBody SessionRequestDTO sessionRequestDTO, @RequestHeader("Authorization") String accessToken) {
     SessionRequest sessionRequest = DTORequestSessionMapper.INSTANCE.convertSessionRequestDTOToEntity(sessionRequestDTO);
     sessionRequestService.processSessionRequest(sessionId, sessionRequest, true);
 
@@ -40,7 +40,7 @@ public class SessionRequestController {
   @PostMapping("/api/session_request/{sessionId}/deny")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<Void> denySessionRequest(@PathVariable Long sessionId, @RequestBody SessionRequestDTO sessionRequestDTO, @RequestHeader("Authorization") String accessToken) throws IOException {
+  public ResponseEntity<Void> denySessionRequest(@PathVariable Long sessionId, @RequestBody SessionRequestDTO sessionRequestDTO, @RequestHeader("Authorization") String accessToken) {
     SessionRequest sessionRequest = DTORequestSessionMapper.INSTANCE.convertSessionRequestDTOToEntity(sessionRequestDTO);
     sessionRequestService.processSessionRequest(sessionId, sessionRequest, false);
 

@@ -24,7 +24,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class RecipeServiceTest {
@@ -315,4 +316,57 @@ public class RecipeServiceTest {
     // Perform test
     assertEquals(recipes, recipeService.getRecipes(10, 0, params));
   }
+
+  // ######################################### Update Recipe Tests #########################################
+
+  @Test
+  public void updateRecipeSuccessfullyUpdatesRecipe() throws Exception {
+    String accessToken = "Bearer accessToken";
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setCreatorId(1L);
+    recipe.setTitle("Updated Recipe");
+    User user = new User();
+    user.setUsername("testUser");
+    user.setId(1L);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
+    when(userRepository.getByUsername("testUser")).thenReturn(user);
+
+    recipeService.updateRecipe(recipe, accessToken);
+
+    verify(recipeRepository, times(1)).save(recipe);
+  }
+
+  @Test
+  public void updateRecipeThrowsNotFoundWhenRecipeDoesNotExist() throws Exception {
+    String accessToken = "accessToken";
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setTitle("Updated Recipe");
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(recipeRepository.getById(recipe.getId())).thenReturn(null);
+
+    assertThrows(ResponseStatusException.class, () -> recipeService.updateRecipe(recipe, accessToken));
+  }
+
+  @Test
+  public void updateRecipeThrowsForbiddenWhenUserIsNotAuthorized() throws Exception {
+    String accessToken = "accessToken";
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setTitle("Updated Recipe");
+    User user = new User();
+    user.setUsername("anotherUser");
+    user.setId(2L);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
+    when(userRepository.getByUsername("testUser")).thenReturn(user);
+
+    assertThrows(ResponseStatusException.class, () -> recipeService.updateRecipe(recipe, accessToken));
+  }
+
 }

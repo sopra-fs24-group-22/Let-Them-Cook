@@ -107,4 +107,73 @@ public class SessionRequestServiceTest {
 
     assertThrows(ResponseStatusException.class, () -> sessionRequestService.sendSessionRequest(sessionId, accessToken));
   }
+
+  // ######################################### Process Session Request #######################################$
+
+  @Test
+  public void processSessionRequestSuccessfullyAcceptsRequest() {
+    Long sessionId = 1L;
+    Long userId = 1L;
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserId(userId);
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
+
+    when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
+
+    sessionRequestService.processSessionRequest(sessionId, sessionRequest, true);
+
+    ArgumentCaptor<SessionRequest> sessionRequestCaptor = ArgumentCaptor.forClass(SessionRequest.class);
+    verify(sessionRequestRepository, times(1)).save(sessionRequestCaptor.capture());
+
+    SessionRequest capturedSessionRequest = sessionRequestCaptor.getValue();
+    assertEquals(QueueStatus.ACCEPTED, capturedSessionRequest.getUserSessions().get(sessionId));
+  }
+
+  @Test
+  public void processSessionRequestSuccessfullyRejectsRequest() {
+    Long sessionId = 1L;
+    Long userId = 1L;
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserId(userId);
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
+
+    when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
+
+    sessionRequestService.processSessionRequest(sessionId, sessionRequest, false);
+
+    ArgumentCaptor<SessionRequest> sessionRequestCaptor = ArgumentCaptor.forClass(SessionRequest.class);
+    verify(sessionRequestRepository, times(1)).save(sessionRequestCaptor.capture());
+
+    SessionRequest capturedSessionRequest = sessionRequestCaptor.getValue();
+    assertEquals(QueueStatus.REJECTED, capturedSessionRequest.getUserSessions().get(sessionId));
+  }
+
+  @Test
+  public void processSessionRequestThrowsExceptionWhenNoRequestExists() {
+    Long sessionId = 1L;
+    Long userId = 1L;
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.setUserId(userId);
+
+    when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
+
+    assertThrows(ResponseStatusException.class, () -> sessionRequestService.processSessionRequest(sessionId, sessionRequest, true));
+  }
+
+  @Test
+  public void processSessionRequestThrowsExceptionWhenRequestAlreadyProcessed() {
+    Long sessionId = 1L;
+    Long userId = 1L;
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.setUserId(userId);
+    sessionRequest.getUserSessions().put(sessionId, QueueStatus.ACCEPTED);
+
+    when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
+
+    assertThrows(ResponseStatusException.class, () -> sessionRequestService.processSessionRequest(sessionId, sessionRequest, true));
+  }
 }

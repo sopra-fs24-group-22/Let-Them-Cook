@@ -27,7 +27,7 @@ public class RecipeServiceIntegrationTest {
   // ######################################### Setup & Teardown #########################################
 
   @BeforeEach
-  public void setUp() {
+  public void setup() {
     recipeRepository.deleteAll();
   }
 

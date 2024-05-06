@@ -163,9 +163,9 @@ const Main = styled.main`
 
 const Sidebar = styled.div`
   padding: 30px;
-  min-height: 200px;
   margin-right: 30px;
   border-radius: 20px;
+  height: fit-content;
 `;
 const Content = styled.div`
   padding: 30px;

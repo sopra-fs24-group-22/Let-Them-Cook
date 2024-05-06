@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -23,8 +25,9 @@ public class Session {
   private Integer currentParticipantCount;
   private ArrayList<Long> participants;
   private SessionUserState sessionUserState;
-  private Date date;
+  private LocalDateTime date;
   private String roomId;
+  private Integer duration;
 
   public Long getId() {
     return id;
@@ -54,7 +57,7 @@ public class Session {
     return participants;
   }
 
-  public Date getDate() {
+  public LocalDateTime getDate() {
     return date;
   }
 
@@ -90,8 +93,12 @@ public class Session {
     this.participants = participants;
   }
 
-  public void setDate(Date date) {
+  public void setDate(LocalDateTime date) {
     this.date = date;
+  }
+
+  public void setDate(Date date) {
+    this.date = LocalDateTime.parse(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").format(date));
   }
 
   public void setRoomId(String roomId) {
@@ -104,5 +111,13 @@ public class Session {
 
   public void setSessionUserState(SessionUserState sessionUserState) {
     this.sessionUserState = sessionUserState;
+  }
+
+  public Integer getDuration() {
+    return duration;
+  }
+
+  public void setDuration(Integer duration) {
+    this.duration = duration;
   }
 }

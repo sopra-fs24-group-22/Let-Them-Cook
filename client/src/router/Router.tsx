@@ -54,6 +54,9 @@ const Router = () => {
         <Route path="/recipes" element={<AppGuard />}>
           <Route path="/recipes" element={<RecipesPage />} />
         </Route>
+        <Route path="/recipes/:recipeId" element={<AppGuard />}>
+          <Route path="/recipes/:recipeId" element={<RecipesPage />} />
+        </Route>
 
         {/* Cookbook */}
         <Route path="/recipes/cookbook/:user" element={<AppGuard />}>

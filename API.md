@@ -175,11 +175,11 @@ Used to fetch a new access token.
 
 # Recipe Endpoints
 
-## Create recipeId
+## Create recipe
 
-Used to create a new recipeId.
+Used to create a new recipe.
 
-**URL** : `/api/recipeId`
+**URL** : `/api/recipe`
 
 **Method** : `POST`
 
@@ -232,11 +232,11 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
-## Get recipeId
+## Get recipe
 
-Used to fetch a recipeId.
+Used to fetch a recipe.
 
-**URL** : `/api/recipeId/{id}`
+**URL** : `/api/recipe/{id}`
 
 **Method** : `GET`
 
@@ -276,11 +276,11 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
-## Delete recipeId
+## Delete recipe
 
-Used to delete a recipeId.
+Used to delete a recipe.
 
-**URL** : `/api/recipeId/{id}`
+**URL** : `/api/recipe/{id}`
 
 **Method** : `DELETE`
 
@@ -302,17 +302,17 @@ Authorization: Bearer [access token]
 ```
 
 ### Error Response
-**Condition** : Deleting a recipeId user does not own.
+**Condition** : Deleting a recipe user does not own.
 
 **Code** : `403 FORBIDDEN`
 
 **Content** :
 
 ```
-403 FORBIDDEN "User is not allowed to delete this recipeId"
+403 FORBIDDEN "User is not allowed to delete this recipe"
 ```
 
-**Condition** : Deleting a recipeId that does not exist
+**Condition** : Deleting a recipe that does not exist
 
 **Code** : `404 NOT FOUND`
 
@@ -339,8 +339,8 @@ Used to query for recipes.
 **URL** : `/api/recipes?{query params}`
 
 **Query params**
-- `title` - Title of the recipeId
-- `creatorName` - Username of the user who created the recipeId
+- `title` - Title of the recipe
+- `creatorName` - Username of the user who created the recipe
 - `cookingTimeMin` - The maximum cooking time in minutes
 
 **Method** : `GET`
@@ -383,9 +383,9 @@ Authorization: Bearer [access token]
 
 # Cookbook Endpoints
 
-## Add recipeId to cookbook
+## Add recipe to cookbook
 
-Used to add a recipeId to the users personal cookbook.
+Used to add a recipe to the users personal cookbook.
 
 **URL** : `/api/cookbook/recipe/{id}`
 
@@ -409,7 +409,7 @@ Authorization: Bearer [access token]
 ```
 
 ### Error Response
-**Condition** : Adding a recipeId that does not exist.
+**Condition** : Adding a recipe that does not exist.
 
 **Code** : `404 NOT FOUND`
 
@@ -419,7 +419,7 @@ Authorization: Bearer [access token]
 404 NOT FOUND "Recipe not found"
 ```
 
-**Condition** : Adding a recipeId that is already in the cookbook.
+**Condition** : Adding a recipe that is already in the cookbook.
 
 **Code** : `409 CONFLICT`
 
@@ -439,9 +439,9 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
-## Remove recipeId from cookbook
+## Remove recipe from cookbook
 
-Used to remove a recipeId from the users personal cookbook.
+Used to remove a recipe from the users personal cookbook.
 
 **URL** : `/api/cookbook/recipe/{id}`
 
@@ -465,7 +465,7 @@ Authorization: Bearer [access token]
 ```
 
 ### Error Response
-**Condition** : Deleting a recipeId from cookbook that does not exist.
+**Condition** : Deleting a recipe from cookbook that does not exist.
 
 **Code** : `404 NOT FOUND`
 
@@ -475,7 +475,7 @@ Authorization: Bearer [access token]
 404 NOT FOUND "Recipe not found"
 ```
 
-**Condition** : Deleting a recipeId from cookbook that is not in the cookbook.
+**Condition** : Deleting a recipe from cookbook that is not in the cookbook.
 
 **Code** : `404 NOT FOUND`
 
@@ -551,8 +551,14 @@ Used to fetch all sessions based on query params.
 
 **Query params**
   - `hostId` - ID of the hostId user
+  - `hostName` - Name of the host user
   - `recipeId` - ID of the recipeId used in the session
+  - `recipeName` - Name of the recipe used in the session
   - `sessionName` - Name of the session
+  - `date` - Sessions occurring after this date
+  - `maxParticipantCount` - Maximum number of participants allowed in the session
+  - `maxParticipants` - Maximum number of participants in the session
+  - `minParticipants` - Minimum number of participants in the session
   - `limit` - Limit of sessions to fetch
   - `offset` - Offset of sessions to fetch
   - *More query params to be implemented*
@@ -935,4 +941,138 @@ Authorization: Bearer [access token]
 
 ```
 409 CONFLICT "You have already sent a session request for this session"
+```
+
+## Post Session Request Accept
+
+Used to accept a session request.
+
+**URL** : `/api/session_request/{sessionId}/accept`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "userId": "[The Id of the user who sent the request]"
+}
+```
+
+**Data example**
+
+```json
+{
+    "userId": 1
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User has not sent a request to this session.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "The user has not sent a session request for this session"
+```
+
+**Condition** : The request of the user has already been processed.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "The request has already been accepted or rejected"
+```
+
+## Post Session Request Deny
+
+Used to deny a session request.
+
+**URL** : `/api/session_request/{sessionId}/deny`
+
+**Method** : `POST`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "userId": "[The Id of the user who sent the request]"
+}
+```
+
+**Data example**
+
+```json
+{
+    "userId": 1
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : User has not sent a request to this session.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "The user has not sent a session request for this session"
+```
+
+**Condition** : The request of the user has already been processed.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "The request has already been accepted or rejected"
 ```

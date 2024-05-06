@@ -8,7 +8,7 @@ public enum QueryParams{
   HOST_ID("hostId"),
   HOST_NAME("hostName"),
   MAX_PARTICIPANT_COUNT("maxParticipantCount"),
-  MAX_PARTICIPANTS("maxParticipantCount"),
+  MAX_PARTICIPANTS("maxParticipants"),
   MIN_PARTICIPANTS("minParticipants");
 
   private final String value;

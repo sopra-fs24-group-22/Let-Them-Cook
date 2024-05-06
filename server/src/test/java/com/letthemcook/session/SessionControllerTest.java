@@ -18,6 +18,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -89,18 +90,24 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       sessionRequest.setMaxParticipantCount(3);
       sessionRequest.setRecipe(2L);
       sessionRequest.setDate(date);
+      String objectMapper = new ObjectMapper().writeValueAsString(sessionRequest);
+      System.out.println(objectMapper);
 
       // Mock session service
       Session session = sessionRepository.getById(1L);
       when(sessionService.createSession(Mockito.any(), Mockito.any())).thenReturn(session);
 
       // Perform test
-      mockMvc.perform(MockMvcRequestBuilders.post("/api/session")
+      MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/session")
                       .header("Authorization", "Bearer testToken")
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON)
                       .content(new ObjectMapper().writeValueAsString(sessionRequest)))
-              .andExpect(MockMvcResultMatchers.status().isCreated());
+              .andExpect(MockMvcResultMatchers.status().isCreated())
+              .andReturn();
+
+      String res = result.getResponse().getContentAsString();
+      System.out.println(res);
     }
 
     @Test

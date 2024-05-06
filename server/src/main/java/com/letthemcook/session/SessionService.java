@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -101,7 +102,6 @@ public class SessionService {
     query.skip(offset);
 
     // Iterate over all query params and add them to the query depending on the type of param (ID, NAME, DATE, etc.)
-    // TODO: Fix host and recipe names, dates, min / max.
     for (Map.Entry<String, String> param : allParams.entrySet()) {
       if (Stream.of(QueryParams.values()).anyMatch(e -> e.getValue().equals(param.getKey()))) {
         if (param.getKey().toUpperCase().contains("NAME")) {
@@ -112,18 +112,32 @@ public class SessionService {
           query.addCriteria(Criteria.where(param.getKey()).is(Long.parseLong(param.getValue())));
         }
 
-        else if (param.getKey().toUpperCase().contains("DATE") || param.getKey().toUpperCase().contains("MAX")) {
+        else if ( param.getKey().toUpperCase().contains("MAX")) {
           query.addCriteria(Criteria.where(param.getKey()).lte(param.getValue()));
         }
 
         else if (param.getKey().toUpperCase().contains("MIN")) {
           query.addCriteria(Criteria.where(param.getKey()).gte(Integer.parseInt(param.getValue())));
         }
+
+        else if (param.getKey().toUpperCase().contains("DATE")) {
+          LocalDateTime date = LocalDateTime.parse(param.getValue());
+
+          query.addCriteria(Criteria.where(param.getKey()).gte(date));
+        }
+
       }
     }
 
-      return mongoTemplate.find(query, Session.class);
+    // Filter by current date if no date is provided
+    if (!allParams.containsKey(QueryParams.DATE.getValue())) {
+      query.addCriteria(Criteria.where(QueryParams.DATE.getValue()).gte(new Date()));
+    }
 
+    // Sort by date
+    query.with(org.springframework.data.domain.Sort.by(QueryParams.DATE.getValue()).ascending());
+
+    return mongoTemplate.find(query, Session.class);
   }
 
   public Session getSessionCredentials(Long sessionId, String accessToken) {
@@ -216,6 +230,22 @@ public class SessionService {
     return session.getSessionUserState();
   }
 
+  public List<Session> getSessionsByUser(String accessToken) {
+    // TODO: Add pending requests
+    String username = jwtService.extractUsername(accessToken);
+
+    List<Session> sessions = sessionRepository.findAll();
+    List<Session> userSessions = new ArrayList<>();
+
+    for (Session session : sessions) {
+      if (Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId()) || session.getParticipants().contains(userRepository.getByUsername(username).getId())) {
+        userSessions.add(session);
+      }
+    }
+
+    return userSessions;
+  }
+
   // ######################################### Util #########################################
 
   private Boolean checkIfUserIsParticipant(Long sessionId, String username) {
@@ -264,6 +294,18 @@ public class SessionService {
     }
   }
 
+  /**
+   * Removes session from repository after its completion
+   */
+  @Scheduled(fixedRate = 1800000)
+  private void deleteSessions() {
+    // TODO: Write tests
+    List<Session> sessions = sessionRepository.findAll();
 
-  // TODO: Scheduled task to delete sessions whose start date + length + epsilon is due
+    for (Session session : sessions) {
+      if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(session.getDuration()).plusHours(12L))) {
+        sessionRepository.deleteById(session.getId());
+      }
+    }
+  }
 }

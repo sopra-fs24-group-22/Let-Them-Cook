@@ -17,6 +17,7 @@ import {
 import { getMyUser } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2 } from "../components/ui/Header";
+import { formatDateTime } from "../helpers/formatDateTime";
 
 const SessionsPage = () => {
   const navigate = useNavigate();
@@ -32,11 +33,13 @@ const SessionsPage = () => {
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
-      // TODO: API CALL
-      // await getAllSessionsAPI();
       const res =
         view === "ALL" ? await getAllSessionsAPI() : await getAllSessionsAPI(); //! DEV ONLY
-
+      // for (const session of res) {
+        // const hostId = session.hostId;
+        // const host = await getUsers(hostId);
+        //session.hostName = host.username;
+      // }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");
@@ -204,10 +207,7 @@ const SessionsPage = () => {
                     </Container>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
-                    <div>
-                      Date & start time:{" "}
-                      {new Date(session.date).toLocaleString()}
-                    </div>
+                    <div>Date & start time: {formatDateTime(session.date)}</div>
                     <div>Host: {session.host}</div>
                     <div>Max Participants: {session.maxParticipantCount}</div>
                     {allRecipes.map((recipe) => {
@@ -266,7 +266,7 @@ const SessionsPage = () => {
             id="start"
             type="datetime-local"
             value={start?.toISOString().slice(0, 16) || ""}
-            onChange={(e) => setStart(new Date(e.target.value))}
+            onChange={(e) => setStart(new Date(e.target.value + ":00.000Z"))}
           />
 
           <Label htmlFor="duration">Duration (minutes)</Label>

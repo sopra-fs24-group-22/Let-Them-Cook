@@ -10,11 +10,13 @@ import com.letthemcook.user.dto.RegisterRequestDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -95,6 +97,21 @@ public class UserController {
   public ResponseEntity<GetMeRequestDTO> getUser(@RequestHeader("Authorization") String accessToken) {
       User user = userService.getUser(accessToken);
       return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
+  }
+
+  @GetMapping("/api/users")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<List<GetMeRequestDTO>> getUsers(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
+    List<User> users = userService.getUsers(limit, offset, allParams);
+
+    // Convert each user to the API representation
+    List<GetMeRequestDTO> userDTOs = new ArrayList<>();
+    for (User user : users) {
+      userDTOs.add(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
+    }
+
+    return ResponseEntity.ok(userDTOs);
   }
 
   // ######################################### Util #########################################

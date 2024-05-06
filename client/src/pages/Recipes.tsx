@@ -15,6 +15,7 @@ import {
   getRecipeAPI,
   addRecipeToCookbookAPI,
   removeRecipeFromCookbookAPI,
+  putRecipeAPI,
 } from "../api/app.api";
 import MainLayout from "../components/Layout/MainLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -89,8 +90,8 @@ const RecipesPage = () => {
         await postRecipeAPI(body);
       } else {
         // update the existing recipe
-        // TODO Sprint 2: API call in
-        alert("Updating an existing recipe isn't possible yet :)");
+        const updatedBody = Object.assign(body, { id: editingRecipeId });
+        await putRecipeAPI(updatedBody);
       }
       handleClose();
       await fetchRecipes(pageView, userId);

@@ -30,4 +30,13 @@ public interface DTORecipeMapper {
   @Mapping(source = "ingredients", target = "ingredients")
   @Mapping(source = "cookingTimeMin", target = "cookingTimeMin")
   RecipeGetDTO convertRecipeToRecipeGetDTO(Recipe recipe);
+
+  // ######################################### GET recipe #########################################
+
+  @Mapping(source = "id", target = "id")
+  @Mapping(source = "title", target = "title")
+  @Mapping(source = "checklist", target = "checklist")
+  @Mapping(source = "ingredients", target = "ingredients")
+  @Mapping(source = "cookingTimeMin", target = "cookingTimeMin")
+  Recipe convertRecipePutDTOToEntity(RecipeGetDTO recipeGetDTO);
 }

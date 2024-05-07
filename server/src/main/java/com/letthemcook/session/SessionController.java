@@ -95,7 +95,6 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSessionUserStateDTO(checklist));
   }
 
-  // TODO: GET personal sessions.
   @GetMapping("/api/session/me")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody

@@ -32,6 +32,16 @@ public class RecipeController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
+  @PutMapping("/api/recipe")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Void> updateRecipe(@RequestBody RecipeGetDTO recipeGetDTO, @RequestHeader("Authorization") String accessToken) {
+    Recipe recipe = DTORecipeMapper.INSTANCE.convertRecipePutDTOToEntity(recipeGetDTO);
+    recipeService.updateRecipe(recipe, accessToken);
+
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
   @DeleteMapping("/api/recipe/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody

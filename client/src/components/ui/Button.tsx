@@ -61,3 +61,9 @@ export const JoinButton = styled.button`
 export const ButtonGroup = styled.div`
   width: 100%;
 `;
+
+export const HLine = styled.hr`
+  margin: 20px 0;
+  border-top: 2px solid #b1a99b;
+  opacity: 1;
+`;

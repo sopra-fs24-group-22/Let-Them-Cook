@@ -38,6 +38,9 @@ export const postRecipeAPI = async (body: any) => {
   const { data } = await axiosAuth.post("recipe", body);
   return data;
 };
+export const putRecipeAPI = async (body: any) => {
+  await axiosAuth.put("recipe/", body);
+};
 
 // Cookbooks
 export const getCookbookAPI = async (userId: number) => {

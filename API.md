@@ -173,6 +173,121 @@ Used to fetch a new access token.
 403 FORBIDDEN "Invalid refresh token"
 ```
 
+# User Endpoints
+
+## Get user
+
+Used to get own profile information.
+
+**URL** : `/api/user/me`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content example**
+
+```json
+{
+  "email": "[valid email address]",
+  "username": "[valid username]",
+  "firstname": "[first name in plain text]",
+  "lastname": "[last name in plain text]",
+  "id": "[user id]"
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+## Delete user
+
+Used to delete own profile.
+
+**URL** : `/api/me`
+
+**Method** : `DELETE`
+
+**Auth required** : YES
+
+### Success Response
+
+**Code** : `204 NO CONTENT`
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+## Get Users
+
+Used to fetch all users based on query params.
+
+**URL** : `/api/users?{query params}`
+
+**Query params**
+- `username` - Username of the user
+- `id` - ID of the user
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "sessions": [
+    {
+      "username": "[username]",
+      "id": "[user id]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+
 # Recipe Endpoints
 
 ## Create recipe

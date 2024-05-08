@@ -3,6 +3,7 @@ package com.letthemcook.session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.session.dto.SessionPostDTO;
+import com.letthemcook.user.User;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +25,11 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 @WebMvcTest(SessionController.class)
   @WebAppConfiguration
@@ -195,4 +198,37 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
                       .contentType(MediaType.APPLICATION_JSON))
               .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
+
+  // ######################################### Get Personal Session Tests #########################################
+
+  @Test
+  @WithMockUser(username = "testUser", password = "testPassword")
+  public void testGetMeSuccess() throws Exception {
+    // Setup User
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("testUser");
+
+    // Setup session user is participant of
+    Session session = sessionRepository.getById(1L);
+    List<Session> sessions = new ArrayList<>();
+    sessions.add(session);
+
+    // Mock Services
+    when(sessionService.getSessionsByUser(Mockito.any())).thenReturn(sessions);
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/me")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(session.getId()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].host").value(session.getHostId()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].recipe").value(session.getRecipeId()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].sessionName").value(session.getSessionName()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].maxParticipantCount").value(session.getMaxParticipantCount()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].currentParticipantCount").value(session.getCurrentParticipantCount()));
+  }
 }

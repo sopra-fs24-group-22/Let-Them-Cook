@@ -232,6 +232,7 @@ public class SessionService {
 
   public List<Session> getSessionsByUser(String accessToken) {
     // TODO: Add pending requests
+    // TODO: Write tests
     String username = jwtService.extractUsername(accessToken);
 
     List<Session> sessions = sessionRepository.findAll();

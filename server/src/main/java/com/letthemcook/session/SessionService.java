@@ -309,4 +309,10 @@ public class SessionService {
       }
     }
   }
+
+  // ######################################### Util #########################################
+
+  public void deleteSessionByUser(Session session) {
+    sessionRepository.delete(session);
+  }
 }

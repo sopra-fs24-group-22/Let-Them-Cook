@@ -114,4 +114,17 @@ public class CookbookService {
 
     return (ArrayList<Recipe>) recipeRepository.findAllById(cookbook.getRecipeIds());
   }
+
+  public void deleteCookbook(Long ownerId) {
+    Cookbook cookbook = cookbookRepository.getByOwnerId(ownerId);
+
+    if(cookbook == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cookbook not found");
+    }
+    if(!Objects.equals(cookbook.getOwnerId(), ownerId)) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden access");
+    }
+
+    cookbookRepository.delete(cookbook);
+  }
 }

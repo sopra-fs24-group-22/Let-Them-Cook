@@ -99,6 +99,13 @@ public class UserController {
       return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
   }
 
+  @DeleteMapping("/api/user/me")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @ResponseBody
+  public ResponseEntity<Void> deleteUser(@RequestHeader("Authorization") String accessToken) {
+    userService.deleteUser(accessToken);
+    return ResponseEntity.noContent().build();}
+
   @GetMapping("/api/users")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody

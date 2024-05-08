@@ -174,4 +174,8 @@ public class RecipeService {
 
     return existingRecipe;
   }
+
+  public void deleteRecipeByUser(Recipe recipe) {
+    recipeRepository.delete(recipe);
+  }
 }

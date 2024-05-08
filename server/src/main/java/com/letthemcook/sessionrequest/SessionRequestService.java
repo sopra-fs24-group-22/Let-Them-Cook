@@ -68,4 +68,9 @@ public class SessionRequestService {
     }
     sessionRequestRepository.save(sessionRequest);
   }
+
+  public void deleteSessionRequest(Long userId) {
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
+    sessionRequestRepository.delete(sessionRequest);
+  }
 }

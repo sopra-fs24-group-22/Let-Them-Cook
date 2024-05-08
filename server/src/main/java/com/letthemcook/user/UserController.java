@@ -104,7 +104,8 @@ public class UserController {
   @ResponseBody
   public ResponseEntity<Void> deleteUser(@RequestHeader("Authorization") String accessToken) {
     userService.deleteUser(accessToken);
-    return ResponseEntity.noContent().build();}
+    return ResponseEntity.noContent().build();
+  }
 
   @GetMapping("/api/users")
   @ResponseStatus(HttpStatus.OK)

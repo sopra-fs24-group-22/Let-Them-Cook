@@ -75,7 +75,7 @@ public class SessionServiceTest {
     sessionUserState.setCurrentStepValues(currentStepValues);
     session.setSessionUserState(sessionUserState);
 
-    when(sessionRepository.getById(1L)).thenReturn(session);
+    lenient().when(sessionRepository.getById(1L)).thenReturn(session);
   }
 
   @AfterEach
@@ -555,4 +555,14 @@ public class SessionServiceTest {
     assertEquals(sessionRepository.getById(1L), result.get(0));
   }
 
+  // ######################################### Util Tests #########################################
+
+  @Test
+  public void deleteSessionByUserSuccessfullyDeletesSession() {
+    Session session = new Session();
+
+    sessionService.deleteSessionByUser(session);
+
+    verify(sessionRepository, times(1)).delete(session);
+  }
 }

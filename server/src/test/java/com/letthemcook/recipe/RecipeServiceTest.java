@@ -369,4 +369,14 @@ public class RecipeServiceTest {
     assertThrows(ResponseStatusException.class, () -> recipeService.updateRecipe(recipe, accessToken));
   }
 
+  // ######################################### Util Tests #########################################
+
+  @Test
+  public void deleteRecipeByUserSuccessfullyDeletesRecipe() {
+    Recipe recipe = new Recipe();
+
+    recipeService.deleteRecipeByUser(recipe);
+
+    verify(recipeRepository, times(1)).delete(recipe);
+  }
 }

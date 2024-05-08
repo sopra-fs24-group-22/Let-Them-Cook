@@ -50,6 +50,7 @@ public class SessionService {
 
     session.setId(sequenceGeneratorService.getSequenceNumber(Session.SEQUENCE_NAME));
     session.setHostId(userRepository.getByUsername(username).getId());
+    session.setHostName(username);
     session.setParticipants(new ArrayList<>());
     session.setCurrentParticipantCount(0);
 
@@ -268,7 +269,7 @@ public class SessionService {
   }
 
   /**
-   * Removes user from stepcount if they have been inactive for 60 seconds
+   * Removes user from step count if they have been inactive for 60 seconds
    */
   @Scheduled(fixedRate = 60000)
   private void userTimeout() {

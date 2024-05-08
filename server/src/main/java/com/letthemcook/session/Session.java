@@ -19,6 +19,7 @@ public class Session {
   @Id
   private Long id;
   private Long hostId;
+  private String hostName;
   private Long recipeId;
   private String sessionName;
   private Integer maxParticipantCount;
@@ -119,5 +120,13 @@ public class Session {
 
   public void setDuration(Integer duration) {
     this.duration = duration;
+  }
+
+  public String getHostName() {
+    return hostName;
+  }
+
+  public void setHostName(String hostName) {
+    this.hostName = hostName;
   }
 }

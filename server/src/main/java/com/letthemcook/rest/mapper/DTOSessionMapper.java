@@ -27,6 +27,7 @@ public interface DTOSessionMapper {
 
   @Mapping(source = "sessionName", target = "sessionName")
   @Mapping(source = "hostId", target = "host")
+  @Mapping(source = "hostName", target = "hostName")
   @Mapping(source = "recipeId", target = "recipe")
   @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
   @Mapping(source = "currentParticipantCount", target = "currentParticipantCount")

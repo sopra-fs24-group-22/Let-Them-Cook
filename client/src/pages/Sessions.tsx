@@ -14,8 +14,9 @@ import {
   getAllSessionsAPI,
   getCookbookAPI,
   postSessionAPI,
+  postSessionRequestAPI,
 } from "../api/app.api";
-import {getMyUser, getUsers} from "../api/user.api";
+import { getMyUser, getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
@@ -50,11 +51,11 @@ const SessionsPage = () => {
         view === "ALL"
           ? await getAllSessionsAPI(filter)
           : await getAllSessionsAPI(filter); //! DEV ONLY
-       for (const session of res) {
-       const id = session.hostId;
-       const host = await getUsers(id);
-       res.hostName = host.username;
-       }
+      for (const session of res) {
+        const id = session.hostId;
+        const host = await getUsers(id);
+        res.hostName = host.username;
+      }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");
@@ -142,6 +143,13 @@ const SessionsPage = () => {
       await fetchSessions("ALL");
     } catch (error) {
       alert("Error while saving the session. Please try again.");
+    }
+  };
+  const requestParticipation = async (sessionId: number) => {
+    try {
+      await postSessionRequestAPI(sessionId);
+    } catch (error) {
+      alert("You have already sent a session request for this session.");
     }
   };
 
@@ -294,6 +302,11 @@ const SessionsPage = () => {
                             onClick={() => navigate("/sessions/" + session.id)}
                           >
                             Join
+                          </JoinButton>
+                          <JoinButton
+                            onClick={() => requestParticipation(session.id)}
+                          >
+                            Request participation
                           </JoinButton>
                         </Col>
                       </Row>

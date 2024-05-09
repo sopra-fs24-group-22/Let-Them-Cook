@@ -75,4 +75,8 @@ public class SessionUserState {
       currentStepValues.put(userId, userSteps);
     }
   }
+
+  public void updateUserActivity(Long userId) {
+    this.lastActiveUsers.put(userId, new Date());
+  }
 }

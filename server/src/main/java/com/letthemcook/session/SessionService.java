@@ -223,6 +223,8 @@ public class SessionService {
 
     if (sessionUserState.getCurrentStepValues().get(userId) == null) {
       sessionUserState.addUserToStepCount(userId);
+    } else {
+      sessionUserState.updateUserActivity(userId);
     }
 
     session.setSessionUserState(sessionUserState);

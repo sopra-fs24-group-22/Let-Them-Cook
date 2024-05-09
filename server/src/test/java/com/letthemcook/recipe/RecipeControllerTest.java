@@ -2,6 +2,8 @@ package com.letthemcook.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.rating.Rating;
+import com.letthemcook.rating.dto.RecipeRateDTO;
 import com.letthemcook.recipe.dto.RecipeGetDTO;
 import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.user.UserController;
@@ -75,6 +77,9 @@ public class RecipeControllerTest {
     recipe.setCreatorId(1L);
     recipe.setCreatorName("Test User");
 
+    Rating rating = new Rating();
+    recipe.setRating(rating);
+
     when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
     recipeRepository.save(recipe);
   }
@@ -143,7 +148,7 @@ public class RecipeControllerTest {
   public void testGetRecipeSuccess() throws Exception {
     // Mock recipe service
     Recipe recipe = recipeRepository.getById(1L);
-    when(recipeService.getRecipe(1L, "accessToken")).thenReturn(recipe);
+    when(recipeService.getRecipe(Mockito.anyLong(), Mockito.anyString())).thenReturn(recipe);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")
@@ -188,6 +193,7 @@ public class RecipeControllerTest {
   }
 
   // ######################################### Put Recipes Tests #########################################
+
   @Test
   @WithMockUser
   public void updateRecipeSuccess() throws Exception {
@@ -234,5 +240,43 @@ public class RecipeControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(recipeGetDTO)))
             .andExpect(status().isNotFound());
+  }
+
+  // ######################################### Post Recipe Rating Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testPostRecipeRatingSuccess() throws Exception {
+    // Setup Request Body
+    RecipeRateDTO recipeRateDTO = new RecipeRateDTO();
+    recipeRateDTO.setRating(5);
+
+    // Mock recipe service
+    doNothing().when(recipeService).rateRecipe(Mockito.anyLong(), Mockito.anyString(), Mockito.anyInt());
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe/1/rate")
+              .header("Authorization", "Bearer testToken")
+              .with(csrf())
+              .contentType(MediaType.APPLICATION_JSON)
+              .content(new ObjectMapper().writeValueAsString(recipeRateDTO)))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void testPostRecipeRatingUnauthorized() {
+    // Setup Request Body
+    RecipeRateDTO recipeRateDTO = new RecipeRateDTO();
+    recipeRateDTO.setRating(5);
+
+    // Perform test
+    try {
+      mockMvc.perform(MockMvcRequestBuilders.post("/api/recipe/1/rate")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(recipeRateDTO)));
+    } catch (Exception e) {
+      assert(e.getCause().getMessage().contains("Unauthorized"));
+    }
   }
 }

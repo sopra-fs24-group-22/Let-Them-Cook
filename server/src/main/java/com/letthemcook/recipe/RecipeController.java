@@ -1,7 +1,9 @@
 package com.letthemcook.recipe;
 
+import com.letthemcook.rating.dto.RecipeRateDTO;
 import com.letthemcook.recipe.dto.RecipeGetDTO;
 import com.letthemcook.recipe.dto.RecipePostDTO;
+import com.letthemcook.recipe.dto.RecipeRatingGetDTO;
 import com.letthemcook.rest.mapper.DTORecipeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,10 +56,10 @@ public class RecipeController {
   @GetMapping("/api/recipe/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<RecipeGetDTO> getRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+  public ResponseEntity<RecipeRatingGetDTO> getRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
     Recipe recipe = recipeService.getRecipe(id, accessToken);
 
-    return ResponseEntity.status(HttpStatus.OK).body(DTORecipeMapper.INSTANCE.convertRecipeToRecipeGetDTO(recipe));
+    return ResponseEntity.status(HttpStatus.OK).body(DTORecipeMapper.INSTANCE.convertRecipeAndRatingToRecipeRatingGetDTO(recipe, recipe.getRating()));
   }
 
   @GetMapping("/api/recipes")
@@ -73,5 +75,14 @@ public class RecipeController {
     }
 
     return ResponseEntity.status(HttpStatus.OK).body(recipesGetDTOS);
+  }
+
+  @PostMapping("/api/recipe/{id}/rate")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Void> rateRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken, @RequestBody RecipeRateDTO recipeRateDTO) {
+    recipeService.rateRecipe(id, accessToken, recipeRateDTO.getRating());
+
+    return ResponseEntity.status(HttpStatus.OK).build();
   }
 }

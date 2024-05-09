@@ -81,20 +81,6 @@ const SessionViewer = () => {
 
   const [stepCounts, setStepCounts] = useState<{ [key: number]: number }>({});
 
-  // const fetchChecklistState = async () => {
-  //   try {
-  //     const count = await getChecklistAPI(Number(sessionID));
-
-  //     setStepCounts(count);
-  //   } catch (error) {
-  //     console.error("Error fetching checklist state:", error);
-  //     // Handle error, e.g., show an error message to the user
-  //   }
-  // };
-
-  // const [checkedItems, setCheckedItems] = useState<{ [key: number]: boolean }>(
-  //   {},
-  // );
   const handleCheckboxChange = async (stepIndex: number) => {
     const isChecked = userChecklistData[stepIndex] || false;
     setUserChecklistData({
@@ -119,11 +105,17 @@ const SessionViewer = () => {
   const fetchChecklistData = async (): Promise<void> => {
     try {
       const checklistData = await getChecklistAPI(Number(sessionID));
-      const { currentStepValues, recipeSteps } = checklistData;
+      const { currentStepValues } = checklistData;
 
       // Ensure userID is not null before accessing currentStepValues
-      const userChecklist = userID ? currentStepValues[userID] || {} : {};
-      setUserChecklistData(userChecklist);
+      if (userID !== null) {
+        const userChecklist = currentStepValues[userID] || {};
+        setUserChecklistData(userChecklist);
+      }
+      // Fetch recipe details separately
+      const session = await getSessionAPI(Number(sessionID));
+      const recipe = await getRecipeAPI(Number(session.recipe));
+      const recipeSteps = recipe.checklist.length; // Assuming recipe contains checklist array
 
       const stepCounts: { [key: number]: number } = {};
       for (let stepIndex = 0; stepIndex < recipeSteps; stepIndex++) {
@@ -167,7 +159,6 @@ const SessionViewer = () => {
   useEffect(() => {
     getMeetingAndToken(meetingId);
     fetchRecipes();
-    fetchChecklistData();
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -186,7 +177,7 @@ const SessionViewer = () => {
                 >
                   <input
                     type="checkbox"
-                    checked={userChecklistData[index] === true}
+                    checked={userChecklistData[index]}
                     onChange={() => handleCheckboxChange(index)}
                     style={{ marginRight: "10px" }}
                   />

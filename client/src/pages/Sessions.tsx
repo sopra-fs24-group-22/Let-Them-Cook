@@ -15,7 +15,7 @@ import {
   getCookbookAPI,
   postSessionAPI,
 } from "../api/app.api";
-import { getMyUser } from "../api/user.api";
+import {getMyUser, getUsers} from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
@@ -50,11 +50,11 @@ const SessionsPage = () => {
         view === "ALL"
           ? await getAllSessionsAPI(filter)
           : await getAllSessionsAPI(filter); //! DEV ONLY
-      // for (const session of res) {
-      // const hostId = session.hostId;
-      // const host = await getUsers(hostId);
-      //session.hostName = host.username;
-      // }
+       for (const session of res) {
+       const id = session.hostId;
+       const host = await getUsers(id);
+       res.hostName = host.username;
+       }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");
@@ -84,6 +84,7 @@ const SessionsPage = () => {
   // Get all recipes for the New-Session-PopUp/Session-Overview
   const [cookbookRecipes, setCookbookRecipes] = useState<any[]>([]);
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  const recipeTitles: { [key: number]: string } = {};
 
   const fetchAllRecipes = async (userId: number) => {
     try {
@@ -93,6 +94,9 @@ const SessionsPage = () => {
       // fetching all recipes
       const res2 = await getAllRecipesAPI();
       setAllRecipes(res2);
+      res2.forEach((recipe: { id: number; title: string }) => {
+        recipeTitles[recipe.id] = recipe.title;
+      });
     } catch (e) {
       alert("Error while fetching all recipes. Please reload the page.");
     }
@@ -297,7 +301,7 @@ const SessionsPage = () => {
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
                     <div>Date & start time: {formatDateTime(session.date)}</div>
-                    <div>Host: {session.host}</div>
+                    <div>Host: {session.hostName}</div>
                     <div>Max Participants: {session.maxParticipantCount}</div>
                     {allRecipes.map((recipe) => {
                       if (recipe.id === session.recipe) {

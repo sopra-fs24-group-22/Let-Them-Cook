@@ -107,3 +107,4 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/107
 ### David Lanz
 
 ### Gian Gyger
+(in WK)

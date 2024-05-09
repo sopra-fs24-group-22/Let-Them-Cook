@@ -2,6 +2,7 @@ package com.letthemcook.recipe;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.rating.Rating;
 import com.letthemcook.recipe.dto.RecipeGetDTO;
 import com.letthemcook.recipe.dto.RecipePostDTO;
 import com.letthemcook.user.UserController;
@@ -75,6 +76,9 @@ public class RecipeControllerTest {
     recipe.setCreatorId(1L);
     recipe.setCreatorName("Test User");
 
+    Rating rating = new Rating();
+    recipe.setRating(rating);
+
     when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
     recipeRepository.save(recipe);
   }
@@ -143,7 +147,7 @@ public class RecipeControllerTest {
   public void testGetRecipeSuccess() throws Exception {
     // Mock recipe service
     Recipe recipe = recipeRepository.getById(1L);
-    when(recipeService.getRecipe(1L, "accessToken")).thenReturn(recipe);
+    when(recipeService.getRecipe(Mockito.anyLong(), Mockito.anyString())).thenReturn(recipe);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/recipe/1")

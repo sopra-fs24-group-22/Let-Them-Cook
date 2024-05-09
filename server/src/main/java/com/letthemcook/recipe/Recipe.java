@@ -1,5 +1,6 @@
 package com.letthemcook.recipe;
 
+import com.letthemcook.rating.Rating;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +21,7 @@ public class Recipe {
   private ArrayList<String> ingredients;
   private int cookingTimeMin;
   private int privacyStatus;
+  private Rating rating = new Rating();
 
   public ArrayList<String> getChecklist() {
     return checklist;
@@ -83,5 +85,13 @@ public class Recipe {
 
   public void setCreatorName(String creatorName) {
     this.creatorName = creatorName;
+  }
+
+  public Rating getRating() {
+    return rating;
+  }
+
+  public void setRating(Rating rating) {
+    this.rating = rating;
   }
 }

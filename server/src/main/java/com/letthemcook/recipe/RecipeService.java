@@ -141,7 +141,6 @@ public class RecipeService {
   }
 
   public void rateRecipe(Long id, String accessToken, Integer rating) {
-    // TODO: Write Tests
     Recipe recipe = recipeRepository.getById(id);
     Rating recipeRating = recipe.getRating();
     String username = jwtService.extractUsername(accessToken);

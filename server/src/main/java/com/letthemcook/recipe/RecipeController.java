@@ -81,7 +81,6 @@ public class RecipeController {
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
   public ResponseEntity<Void> rateRecipe(@PathVariable Long id, @RequestHeader("Authorization") String accessToken, @RequestBody RecipeRateDTO recipeRateDTO) {
-    // TODO: Write Tests
     recipeService.rateRecipe(id, accessToken, recipeRateDTO.getRating());
 
     return ResponseEntity.status(HttpStatus.OK).build();

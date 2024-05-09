@@ -99,6 +99,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/83
 ### Martin Fähnrich
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/131
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/82
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/107
 
 ### David Lanz
 

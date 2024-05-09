@@ -95,6 +95,9 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/139
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/83
 
 ### Tristan Koning
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/87
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/88
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/136
 
 ### Martin Fähnrich
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/131

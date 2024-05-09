@@ -2,6 +2,7 @@ package com.letthemcook.sessionrequest;
 
 import com.letthemcook.rest.mapper.DTORequestSessionMapper;
 import com.letthemcook.sessionrequest.dto.SessionRequestDTO;
+import com.letthemcook.sessionrequest.dto.SessionRequestsGetDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,5 +46,15 @@ public class SessionRequestController {
     sessionRequestService.processSessionRequest(sessionId, sessionRequest, false);
 
     return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
+  @GetMapping("/api/session_request")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<SessionRequestsGetDTO> getSessionRequests(@RequestHeader("Authorization") String accessToken) throws IOException {
+    SessionRequest sessionRequest = sessionRequestService.getSessionRequests(accessToken);
+    SessionRequestsGetDTO sessionRequestGetDTO = DTORequestSessionMapper.INSTANCE.convertEntityToGetSessionRequestsDTO(sessionRequest);
+
+    return ResponseEntity.status(HttpStatus.OK).body(sessionRequestGetDTO);
   }
 }

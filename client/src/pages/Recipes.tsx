@@ -9,7 +9,7 @@ import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from "react-bootstrap/Modal";
 import {
   deleteRecipeAPI,
-  getAllRecipesAPI,
+  getRecipesAPI,
   getCookbookAPI,
   postRecipeAPI,
   getRecipeAPI,
@@ -225,7 +225,7 @@ const RecipesPage = () => {
         filter = { ...filter, creatorName: creatorNameFilter };
 
       if (view === "ALL") {
-        resRecipes = await getAllRecipesAPI(filter);
+        resRecipes = await getRecipesAPI(filter);
         resCookbook = await getCookbookAPI(UserId);
       } else {
         resRecipes = await getCookbookAPI(UserId);

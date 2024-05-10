@@ -10,8 +10,8 @@ import { Label, Input, Select, Option } from "../components/ui/Input";
 import { Accordion, Col, Container, Modal, Row } from "react-bootstrap";
 import MainLayout from "../components/Layout/MainLayout";
 import {
-  getAllRecipesAPI,
-  getAllSessionsAPI,
+  getRecipesAPI,
+  getSessionsAPI,
   getCookbookAPI,
   postSessionAPI,
   postSessionRequestAPI,
@@ -49,8 +49,8 @@ const SessionsPage = () => {
 
       const res =
         view === "ALL"
-          ? await getAllSessionsAPI(filter)
-          : await getAllSessionsAPI(filter); //! DEV ONLY
+          ? await getSessionsAPI(filter)
+          : await getSessionsAPI(filter); //! DEV ONLY
       for (const session of res) {
         const id = session.hostId;
         const host = await getUsers(id);
@@ -93,7 +93,7 @@ const SessionsPage = () => {
       const res1 = await getCookbookAPI(userId);
       setCookbookRecipes(res1);
       // fetching all recipes
-      const res2 = await getAllRecipesAPI();
+      const res2 = await getRecipesAPI();
       setAllRecipes(res2);
       res2.forEach((recipe: { id: number; title: string }) => {
         recipeTitles[recipe.id] = recipe.title;

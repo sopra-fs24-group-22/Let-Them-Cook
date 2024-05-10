@@ -24,6 +24,7 @@ const ChefsPage = () => {
         <Row>
           {chefs.map((chef, index) => (
             <Col
+              xs={4}
               style={{
                 borderLeft: index % 3 !== 0 ? "1px solid #ccc" : "",
                 padding: "10px 20px",

@@ -3,6 +3,7 @@ package com.letthemcook.recipe;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.cookbook.CookbookRepository;
 import com.letthemcook.cookbook.CookbookService;
+import com.letthemcook.rating.Rating;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -16,13 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static org.springframework.util.ClassUtils.getMethod;
 
@@ -141,6 +140,16 @@ public class RecipeService {
     return mongoTemplate.find(query, Recipe.class);
   }
 
+  public void rateRecipe(Long id, String accessToken, Integer rating) {
+    Recipe recipe = recipeRepository.getById(id);
+    Rating recipeRating = recipe.getRating();
+    String username = jwtService.extractUsername(accessToken);
+
+    recipeRating.addRating(rating, userRepository.getByUsername(username).getId());
+    recipe.setRating(recipeRating);
+    recipeRepository.save(recipe);
+  }
+
   // ######################################### Util #########################################
 
   private Recipe updateRecipeData(Recipe existingRecipe, Recipe recipe) {
@@ -173,5 +182,9 @@ public class RecipeService {
     }
 
     return existingRecipe;
+  }
+
+  public void deleteRecipeByUser(Recipe recipe) {
+    recipeRepository.delete(recipe);
   }
 }

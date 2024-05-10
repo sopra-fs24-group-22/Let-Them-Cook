@@ -3,6 +3,10 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
+import com.letthemcook.recipe.Recipe;
+import com.letthemcook.recipe.RecipeService;
+import com.letthemcook.session.Session;
+import com.letthemcook.session.SessionService;
 import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.util.SequenceGeneratorService;
 import com.letthemcook.cookbook.CookbookService;
@@ -34,24 +38,28 @@ import java.util.stream.Stream;
 public class UserService {
   private final UserRepository userRepository;
   private final CookbookService cookbookService;
+  private final RecipeService recipeService;
   private final SequenceGeneratorService sequenceGeneratorService;
   private final AuthenticationManager authenticationManager;
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final SessionRequestService sessionRequestService;
   private final MongoTemplate mongoTemplate;
+  private final SessionService sessionService;
   Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, RecipeService recipeService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate, SessionService sessionService) {
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
+    this.recipeService = recipeService;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.authenticationManager = authenticationManager;
     this.passwordEncoder = passwordEncoder;
     this.jwtService = jwtService;
     this.sessionRequestService = sessionRequestService;
     this.mongoTemplate = mongoTemplate;
+    this.sessionService = sessionService;
   }
 
   public Token createUser(User newUser) {
@@ -127,6 +135,47 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
     }
   }
+
+  public void deleteUser(String accessToken) {
+    String username = jwtService.extractUsername(accessToken);
+    User user = userRepository.getByUsername(username);
+
+    // Check if user exists
+    if (user == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+    }
+
+    // Create Query for user Recipes
+    Long userId = user.getId();
+    Query recipeQuery = new Query();
+    recipeQuery.addCriteria(Criteria.where("creatorId").is(userId));
+
+    // Delete user Recipes
+    List<Recipe> recipes = mongoTemplate.find(recipeQuery, Recipe.class);
+    for (Recipe recipe : recipes) {
+      recipeService.deleteRecipeByUser(recipe);
+    }
+
+    // Create Query for user Sessions
+    Query sessionQuery = new Query();
+    sessionQuery.addCriteria(Criteria.where("hostId").is(userId));
+
+    // Delete user Sessions
+    List<Session> sessions = mongoTemplate.find(sessionQuery, Session.class);
+    for (Session session : sessions) {
+      sessionService.deleteSessionByUser(session);
+    }
+
+    // Delete user Cookbook
+    cookbookService.deleteCookbook(user.getId());
+
+    // Delete all Session Requests
+    sessionRequestService.deleteSessionRequest(user.getId());
+
+    // Delete user
+    userRepository.delete(user);
+  }
+
 
   public List<User> getUsers(Integer limit, Integer offset, Map<String, String> allParams) {
     Query query = new Query();

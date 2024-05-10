@@ -68,4 +68,16 @@ public class SessionRequestService {
     }
     sessionRequestRepository.save(sessionRequest);
   }
+
+  public SessionRequest getSessionRequests(String sessionId) {
+    String username = jwtService.extractUsername(sessionId);
+    Long userId = userRepository.getByUsername(username).getId();
+
+    return sessionRequestRepository.getSessionRequestByUserId(userId);
+  }
+
+  public void deleteSessionRequest(Long userId) {
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
+    sessionRequestRepository.delete(sessionRequest);
+  }
 }

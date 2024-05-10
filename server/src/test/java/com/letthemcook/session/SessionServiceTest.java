@@ -21,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class SessionServiceTest {
     sessionUserState.setCurrentStepValues(currentStepValues);
     session.setSessionUserState(sessionUserState);
 
-    when(sessionRepository.getById(1L)).thenReturn(session);
+    lenient().when(sessionRepository.getById(1L)).thenReturn(session);
   }
 
   @AfterEach
@@ -283,8 +284,10 @@ public class SessionServiceTest {
 
     SessionUserState sessionUserState = session.getSessionUserState();
     HashMap<Long, Boolean[]> currentStepValues = new HashMap<>();
+    HashMap<Long, Date> lastActiveUsers = new HashMap<>();
     currentStepValues.put(1L, new Boolean[sessionUserState.getRecipeSteps()]);
     sessionUserState.setCurrentStepValues(currentStepValues);
+    sessionUserState.setLastActiveUsers(lastActiveUsers);
     session.setSessionUserState(sessionUserState);
 
     // Mock services
@@ -555,4 +558,14 @@ public class SessionServiceTest {
     assertEquals(sessionRepository.getById(1L), result.get(0));
   }
 
+  // ######################################### Util Tests #########################################
+
+  @Test
+  public void deleteSessionByUserSuccessfullyDeletesSession() {
+    Session session = new Session();
+
+    sessionService.deleteSessionByUser(session);
+
+    verify(sessionRepository, times(1)).delete(session);
+  }
 }

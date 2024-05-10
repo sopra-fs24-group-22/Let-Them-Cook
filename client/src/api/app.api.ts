@@ -23,7 +23,7 @@ export const refreshAccessTokenAPI = async () => {
 };
 
 // Recipes
-export const getAllRecipesAPI = async (params: any = {}) => {
+export const getRecipesAPI = async (params: any = {}) => {
   const { data } = await axiosAuth.get("recipes?" + objectToUrlParams(params));
   return data;
 };
@@ -60,7 +60,7 @@ export const postSessionAPI = async (session: any) => {
   const { data } = await axiosAuth.post("session", session);
   return data;
 };
-export const getAllSessionsAPI = async (params: any = {}) => {
+export const getSessionsAPI = async (params: any = {}) => {
   const { data } = await axiosAuth.get("sessions?" + objectToUrlParams(params));
   return data;
 };
@@ -77,5 +77,14 @@ export const putChecklistAPI = async (sessionId: number, body: any) => {
 };
 export const getChecklistAPI = async (sessionId: number) => {
   const { data } = await axiosAuth.get("session/" + sessionId + "/checklist");
+  return data;
+};
+export const postSessionRequestAPI = async (sessionId: number) => {
+  await axiosAuth.post("session_request/" + sessionId);
+};
+
+// Users
+export const getUsersAPI = async (params: any = {}) => {
+  const { data } = await axiosAuth.get("users?" + objectToUrlParams(params));
   return data;
 };

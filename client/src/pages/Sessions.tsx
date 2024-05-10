@@ -4,19 +4,21 @@ import {
   SecondaryButton,
   ButtonGroup,
   JoinButton,
+  HLine,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import { Accordion, Col, Container, Modal, Row } from "react-bootstrap";
 import MainLayout from "../components/Layout/MainLayout";
 import {
-  getAllRecipesAPI,
-  getAllSessionsAPI,
+  getRecipesAPI,
+  getSessionsAPI,
   getCookbookAPI,
   postSessionAPI,
+  postSessionRequestAPI,
 } from "../api/app.api";
-import { getMyUser } from "../api/user.api";
+import { getMyUser, getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
-import { Header2 } from "../components/ui/Header";
+import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 
 const SessionsPage = () => {
@@ -33,13 +35,27 @@ const SessionsPage = () => {
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
     try {
+      // build object for filtering
+      var filter = {};
+      if (dateFilter)
+        filter = {
+          ...filter,
+          date: dateFilter.toISOString().substring(0, 10) + "T00:00:00",
+        };
+      if (recipeFilter !== "") filter = { ...filter, recipeName: recipeFilter };
+      if (hostFilter !== "") filter = { ...filter, hostName: hostFilter };
+      if (sessionNameFilter !== "")
+        filter = { ...filter, sessionName: sessionNameFilter };
+
       const res =
-        view === "ALL" ? await getAllSessionsAPI() : await getAllSessionsAPI(); //! DEV ONLY
-      // for (const session of res) {
-        // const hostId = session.hostId;
-        // const host = await getUsers(hostId);
-        //session.hostName = host.username;
-      // }
+        view === "ALL"
+          ? await getSessionsAPI(filter)
+          : await getSessionsAPI(filter); //! DEV ONLY
+      for (const session of res) {
+        const id = session.hostId;
+        const host = await getUsers(id);
+        res.hostName = host.username;
+      }
       setSessions(res);
     } catch (error) {
       alert("Error while loading the sessions. Please try again.");
@@ -69,6 +85,7 @@ const SessionsPage = () => {
   // Get all recipes for the New-Session-PopUp/Session-Overview
   const [cookbookRecipes, setCookbookRecipes] = useState<any[]>([]);
   const [allRecipes, setAllRecipes] = useState<any[]>([]);
+  const recipeTitles: { [key: number]: string } = {};
 
   const fetchAllRecipes = async (userId: number) => {
     try {
@@ -76,11 +93,32 @@ const SessionsPage = () => {
       const res1 = await getCookbookAPI(userId);
       setCookbookRecipes(res1);
       // fetching all recipes
-      const res2 = await getAllRecipesAPI();
+      const res2 = await getRecipesAPI();
       setAllRecipes(res2);
+      res2.forEach((recipe: { id: number; title: string }) => {
+        recipeTitles[recipe.id] = recipe.title;
+      });
     } catch (e) {
       alert("Error while fetching all recipes. Please reload the page.");
     }
+  };
+
+  // Filter sessions
+  const [sessionNameFilter, setSessionNameFilter] = useState<string>("");
+  const [hostFilter, setHostFilter] = useState<string>("");
+  const [recipeFilter, setRecipeFilter] = useState<string>("");
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    fetchSessions(pageView);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionNameFilter, recipeFilter, hostFilter, dateFilter]);
+
+  const deleteFilter = async () => {
+    setSessionNameFilter("");
+    setDateFilter(undefined);
+    setRecipeFilter("");
+    setHostFilter("");
   };
 
   // Vars for creating a new session
@@ -105,6 +143,13 @@ const SessionsPage = () => {
       await fetchSessions("ALL");
     } catch (error) {
       alert("Error while saving the session. Please try again.");
+    }
+  };
+  const requestParticipation = async (sessionId: number) => {
+    try {
+      await postSessionRequestAPI(sessionId);
+    } catch (error) {
+      alert("You have already sent a session request for this session.");
     }
   };
 
@@ -167,9 +212,65 @@ const SessionsPage = () => {
     <>
       <MainLayout
         sidebarContent={
-          <PrimaryButton onClick={handleShow} style={{ width: "100%" }}>
-            Create new session
-          </PrimaryButton>
+          <>
+            <PrimaryButton onClick={handleShow} style={{ width: "100%" }}>
+              Create new session
+            </PrimaryButton>
+
+            <HLine />
+
+            <Header3 style={{ marginBottom: "20px" }}>Filter:</Header3>
+
+            <Label htmlFor="sessionNameFilter" style={{ marginLeft: "0" }}>
+              Session name
+            </Label>
+            <Input
+              id="sessionNameFilter"
+              type="text"
+              style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+              value={sessionNameFilter}
+              onChange={(e) => setSessionNameFilter(e.target.value)}
+            />
+
+            <Label htmlFor="recipeFilter" style={{ marginLeft: "0" }}>
+              Recipe
+            </Label>
+            <Input
+              id="recipeFilter"
+              type="text"
+              style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+              value={recipeFilter}
+              onChange={(e) => setRecipeFilter(e.target.value)}
+            />
+
+            <Label htmlFor="hostFilter" style={{ marginLeft: "0" }}>
+              Host
+            </Label>
+            <Input
+              id="hostFilter"
+              type="text"
+              style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+              value={hostFilter}
+              onChange={(e) => setHostFilter(e.target.value)}
+            />
+
+            <Label htmlFor="dateFilter" style={{ marginLeft: "0" }}>
+              After date
+            </Label>
+            <Input
+              id="dateFilter"
+              type="date"
+              style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
+              value={
+                dateFilter ? dateFilter.toISOString().substring(0, 10) : ""
+              }
+              onChange={(e) => setDateFilter(new Date(e.target.value))}
+            />
+
+            <SecondaryButton onClick={deleteFilter} style={{ width: "100%" }}>
+              Delete all filter
+            </SecondaryButton>
+          </>
         }
       >
         <ButtonGroup style={{ marginBottom: "20px" }}>
@@ -202,13 +303,18 @@ const SessionsPage = () => {
                           >
                             Join
                           </JoinButton>
+                          <JoinButton
+                            onClick={() => requestParticipation(session.id)}
+                          >
+                            Request participation
+                          </JoinButton>
                         </Col>
                       </Row>
                     </Container>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
                     <div>Date & start time: {formatDateTime(session.date)}</div>
-                    <div>Host: {session.host}</div>
+                    <div>Host: {session.hostName}</div>
                     <div>Max Participants: {session.maxParticipantCount}</div>
                     {allRecipes.map((recipe) => {
                       if (recipe.id === session.recipe) {

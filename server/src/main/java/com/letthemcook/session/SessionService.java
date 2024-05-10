@@ -50,6 +50,7 @@ public class SessionService {
 
     session.setId(sequenceGeneratorService.getSequenceNumber(Session.SEQUENCE_NAME));
     session.setHostId(userRepository.getByUsername(username).getId());
+    session.setHostName(username);
     session.setParticipants(new ArrayList<>());
     session.setCurrentParticipantCount(0);
 
@@ -61,6 +62,7 @@ public class SessionService {
 
     sessionUserState.setSessionId(session.getId());
     Recipe recipe = recipeRepository.getById(session.getRecipeId());
+    session.setRecipeName(recipe.getTitle());
     sessionUserState.setRecipeSteps(recipe.getChecklist().size());
     sessionUserState.setCurrentStepValues(new HashMap<>());
     sessionUserState.setLastActiveUsers(new HashMap<>());
@@ -222,6 +224,8 @@ public class SessionService {
 
     if (sessionUserState.getCurrentStepValues().get(userId) == null) {
       sessionUserState.addUserToStepCount(userId);
+    } else {
+      sessionUserState.updateUserActivity(userId);
     }
 
     session.setSessionUserState(sessionUserState);
@@ -232,6 +236,7 @@ public class SessionService {
 
   public List<Session> getSessionsByUser(String accessToken) {
     // TODO: Add pending requests
+    // TODO: Write tests
     String username = jwtService.extractUsername(accessToken);
 
     List<Session> sessions = sessionRepository.findAll();
@@ -267,7 +272,7 @@ public class SessionService {
   }
 
   /**
-   * Removes user from stepcount if they have been inactive for 60 seconds
+   * Removes user from step count if they have been inactive for 60 seconds
    */
   @Scheduled(fixedRate = 60000)
   private void userTimeout() {
@@ -307,5 +312,11 @@ public class SessionService {
         sessionRepository.deleteById(session.getId());
       }
     }
+  }
+
+  // ######################################### Util #########################################
+
+  public void deleteSessionByUser(Session session) {
+    sessionRepository.delete(session);
   }
 }

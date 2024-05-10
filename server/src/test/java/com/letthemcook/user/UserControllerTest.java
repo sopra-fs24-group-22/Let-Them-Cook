@@ -33,7 +33,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(UserController.class)
@@ -328,5 +328,39 @@ public class UserControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(user1.getId()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(user.getId()));
 
+  }
+
+  // ######################################### Delete User #########################################
+
+  @Test
+  public void deleteUserSuccessfullyDeletesUser() throws Exception {
+    String accessToken = "accessToken";
+
+    doNothing().when(userService).deleteUser(accessToken);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/me")
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+    verify(userService, times(1)).deleteUser(accessToken);
+  }
+
+  @Test
+  public void deleteUserThrowsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+    String invalidAccessToken = "invalidAccessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).deleteUser(invalidAccessToken);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/me")
+                    .header("Authorization", invalidAccessToken)
+                    .with(csrf()))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void deleteUserThrowsBadRequestWhenAccessTokenIsMissing() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/me"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 }

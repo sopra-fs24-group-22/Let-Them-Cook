@@ -3,14 +3,21 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.CookbookService;
+import com.letthemcook.recipe.Recipe;
+import com.letthemcook.recipe.RecipeService;
+import com.letthemcook.session.Session;
+import com.letthemcook.session.SessionService;
 import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.util.SequenceGeneratorService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,14 +27,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -39,6 +46,15 @@ public class UserServiceTest {
 
   @Mock
   private JwtService jwtService;
+
+  @Mock
+  private SequenceGeneratorService sequenceGeneratorService;
+
+  @Mock
+  private RecipeService recipeService;
+
+  @Mock
+  private SessionService sessionService;
 
   @Mock
   private PasswordEncoder passwordEncoder;
@@ -59,7 +75,7 @@ public class UserServiceTest {
 
   @BeforeEach
   public void setup() {
-    userService = new UserService(userRepository, cookbookService, new SequenceGeneratorService(), authenticationManager, passwordEncoder, jwtService, sessionRequestService, mongoTemplate);
+    userService = new UserService(userRepository, cookbookService, recipeService, sequenceGeneratorService, authenticationManager, passwordEncoder, jwtService, sessionRequestService, mongoTemplate, sessionService);
   }
 
   @AfterEach
@@ -229,6 +245,88 @@ public class UserServiceTest {
     List<User> result = userService.getUsers(limit, offset, allParams);
 
     assertEquals(users, result);
+  }
+
+  // ######################################### Delete User Tests #########################################
+
+  @Test
+  public void deleteUserSuccessfullyDeletesUser() throws Exception {
+    String accessToken = "accessToken";
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("testUser");
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(userRepository.getByUsername("testUser")).thenReturn(user);
+
+    userService.deleteUser(accessToken);
+
+    verify(userRepository, times(1)).delete(user);
+  }
+
+  @Test
+  public void deleteUserThrowsNotFoundWhenUserDoesNotExist() throws Exception {
+    String accessToken = "accessToken";
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(userRepository.getByUsername("testUser")).thenReturn(null);
+
+    assertThrows(ResponseStatusException.class, () -> userService.deleteUser(accessToken));
+  }
+
+  @Test
+  public void deleteUserSuccessfullyDeletesUserRecipes() throws Exception {
+    String accessToken = "Bearer accessToken";
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("testUser");
+
+    Recipe recipe1 = new Recipe();
+    recipe1.setCreatorId(user.getId());
+    Recipe recipe2 = new Recipe();
+    recipe2.setCreatorId(user.getId());
+    List<Recipe> recipes = new ArrayList<>();
+    recipes.add(recipe1);
+    recipes.add(recipe2);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(userRepository.getByUsername("testUser")).thenReturn(user);
+    when(mongoTemplate.find(any(Query.class), eq(Recipe.class))).thenReturn(recipes);
+
+    userService.deleteUser(accessToken);
+
+    verify(recipeService, times(2)).deleteRecipeByUser(any(Recipe.class));
+  }
+
+  @Test
+  public void deleteUserSuccessfullyDeletesUserSessions() throws Exception {
+    String accessToken = "Bearer accessToken";
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("testUser");
+
+    Recipe recipe = new Recipe();
+    recipe.setCreatorId(user.getId());
+    List<Recipe> recipes = new ArrayList<>();
+    recipes.add(recipe);
+
+    Session session1 = new Session();
+    Session session2 = new Session();
+    session1.setHostId(user.getId());
+    session2.setHostId(user.getId());
+    List<Session> sessions = new ArrayList<>();
+    sessions.add(session1);
+    sessions.add(session2);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(userRepository.getByUsername("testUser")).thenReturn(user);
+    when(mongoTemplate.find(any(Query.class), eq(Session.class))).thenReturn(sessions);
+    when(mongoTemplate.find(any(Query.class), eq(Recipe.class))).thenReturn(recipes);
+
+
+    userService.deleteUser(accessToken);
+
+    verify(sessionService, times(2)).deleteSessionByUser(any(Session.class));
   }
 }
 

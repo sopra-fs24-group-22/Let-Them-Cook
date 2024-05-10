@@ -7,7 +7,9 @@ import java.util.Date;
 public class SessionDTO {
   private Long id;
   private Long host;
+  private String hostName;
   private Long recipe;
+  private String recipeName;
   private String sessionName;
   private Integer maxParticipantCount;
   private Integer currentParticipantCount;
@@ -85,5 +87,21 @@ public class SessionDTO {
 
   public void setDuration(Integer duration) {
     this.duration = duration;
+  }
+
+  public String getHostName() {
+    return hostName;
+  }
+
+  public void setHostName(String hostName) {
+    this.hostName = hostName;
+  }
+
+  public String getRecipeName() {
+    return recipeName;
+  }
+
+  public void setRecipeName(String recipeName) {
+    this.recipeName = recipeName;
   }
 }

@@ -4,6 +4,7 @@ import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.cookbook.Cookbook;
 import com.letthemcook.cookbook.CookbookRepository;
 import com.letthemcook.cookbook.CookbookService;
+import com.letthemcook.rating.Rating;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -369,4 +370,47 @@ public class RecipeServiceTest {
     assertThrows(ResponseStatusException.class, () -> recipeService.updateRecipe(recipe, accessToken));
   }
 
+  // ######################################### Rate Recipe Tests #########################################
+
+  @Test
+  public void testRateRecipeSuccess() {
+    // Setup test recipe
+    ArrayList<String> checklist = new ArrayList<>();
+    checklist.add("Test Step");
+
+    Rating rating = new Rating();
+
+    Recipe recipe = new Recipe();
+    recipe.setId(1L);
+    recipe.setCreatorId(1L);
+    recipe.setTitle("Test Recipe");
+    recipe.setChecklist(checklist);
+    recipe.setRating(rating);
+
+    // Setup User
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("testUser");
+
+    // Mock Services
+    when(recipeRepository.getById(recipe.getId())).thenReturn(recipe);
+    when(jwtService.extractUsername(Mockito.any())).thenReturn("testUser");
+    when(userRepository.getByUsername(Mockito.any())).thenReturn(user);
+
+    // Perform test
+    recipeService.rateRecipe(recipe.getId(), "Bearer accessToken", 5);
+    assertEquals(5, recipeRepository.getById(recipe.getId()).getRating().getAvgTotalRating());
+    assertEquals(1, recipeRepository.getById(recipe.getId()).getRating().getNrRatings());
+  }
+
+  // ######################################### Util Tests #########################################
+
+  @Test
+  public void deleteRecipeByUserSuccessfullyDeletesRecipe() {
+    Recipe recipe = new Recipe();
+
+    recipeService.deleteRecipeByUser(recipe);
+
+    verify(recipeRepository, times(1)).delete(recipe);
+  }
 }

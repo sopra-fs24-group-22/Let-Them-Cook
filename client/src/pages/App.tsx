@@ -4,7 +4,7 @@ import { Header1 } from "../components/ui/Header";
 import { getMyUser } from "../api/user.api";
 import { Container, Row } from "react-bootstrap";
 import { RecipeTile, SessionTile, Tile } from "../components/ui/Dashboard";
-import { getAllRecipesAPI, getAllSessionsAPI } from "../api/app.api";
+import { getRecipesAPI, getSessionsAPI } from "../api/app.api";
 
 const AppPage = () => {
   // const ERROR_LOADING_DASHBOARD =
@@ -23,7 +23,7 @@ const AppPage = () => {
       const user = await getMyUser();
       setUser(user);
 
-      const session = await getAllSessionsAPI({
+      const session = await getSessionsAPI({
         hostId: user.id,
         limit: 6,
       });
@@ -36,7 +36,7 @@ const AppPage = () => {
   const [newestRecipes, setNewestRecipes] = useState<any>([]);
   const fetchNewestRecipes = async () => {
     try {
-      const recipes = await getAllRecipesAPI({ limit: 6 });
+      const recipes = await getRecipesAPI({ limit: 6 });
       setNewestRecipes(recipes);
     } catch (e) {
       // alert(ERROR_LOADING_DASHBOARD);

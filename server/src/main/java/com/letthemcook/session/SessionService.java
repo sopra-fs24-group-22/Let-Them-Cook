@@ -62,6 +62,7 @@ public class SessionService {
 
     sessionUserState.setSessionId(session.getId());
     Recipe recipe = recipeRepository.getById(session.getRecipeId());
+    session.setRecipeName(recipe.getTitle());
     sessionUserState.setRecipeSteps(recipe.getChecklist().size());
     sessionUserState.setCurrentStepValues(new HashMap<>());
     sessionUserState.setLastActiveUsers(new HashMap<>());

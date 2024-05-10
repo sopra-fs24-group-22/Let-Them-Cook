@@ -21,6 +21,7 @@ public class Session {
   private Long hostId;
   private String hostName;
   private Long recipeId;
+  private String recipeName;
   private String sessionName;
   private Integer maxParticipantCount;
   private Integer currentParticipantCount;
@@ -128,5 +129,13 @@ public class Session {
 
   public void setHostName(String hostName) {
     this.hostName = hostName;
+  }
+
+  public String getRecipeName() {
+    return recipeName;
+  }
+
+  public void setRecipeName(String recipeName) {
+    this.recipeName = recipeName;
   }
 }

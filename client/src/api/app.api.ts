@@ -79,3 +79,6 @@ export const getChecklistAPI = async (sessionId: number) => {
   const { data } = await axiosAuth.get("session/" + sessionId + "/checklist");
   return data;
 };
+export const postSessionRequestAPI = async (sessionId: number) => {
+  await axiosAuth.post("session_request/" + sessionId);
+};

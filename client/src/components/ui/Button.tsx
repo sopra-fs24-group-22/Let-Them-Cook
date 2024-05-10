@@ -47,6 +47,7 @@ export const JoinButton = styled.button`
   cursor: pointer;
   font-size: 1.3rem;
   font-weight: 500;
+  margin-top: 10px;
   &:hover {
     background-color: #18af28;
     color: #fff;

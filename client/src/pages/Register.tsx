@@ -83,7 +83,9 @@ const RegisterPage = () => {
         value={email}
         onChange={(e) => changeMail(e.target.value)}
         onKeyDown={(e) => handleEnter(e)}
-        style={emailIsValid ? {} : { borderBottom: "3px solid #f00", color: "#f00" }}
+        style={
+          emailIsValid ? {} : { borderBottom: "3px solid #f00", color: "#f00" }
+        }
       />
       <Input
         placeholder="Password"

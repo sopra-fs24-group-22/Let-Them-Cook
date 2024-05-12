@@ -116,6 +116,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/141
 ### Tristan Koning
 
 ### Martin Fähnrich
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/94
 
 ### David Lanz
 

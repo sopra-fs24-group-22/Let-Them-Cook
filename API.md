@@ -1269,3 +1269,89 @@ Authorization: Bearer [access token]
 ```
 409 CONFLICT "The request has already been accepted or rejected"
 ```
+
+## Get SessionRequests for session
+
+Used to get all session requests for a specific session.
+
+**URL** : `/api/session_request/{sessionId}`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "singleSessionRequest": [
+    {
+      "sessionRequests": "[Hashmap of userIds and their status]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+## Get SessionRequests for user
+
+Used to get all session requests for a specific user.
+
+**URL** : `/api/session_request`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "sessionRequest": [
+    {
+      "userSessions": "[Hashmap of sessionIds and their status]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```

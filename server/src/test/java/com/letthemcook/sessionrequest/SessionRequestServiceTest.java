@@ -1,6 +1,8 @@
 package com.letthemcook.sessionrequest;
 
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.session.Session;
+import com.letthemcook.session.SessionRepository;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -11,9 +13,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -26,6 +31,8 @@ public class SessionRequestServiceTest {
   private JwtService jwtService;
   @Mock
   private SessionRequestRepository sessionRequestRepository;
+  @Mock
+  private SessionRepository sessionRepository;
 
   @InjectMocks
   private SessionRequestService sessionRequestService;
@@ -33,7 +40,7 @@ public class SessionRequestServiceTest {
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionRequestService = new SessionRequestService(sessionRequestRepository, jwtService, userRepository);
+    sessionRequestService = new SessionRequestService(sessionRequestRepository, jwtService, userRepository, sessionRepository);
   }
 
   @AfterEach
@@ -108,7 +115,7 @@ public class SessionRequestServiceTest {
     assertThrows(ResponseStatusException.class, () -> sessionRequestService.sendSessionRequest(sessionId, accessToken));
   }
 
-  // ######################################### Process Session Request #######################################$
+  // ######################################### Process Session Request #######################################
 
   @Test
   public void processSessionRequestSuccessfullyAcceptsRequest() {
@@ -175,5 +182,163 @@ public class SessionRequestServiceTest {
     when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
 
     assertThrows(ResponseStatusException.class, () -> sessionRequestService.processSessionRequest(sessionId, sessionRequest, true));
+  }
+
+  // ######################################### Test Get Single Session Requests #######################################
+
+  @Test
+  public void getSingleSessionRequestReturnsCorrectDataWhenUserIsHost() {
+    Long sessionId = 1L;
+    String accessToken = "accessToken";
+    String username = "username";
+    Long userId = 1L;
+    User user = new User();
+    user.setId(userId);
+    user.setUsername(username);
+
+    Session session = new Session();
+    session.setHostId(userId);
+
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.setUserId(userId);
+    sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn(username);
+    when(userRepository.getByUsername(username)).thenReturn(user);
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+    when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+    when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
+
+    SingleSessionRequests result = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
+
+    assertTrue(result.getSessionRequests().containsKey(userId));
+    assertEquals(QueueStatus.PENDING, result.getSessionRequests().get(userId));
+  }
+
+  @Test
+  public void getSingleSessionRequestThrowsExceptionWhenUserIsNotHost() {
+    Long sessionId = 1L;
+    String accessToken = "accessToken";
+    String username = "username";
+    Long userId = 1L;
+    User user = new User();
+    user.setId(userId);
+    user.setUsername(username);
+
+    Session session = new Session();
+    session.setHostId(2L); // Different from userId
+
+    when(jwtService.extractUsername(accessToken)).thenReturn(username);
+    when(userRepository.getByUsername(username)).thenReturn(user);
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+
+    assertThrows(ResponseStatusException.class, () -> sessionRequestService.getSingleSessionRequest(sessionId, accessToken));
+  }
+
+  // ######################################### Test Get User SessionRequest #######################################
+
+  @Test
+  public void getSessionRequestsReturnsCorrectData() {
+    String sessionId = "sessionId";
+    String username = "username";
+    Long userId = 1L;
+    User user = new User();
+    user.setId(userId);
+    user.setUsername(username);
+
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserId(userId);
+
+    when(jwtService.extractUsername(sessionId)).thenReturn(username);
+    when(userRepository.getByUsername(username)).thenReturn(user);
+    when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
+
+    SessionRequest result = sessionRequestService.getSessionRequests(sessionId);
+
+    assertEquals(userId, result.getUserId());
+  }
+
+  @Test
+  public void getSessionRequestsThrowsExceptionWhenUserNotFound() {
+    String sessionId = "sessionId";
+    String username = "username";
+
+    when(jwtService.extractUsername(sessionId)).thenReturn(username);
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")).when(userRepository).getByUsername(username);
+
+    assertThrows(ResponseStatusException.class, () -> sessionRequestService.getSessionRequests(sessionId));
+  }
+
+  @Test
+  public void getSessionRequestsThrowsExceptionWhenSessionRequestNotFound() {
+    String sessionId = "sessionId";
+    String username = "username";
+    Long userId = 1L;
+    User user = new User();
+    user.setId(userId);
+    user.setUsername(username);
+
+    when(jwtService.extractUsername(sessionId)).thenReturn(username);
+    when(userRepository.getByUsername(username)).thenReturn(user);
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Session request not found")).when(sessionRequestRepository).getSessionRequestByUserId(userId);
+
+    assertThrows(ResponseStatusException.class, () -> sessionRequestService.getSessionRequests(sessionId));
+  }
+
+  // ######################################### Test Util #######################################
+
+  @Test
+  public void deleteSessionRequestSuccessfullyDeletesRequest() {
+    Long userId = 1L;
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserId(userId);
+
+    when(sessionRequestRepository.getSessionRequestByUserId(userId)).thenReturn(sessionRequest);
+    sessionRequestService.deleteSessionRequest(userId);
+    verify(sessionRequestRepository, times(1)).delete(sessionRequest);
+  }
+
+  @Test
+  public void deleteSessionRequestThrowsExceptionWhenSessionRequestNotFound() {
+    Long userId = 1L;
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Session request not found")).when(sessionRequestRepository).delete(any());
+    assertThrows(ResponseStatusException.class, () -> sessionRequestService.deleteSessionRequest(userId));
+  }
+
+  @Test
+  public void getSessionRequestsContainingSessionIdReturnsCorrectData() {
+    Long sessionId = 1L;
+    Long userId = 1L;
+
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.setUserId(userId);
+    sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
+
+    when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
+
+    List<SessionRequest> result = sessionRequestService.getSessionRequestsContainingSessionId(sessionId);
+
+    assertFalse(result.isEmpty());
+    assertEquals(userId, result.get(0).getUserId());
+  }
+
+  @Test
+  public void getSessionRequestsContainingSessionIdReturnsEmptyListWhenNoMatch() {
+    Long sessionId = 1L;
+    Long userId = 1L;
+
+    SessionRequest sessionRequest = new SessionRequest();
+    sessionRequest.setUserSessions(new HashMap<>());
+    sessionRequest.setUserId(userId);
+    sessionRequest.getUserSessions().put(sessionId + 1, QueueStatus.PENDING); // Different session id
+
+    when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
+
+    List<SessionRequest> result = sessionRequestService.getSessionRequestsContainingSessionId(sessionId);
+
+    assertTrue(result.isEmpty());
   }
 }

@@ -218,6 +218,7 @@ const RecipesPage = () => {
 
       // build object for filtering
       var filter = {};
+      filter = { ...filter, limit: 10000 };
       if (maxCookingTimeFilter)
         filter = { ...filter, cookingTimeMin: maxCookingTimeFilter };
       if (recipeTitleFilter) filter = { ...filter, title: recipeTitleFilter };

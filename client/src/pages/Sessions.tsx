@@ -37,6 +37,7 @@ const SessionsPage = () => {
     try {
       // build object for filtering
       var filter = {};
+      filter = { ...filter, limit: 10000 };
       if (dateFilter)
         filter = {
           ...filter,
@@ -93,7 +94,7 @@ const SessionsPage = () => {
       const res1 = await getCookbookAPI(userId);
       setCookbookRecipes(res1);
       // fetching all recipes
-      const res2 = await getRecipesAPI();
+      const res2 = await getRecipesAPI({ limit: 10000 });
       setAllRecipes(res2);
       res2.forEach((recipe: { id: number; title: string }) => {
         recipeTitles[recipe.id] = recipe.title;

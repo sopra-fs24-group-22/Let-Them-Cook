@@ -357,6 +357,7 @@ const SessionsPage = () => {
                 key={e.id}
                 value={e.id}
                 selected={recipe === Number(e.id)}
+                disabled={e.privacyStatus === 0}
               >
                 {e.title}
               </Option>

@@ -213,6 +213,59 @@ Used to get own profile information.
 403 FORBIDDEN
 ```
 
+## Update user
+
+Used to update own profile information.
+
+**URL** : `/api/user/me`
+
+**Method** : `PUT`
+
+**Auth required** : YES
+
+**Data constraints**
+
+```json
+{
+  "email": "[valid email address]",
+  "username": "[valid username]",
+  "firstname": "[first name in plain text]",
+  "lastname": "[last name in plain text]",
+  "password": "[user password in plain text]"
+}
+```
+
+**Data example**
+
+```json
+{
+  "email": "TeamBackend.isch@besser.forever",
+  "username": "Grüsse",
+  "firstname": "Gehen",
+  "lastname": "Raus",
+  "password": "anDenAnderenK(onn)ing"
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+
+
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
 ## Delete user
 
 Used to delete own profile.

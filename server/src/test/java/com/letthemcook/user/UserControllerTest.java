@@ -330,6 +330,63 @@ public class UserControllerTest {
 
   }
 
+  // ######################################### Update User #########################################
+
+  @Test
+  public void updateUserUpdatesUserSuccessfully() throws Exception {
+    RegisterRequestDTO updateRequestDTO = new RegisterRequestDTO();
+    updateRequestDTO.setUsername("updated@test.com");
+    updateRequestDTO.setPassword("updatedPassword");
+    updateRequestDTO.setFirstname("Updated");
+    updateRequestDTO.setLastname("User");
+    updateRequestDTO.setEmail("updated@test.com");
+
+    String accessToken = "accessToken";
+
+    doNothing().when(userService).updateUser(any(User.class), eq(accessToken));
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/user/me")
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(updateRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void updateUserThrowsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+    RegisterRequestDTO updateRequestDTO = new RegisterRequestDTO();
+    updateRequestDTO.setUsername("updated@test.com");
+    updateRequestDTO.setPassword("updatedPassword");
+    updateRequestDTO.setFirstname("Updated");
+    updateRequestDTO.setLastname("User");
+    updateRequestDTO.setEmail("updated@test.com");
+
+    String invalidAccessToken = "invalidAccessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).updateUser(any(User.class), eq(invalidAccessToken));
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/user/me")
+                    .header("Authorization", invalidAccessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(updateRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void updateUserThrowsBadRequestWhenAccessTokenIsMissing() throws Exception {
+    RegisterRequestDTO updateRequestDTO = new RegisterRequestDTO();
+    updateRequestDTO.setUsername("updated@test.com");
+    updateRequestDTO.setPassword("updatedPassword");
+    updateRequestDTO.setFirstname("Updated");
+    updateRequestDTO.setLastname("User");
+    updateRequestDTO.setEmail("updated@test.com");
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/user/me")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(updateRequestDTO)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
   // ######################################### Delete User #########################################
 
   @Test

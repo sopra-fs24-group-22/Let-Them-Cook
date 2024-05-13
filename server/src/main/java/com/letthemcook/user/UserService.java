@@ -215,7 +215,7 @@ public class UserService {
 
   // ######################################### Util #########################################
 
-  private void checkIfUserExists(User userToBeCreated) {
+  protected void checkIfUserExists(User userToBeCreated) {
     User userByEmail = userRepository.getByEmail(userToBeCreated.getEmail());
     User userByUsername = userRepository.getByUsername(userToBeCreated.getUsername());
 
@@ -229,7 +229,7 @@ public class UserService {
     }
   }
 
-  private User updateUserData(User existingUser, User user) {
+  protected User updateUserData(User existingUser, User user) {
 
     Method[] getters = {
             getMethod(User.class, "getUsername"),

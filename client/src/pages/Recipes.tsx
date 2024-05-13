@@ -16,6 +16,7 @@ import {
   addRecipeToCookbookAPI,
   removeRecipeFromCookbookAPI,
   putRecipeAPI,
+  postRateRecipeAPI,
 } from "../api/app.api";
 import MainLayout from "../components/Layout/MainLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -27,6 +28,7 @@ import {
   faHourglass,
   faMinus,
   faPlus,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from "../components/ui/Icon";
 import { Container, Row, Col, ListGroup } from "react-bootstrap";
@@ -39,6 +41,7 @@ import {
 import { getMyUser } from "../api/user.api";
 import { Tooltip } from "react-tooltip";
 import { useParams } from "react-router-dom";
+import { StarRating } from "../components/ui/StarRating";
 
 const RecipesPage = () => {
   // Get the recipeId from the URL
@@ -46,6 +49,7 @@ const RecipesPage = () => {
 
   // Vars for creating a new recipe
   const [editingRecipeId, setEditingRecipeId] = useState<number>(0);
+  const [viewingRecipeId, setViewingRecipeId] = useState<number>(0);
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [dishName, setDishName] = useState<string>();
@@ -54,6 +58,11 @@ const RecipesPage = () => {
   const [ingredients, setIngredients] = useState<string[]>([""]);
   const [singleSteps, setSingleSteps] = useState<string[]>([""]);
   const [dishCreator, setDishCreator] = useState<string>("");
+
+  // only for view
+  const [nrRating, setNrRating] = useState<number>(0);
+  const [avgTotalRating, setAvgTotalRating] = useState<number>(0);
+
   const handleClose = () => {
     setShowForm(false);
     setShowDetails(false);
@@ -64,6 +73,8 @@ const RecipesPage = () => {
     setSingleSteps([""]);
     setDishCreator("");
     setEditingRecipeId(0);
+    setNrRating(0);
+    setAvgTotalRating(0);
   };
   const handleShowForm = () => {
     setEditingRecipeId(0);
@@ -72,7 +83,24 @@ const RecipesPage = () => {
 
   const handleShowDetails = (id: number) => {
     fetchRecipe(id);
+    setViewingRecipeId(id);
     setShowDetails(true);
+  };
+
+  const rateRecipe = async (recipeId: number, rating: number) => {
+    try {
+      await postRateRecipeAPI(recipeId, rating);
+    } catch (error) {
+      alert("Error while rating the recipe. Please try again.");
+    }
+  };
+
+  const rateRecipeAndReloadSingleRecipe = async (
+    recipeId: number,
+    rating: number,
+  ) => {
+    await rateRecipe(recipeId, rating);
+    await fetchRecipe(recipeId);
   };
 
   // Function to save a new session
@@ -110,6 +138,8 @@ const RecipesPage = () => {
       setIngredients(res.ingredients);
       setSingleSteps(res.checklist);
       setDishCreator(res.creatorName);
+      setNrRating(res.nrRatings);
+      setAvgTotalRating(res.avgTotalRating);
     } catch (e) {
       alert("Error while loading the recipe. Please try again.");
     }
@@ -439,7 +469,19 @@ const RecipesPage = () => {
                           icon={faHourglass}
                           style={{ margin: "0 5px 0 0" }}
                         />
-                        {recipe.cookingTimeMin} minutes
+                        {recipe.cookingTimeMin} minutes |
+                        <StarRating
+                          recipeId={recipe.id}
+                          avgRating={recipe.avgTotalRating}
+                          nrRating={recipe.nrRatings}
+                          callbackFunction={(
+                            recipeId: number,
+                            rating: number,
+                          ) => {
+                            rateRecipe(recipeId, rating);
+                            reloadRecipes();
+                          }}
+                        />
                       </p>
                     </Col>
                     <Col xs={1}>
@@ -670,7 +712,15 @@ const RecipesPage = () => {
           <SecondaryText>
             by {dishCreator} |
             <FontAwesomeIcon icon={faHourglass} style={{ margin: "0 5px" }} />
-            {cookingTime}min
+            {cookingTime}min |
+            <StarRating
+              recipeId={viewingRecipeId}
+              avgRating={avgTotalRating}
+              nrRating={nrRating}
+              callbackFunction={(recipeId: number, rating: number) => {
+                rateRecipeAndReloadSingleRecipe(recipeId, rating);
+              }}
+            />
           </SecondaryText>
 
           <Header2 style={{ margin: "20px 0" }}>Ingredients</Header2>

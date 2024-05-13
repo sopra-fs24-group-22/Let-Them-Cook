@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
-// import { faUser } from "@fortawesome/free-regular-svg-icons";
+import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { Modal } from "react-bootstrap";
 import { PrimaryButton, SecondaryButton } from "../ui/Button";
 import { postLogoutAPI } from "../../api/app.api";
@@ -53,11 +53,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({
             <Link to="/chefs">Chefs</Link>
           </li>
 
-          {/* <li>
-            <Link to="/chefs">
+          <li>
+            <Link to="/user">
               <FontAwesomeIcon icon={faUser} />
             </Link>
-          </li> */}
+          </li>
 
           <li>
             <Link

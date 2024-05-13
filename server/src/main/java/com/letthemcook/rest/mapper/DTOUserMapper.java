@@ -34,7 +34,7 @@ public interface DTOUserMapper {
   @Mapping(source = "refreshToken", target = "refreshToken")
   TokenResponseDTO convertEntityToTokenDTO(Token token);
 
-  // ######################################### Register #########################################
+  // ######################################### Register and Update #########################################
 
   @Mapping(source = "username", target = "username")
   @Mapping(source = "email", target = "email")

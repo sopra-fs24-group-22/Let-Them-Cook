@@ -7,6 +7,7 @@ import { AppGuard } from "./protectors/AppGuard";
 import AppPage from "../pages/App";
 import LoginPage from "../pages/Login";
 import ProfilePage from "../pages/Profile";
+import UserPage from "../pages/User";
 import SessionsPage from "../pages/Sessions";
 import RegisterPage from "../pages/Register";
 import RecipesPage from "../pages/Recipes";
@@ -71,6 +72,11 @@ const Router = () => {
         {/* Followed Chefs */}
         <Route path="/chefs/mychefs/:user" element={<AppGuard />}>
           <Route path="/chefs/mychefs/:user" element={<ChefsFollowedPage />} />
+        </Route>
+
+        {/* User */}
+        <Route path="/user" element={<AppGuard />}>
+          <Route path="/user" element={<UserPage />} />
         </Route>
 
         {/* Empty redirection */}

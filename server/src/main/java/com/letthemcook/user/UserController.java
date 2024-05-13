@@ -99,6 +99,16 @@ public class UserController {
       return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
   }
 
+  @PutMapping("/api/user/me")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Void> updateUser(@RequestBody RegisterRequestDTO updateRequestDTO, @RequestHeader("Authorization") String accessToken) {
+    User user = DTOUserMapper.INSTANCE.convertRegisterDTOtoEntity(updateRequestDTO);
+    userService.updateUser(user, accessToken);
+
+    return ResponseEntity.ok().build();
+  }
+
   @DeleteMapping("/api/user/me")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody

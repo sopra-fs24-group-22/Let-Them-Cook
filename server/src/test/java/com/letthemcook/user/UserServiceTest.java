@@ -25,14 +25,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
-
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -247,6 +245,67 @@ public class UserServiceTest {
     assertEquals(users, result);
   }
 
+  // ######################################### Update User Tests #########################################
+
+  @Test
+  public void updateUserUpdatesUserSuccessfully() {
+    String accessToken = "accessToken";
+    User user = new User();
+    user.setUsername("testUser");
+    user.setFirstname("Updated");
+    user.setLastname("User");
+    user.setEmail("updated@test.com");
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(userRepository.getByUsername("testUser")).thenReturn(user);
+
+    userService.updateUser(user, accessToken);
+
+    verify(userRepository, times(1)).save(user);
+  }
+
+  @Test
+  public void updateUserThrowsExceptionWhenUserNotFound() {
+    String accessToken = "accessToken";
+    User user = new User();
+    user.setUsername("testUser");
+    user.setFirstname("Updated");
+    user.setLastname("User");
+    user.setEmail("updated@test.com");
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")).when(userRepository).getByUsername("testUser");
+
+    assertThrows(ResponseStatusException.class, () -> userService.updateUser(user, accessToken));
+  }
+
+  @Test
+  public void updateUserDoesNotChangePassword() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    String accessToken = "accessToken";
+    User oldUser = new User();
+    oldUser.setId(1L);
+    oldUser.setUsername("testUser");
+    oldUser.setPassword("oldPassword");
+    oldUser.setFirstname("Updated");
+    oldUser.setLastname("User");
+    oldUser.setEmail("old@test.com");
+
+    User user = new User();
+    user.setUsername("updatedUser");
+    user.setPassword("newPassword");
+    user.setFirstname("Updated");
+    user.setLastname("User");
+    user.setEmail("update.user@uzh.ch");
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
+    when(userRepository.getByUsername("testUser")).thenReturn(oldUser);
+
+    userService.updateUser(oldUser, accessToken);
+
+    verify(userRepository, times(1)).save(oldUser);
+    assertEquals("newPassword", user.getPassword());
+  }
+
   // ######################################### Delete User Tests #########################################
 
   @Test
@@ -327,6 +386,112 @@ public class UserServiceTest {
     userService.deleteUser(accessToken);
 
     verify(sessionService, times(2)).deleteSessionByUser(any(Session.class));
+  }
+
+  // ######################################### Delete User Tests #########################################
+
+  @Test
+  public void checkIfUserExistsThrowsConflictWhenEmailExists() {
+    User existingUser = new User();
+    existingUser.setEmail("existing@test.com");
+
+    when(userRepository.getByEmail(existingUser.getEmail())).thenReturn(existingUser);
+
+    assertThrows(ResponseStatusException.class, () -> userService.checkIfUserExists(existingUser));
+  }
+
+  @Test
+  public void checkIfUserExistsThrowsConflictWhenUsernameExists() {
+    User existingUser = new User();
+    existingUser.setUsername("existingUser");
+
+    when(userRepository.getByUsername(existingUser.getUsername())).thenReturn(existingUser);
+
+    assertThrows(ResponseStatusException.class, () -> userService.checkIfUserExists(existingUser));
+  }
+
+  @Test
+  public void checkIfUserExistsDoesNotThrowWhenUserDoesNotExist() {
+    User newUser = new User();
+    newUser.setUsername("newUser");
+    newUser.setEmail("new@test.com");
+
+    when(userRepository.getByEmail(newUser.getEmail())).thenReturn(null);
+    when(userRepository.getByUsername(newUser.getUsername())).thenReturn(null);
+
+    assertDoesNotThrow(() -> userService.checkIfUserExists(newUser));
+  }
+
+  @Test
+  public void updateUserUpdatesFieldsSuccessfully() {
+    User existingUser = new User();
+    existingUser.setUsername("oldUser");
+    existingUser.setFirstname("Old");
+    existingUser.setLastname("User");
+    existingUser.setEmail("old@test.com");
+    existingUser.setPassword("oldPassword");
+
+    User newUser = new User();
+    newUser.setUsername("newUser");
+    newUser.setFirstname("New");
+    newUser.setLastname("User");
+    newUser.setEmail("new@test.com");
+    newUser.setPassword("newPassword");
+
+    when(passwordEncoder.encode(newUser.getPassword())).thenReturn("encodedPassword");
+
+    User updatedUser = userService.updateUserData(existingUser, newUser);
+
+    assertEquals("newUser", updatedUser.getUsername());
+    assertEquals("New", updatedUser.getFirstname());
+    assertEquals("User", updatedUser.getLastname());
+    assertEquals("new@test.com", updatedUser.getEmail());
+    assertEquals("encodedPassword", updatedUser.getPassword());
+  }
+
+  @Test
+  public void updateUserDoesNotUpdateNullFields() {
+    User existingUser = new User();
+    existingUser.setUsername("oldUser");
+    existingUser.setFirstname("Old");
+    existingUser.setLastname("User");
+    existingUser.setEmail("old@test.com");
+    existingUser.setPassword("oldPassword");
+
+    User newUser = new User();
+    newUser.setUsername("newUser");
+
+    User updatedUser = userService.updateUserData(existingUser, newUser);
+
+    assertEquals("newUser", updatedUser.getUsername());
+    assertEquals("Old", updatedUser.getFirstname());
+    assertEquals("User", updatedUser.getLastname());
+    assertEquals("old@test.com", updatedUser.getEmail());
+    assertEquals("oldPassword", updatedUser.getPassword());
+  }
+
+  @Test
+  public void updateUserDoesNotUpdatePasswordIfNull() {
+    User existingUser = new User();
+    existingUser.setUsername("oldUser");
+    existingUser.setFirstname("Old");
+    existingUser.setLastname("User");
+    existingUser.setEmail("old@test.com");
+    existingUser.setPassword("oldPassword");
+
+    User newUser = new User();
+    newUser.setUsername("newUser");
+    newUser.setFirstname("New");
+    newUser.setLastname("User");
+    newUser.setEmail("new@test.com");
+
+    User updatedUser = userService.updateUserData(existingUser, newUser);
+
+    assertEquals("newUser", updatedUser.getUsername());
+    assertEquals("New", updatedUser.getFirstname());
+    assertEquals("User", updatedUser.getLastname());
+    assertEquals("new@test.com", updatedUser.getEmail());
+    assertEquals("oldPassword", updatedUser.getPassword());
   }
 }
 

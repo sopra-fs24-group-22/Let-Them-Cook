@@ -63,12 +63,11 @@ public class RecipeService {
 
   public void updateRecipe(Recipe recipe, String accessToken) {
     String username = jwtService.extractUsername(accessToken);
-
     Long recipeId = recipe.getId();
+
     // Check if recipe exists
-    Recipe existingRecipe = recipeRepository.getById(recipe.getId());
+    Recipe existingRecipe = recipeRepository.getById(recipeId);
     if (existingRecipe == null) {
-      //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
 

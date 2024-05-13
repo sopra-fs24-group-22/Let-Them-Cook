@@ -20,6 +20,7 @@ import { getMyUser, getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
+import { ENV } from "../env";
 
 const SessionsPage = () => {
   const navigate = useNavigate();
@@ -37,6 +38,7 @@ const SessionsPage = () => {
     try {
       // build object for filtering
       var filter = {};
+      filter = { ...filter, limit: 10000 };
       if (dateFilter)
         filter = {
           ...filter,
@@ -93,7 +95,7 @@ const SessionsPage = () => {
       const res1 = await getCookbookAPI(userId);
       setCookbookRecipes(res1);
       // fetching all recipes
-      const res2 = await getRecipesAPI();
+      const res2 = await getRecipesAPI({ limit: 10000 });
       setAllRecipes(res2);
       res2.forEach((recipe: { id: number; title: string }) => {
         recipeTitles[recipe.id] = recipe.title;
@@ -227,6 +229,7 @@ const SessionsPage = () => {
             <Input
               id="sessionNameFilter"
               type="text"
+              maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
               style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
               value={sessionNameFilter}
               onChange={(e) => setSessionNameFilter(e.target.value)}
@@ -238,6 +241,7 @@ const SessionsPage = () => {
             <Input
               id="recipeFilter"
               type="text"
+              maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
               style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
               value={recipeFilter}
               onChange={(e) => setRecipeFilter(e.target.value)}
@@ -249,6 +253,7 @@ const SessionsPage = () => {
             <Input
               id="hostFilter"
               type="text"
+              maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
               style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
               value={hostFilter}
               onChange={(e) => setHostFilter(e.target.value)}
@@ -352,6 +357,7 @@ const SessionsPage = () => {
                 key={e.id}
                 value={e.id}
                 selected={recipe === Number(e.id)}
+                disabled={e.privacyStatus === 0}
               >
                 {e.title}
               </Option>
@@ -362,6 +368,7 @@ const SessionsPage = () => {
           <Input
             id="sessionname"
             type="text"
+            maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
             placeholder="Session name"
             value={sessionName}
             onChange={(e) => setSessionsName(String(e.target.value))}
@@ -379,8 +386,8 @@ const SessionsPage = () => {
           <Input
             id="duration"
             type="number"
-            min={1}
-            max={500}
+            min={ENV.MIN_NUMBER_MINUTES_LENGTH}
+            max={ENV.MAX_NUMBER_MINUTES_LENGTH}
             placeholder="90"
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
@@ -407,8 +414,8 @@ const SessionsPage = () => {
                 sessionName &&
                 start &&
                 duration &&
-                1 <= duration &&
-                duration <= 500 &&
+                ENV.MIN_NUMBER_MINUTES_LENGTH <= duration &&
+                duration <= ENV.MAX_NUMBER_MINUTES_LENGTH &&
                 participants &&
                 1 <= participants &&
                 participants <= 30

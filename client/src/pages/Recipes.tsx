@@ -28,7 +28,6 @@ import {
   faHourglass,
   faMinus,
   faPlus,
-  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from "../components/ui/Icon";
 import { Container, Row, Col, ListGroup } from "react-bootstrap";

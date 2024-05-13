@@ -91,3 +91,7 @@ export const getUsersAPI = async (params: any = {}) => {
   const { data } = await axiosAuth.get("users?" + objectToUrlParams(params));
   return data;
 };
+export const putUserMeAPI = async (params: any = {}) => {
+  const { data } = await axiosAuth.put("user/me", params);
+  return data;
+};

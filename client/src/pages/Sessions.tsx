@@ -20,6 +20,7 @@ import { getMyUser, getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
+import { ENV } from "../env";
 
 const SessionsPage = () => {
   const navigate = useNavigate();
@@ -228,6 +229,7 @@ const SessionsPage = () => {
             <Input
               id="sessionNameFilter"
               type="text"
+              maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
               style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
               value={sessionNameFilter}
               onChange={(e) => setSessionNameFilter(e.target.value)}
@@ -239,6 +241,7 @@ const SessionsPage = () => {
             <Input
               id="recipeFilter"
               type="text"
+              maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
               style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
               value={recipeFilter}
               onChange={(e) => setRecipeFilter(e.target.value)}
@@ -250,6 +253,7 @@ const SessionsPage = () => {
             <Input
               id="hostFilter"
               type="text"
+              maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
               style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
               value={hostFilter}
               onChange={(e) => setHostFilter(e.target.value)}
@@ -363,6 +367,7 @@ const SessionsPage = () => {
           <Input
             id="sessionname"
             type="text"
+            maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
             placeholder="Session name"
             value={sessionName}
             onChange={(e) => setSessionsName(String(e.target.value))}
@@ -380,8 +385,8 @@ const SessionsPage = () => {
           <Input
             id="duration"
             type="number"
-            min={1}
-            max={500}
+            min={ENV.MIN_NUMBER_MINUTES_LENGTH}
+            max={ENV.MAX_NUMBER_MINUTES_LENGTH}
             placeholder="90"
             value={duration}
             onChange={(e) => setDuration(Number(e.target.value))}
@@ -408,8 +413,8 @@ const SessionsPage = () => {
                 sessionName &&
                 start &&
                 duration &&
-                1 <= duration &&
-                duration <= 500 &&
+                ENV.MIN_NUMBER_MINUTES_LENGTH <= duration &&
+                duration <= ENV.MAX_NUMBER_MINUTES_LENGTH &&
                 participants &&
                 1 <= participants &&
                 participants <= 30

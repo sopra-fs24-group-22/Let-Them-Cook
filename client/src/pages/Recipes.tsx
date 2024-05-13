@@ -42,6 +42,7 @@ import { getMyUser } from "../api/user.api";
 import { Tooltip } from "react-tooltip";
 import { useParams } from "react-router-dom";
 import { StarRating } from "../components/ui/StarRating";
+import { ENV } from "../env";
 
 const RecipesPage = () => {
   // Get the recipeId from the URL
@@ -386,6 +387,7 @@ const RecipesPage = () => {
                 <Input
                   id="recipeTitleFilter"
                   type="text"
+                  maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
                   style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
                   value={recipeTitleFilter ? recipeTitleFilter : ""}
                   onChange={(e) => setRecipeTitleFilter(e.target.value)}
@@ -397,6 +399,7 @@ const RecipesPage = () => {
                 <Input
                   id="creatorNameFilter"
                   type="text"
+                  maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
                   style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
                   value={creatorNameFilter ? creatorNameFilter : ""}
                   onChange={(e) => setCreatorNameFilter(e.target.value)}
@@ -408,6 +411,8 @@ const RecipesPage = () => {
                 <Input
                   id="cookingTimeFilter"
                   type="number"
+                  min={ENV.MIN_NUMBER_MINUTES_LENGTH}
+                  max={ENV.MAX_NUMBER_MINUTES_LENGTH}
                   style={{ width: "100%", marginTop: "0", marginLeft: "0" }}
                   value={maxCookingTimeFilter ? maxCookingTimeFilter : ""}
                   onChange={(e) =>
@@ -565,6 +570,7 @@ const RecipesPage = () => {
           <Input
             id="dishName"
             type="text"
+            maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
             value={dishName}
             style={{ width: "80%" }}
             onChange={(e) => setDishName(e.target.value)}
@@ -591,6 +597,8 @@ const RecipesPage = () => {
           <Input
             id="cookingTime"
             type="number"
+            min={ENV.MIN_NUMBER_MINUTES_LENGTH}
+            max={ENV.MAX_NUMBER_MINUTES_LENGTH}
             placeholder="90"
             value={cookingTime}
             onChange={(e) => setCookingTime(Number(e.target.value))}
@@ -601,6 +609,7 @@ const RecipesPage = () => {
             <div key={index}>
               <Input
                 type="text"
+                maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
                 value={input}
                 onChange={(event) => handleIngredientsInputChange(index, event)}
                 style={{ width: "80%", marginBottom: "0" }}
@@ -649,6 +658,7 @@ const RecipesPage = () => {
             <div key={index}>
               <Input
                 type="text"
+                maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
                 value={input}
                 onChange={(event) => handleSingleStepsInputChange(index, event)}
                 style={{ width: "80%", marginBottom: "0" }}

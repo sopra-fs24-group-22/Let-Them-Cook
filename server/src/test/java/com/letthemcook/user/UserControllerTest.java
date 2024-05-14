@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtAuthFilter;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
+import com.letthemcook.rating.Rating;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
 import com.letthemcook.user.dto.RegisterRequestDTO;
+import com.letthemcook.user.dto.UserRateDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,6 +73,9 @@ public class UserControllerTest {
     user.setFirstname("Test");
     user.setLastname("User");
     user.setEmail("test@user.com");
+
+    Rating rating = new Rating();
+    user.setRating(rating);
 
     when(userRepository.getById(1L)).thenReturn(user);
   }
@@ -248,7 +253,7 @@ public class UserControllerTest {
   public void getUser_returnsUserDetails_whenAccessTokenIsValid() throws Exception {
     // Given
     User user = userRepository.getById(1L);
-    when(userService.getUser("accessToken")).thenReturn(user);
+    when(userService.getUser(Mockito.any())).thenReturn(user);
 
     // When & Then
     mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me")
@@ -419,5 +424,27 @@ public class UserControllerTest {
   public void deleteUserThrowsBadRequestWhenAccessTokenIsMissing() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/me"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
+  // ######################################### Rate User #########################################
+
+  @Test
+  public void testRateUserSuccess() throws Exception {
+    // Setup
+    UserRateDTO userRateDTO = new UserRateDTO();
+    userRateDTO.setRating(5);
+
+    String accessToken = "accessToken";
+
+    // Mock Services
+    doNothing().when(userService).postRating(anyLong(), anyInt(), anyString());
+
+    // Perform Test
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/user/1/rate")
+                    .header("Authorization", accessToken)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(userRateDTO)))
+            .andExpect(MockMvcResultMatchers.status().isOk());
   }
 }

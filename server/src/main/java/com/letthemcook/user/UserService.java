@@ -3,6 +3,7 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
+import com.letthemcook.rating.Rating;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeService;
 import com.letthemcook.session.Session;
@@ -29,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -211,6 +211,27 @@ public class UserService {
     query.with(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Order.asc("username")));
 
     return mongoTemplate.find(query, User.class);
+  }
+
+  public void postRating(Long id, Integer rating, String accessToken) {
+    User userToRate = userRepository.getById(id);
+
+    if (userToRate == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+    }
+
+    // Check if rater and ratee are same user
+    User rater = userRepository.getByUsername(jwtService.extractUsername(accessToken));
+
+    if(userToRate.getId().equals(rater.getId())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot rate yourself");
+    }
+
+    Rating userRating = userToRate.getRating();
+    userRating.addRating(rating, id);
+    userToRate.setRating(userRating);
+
+    userRepository.save(userToRate);
   }
 
   // ######################################### Util #########################################

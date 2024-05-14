@@ -13,9 +13,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
@@ -388,7 +386,7 @@ public class UserServiceTest {
     verify(sessionService, times(2)).deleteSessionByUser(any(Session.class));
   }
 
-  // ######################################### Delete User Tests #########################################
+  // ######################################### Check if user exists Tests #########################################
 
   @Test
   public void checkIfUserExistsThrowsConflictWhenEmailExists() {

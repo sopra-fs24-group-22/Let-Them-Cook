@@ -2,6 +2,7 @@ package com.letthemcook.rest.mapper;
 
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.auth.token.dto.TokenResponseDTO;
+import com.letthemcook.rating.Rating;
 import com.letthemcook.user.dto.GetMeRequestDTO;
 import com.letthemcook.user.dto.LoginRequestDTO;
 import com.letthemcook.user.dto.LogoutRequestDTO;
@@ -43,13 +44,15 @@ public interface DTOUserMapper {
   @Mapping(source = "password", target = "password")
   User convertRegisterDTOtoEntity(RegisterRequestDTO registerRequestDTO);
 
-  // ######################################### GET me #########################################
+  // ######################################### GET User #########################################
 
-  @Mapping(source = "email", target = "email")
-  @Mapping(source = "firstname", target = "firstname")
-  @Mapping(source = "lastname", target = "lastname")
-  @Mapping(source = "username", target = "username")
-  @Mapping(source = "id", target = "id")
-  GetMeRequestDTO convertEntityToGetMeResponseDTO(User user);
+  @Mapping(source = "user.email", target = "email")
+  @Mapping(source = "user.firstname", target = "firstname")
+  @Mapping(source = "user.lastname", target = "lastname")
+  @Mapping(source = "user.username", target = "username")
+  @Mapping(source = "user.id", target = "id")
+  @Mapping(source = "rating.avgTotalRating", target = "avgTotalRating")
+  @Mapping(source = "rating.nrRatings", target = "nrRatings")
+  GetMeRequestDTO convertEntityToGetMeResponseDTO(User user, Rating rating);
 
 }

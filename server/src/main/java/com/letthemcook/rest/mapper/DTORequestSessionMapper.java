@@ -2,6 +2,7 @@ package com.letthemcook.rest.mapper;
 
 import com.letthemcook.sessionrequest.SessionRequest;
 import com.letthemcook.sessionrequest.dto.SessionRequestDTO;
+import com.letthemcook.sessionrequest.dto.SessionRequestGetSingleDTO;
 import com.letthemcook.sessionrequest.dto.SessionRequestsGetDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,7 +18,7 @@ public interface DTORequestSessionMapper {
   @Mapping(target = "userId", source = "userId")
   SessionRequest convertSessionRequestDTOToEntity(SessionRequestDTO sessionRequestDTO);
 
-  // ######################################### Get session requests #########################################
+  // ######################################### Get user session requests #########################################
   @Mapping(target = "userSessions", source = "userSessions")
   SessionRequestsGetDTO convertEntityToGetSessionRequestsDTO(SessionRequest sessionRequest);
 }

@@ -23,7 +23,7 @@ export const refreshAccessTokenAPI = async () => {
 };
 
 // Recipes
-export const getAllRecipesAPI = async (params: any = {}) => {
+export const getRecipesAPI = async (params: any = {}) => {
   const { data } = await axiosAuth.get("recipes?" + objectToUrlParams(params));
   return data;
 };
@@ -40,6 +40,9 @@ export const postRecipeAPI = async (body: any) => {
 };
 export const putRecipeAPI = async (body: any) => {
   await axiosAuth.put("recipe/", body);
+};
+export const postRateRecipeAPI = async (recipeId: number, rating: number) => {
+  await axiosAuth.post("recipe/" + recipeId + "/rate", { rating: rating });
 };
 
 // Cookbooks
@@ -60,7 +63,7 @@ export const postSessionAPI = async (session: any) => {
   const { data } = await axiosAuth.post("session", session);
   return data;
 };
-export const getAllSessionsAPI = async (params: any = {}) => {
+export const getSessionsAPI = async (params: any = {}) => {
   const { data } = await axiosAuth.get("sessions?" + objectToUrlParams(params));
   return data;
 };
@@ -81,4 +84,14 @@ export const getChecklistAPI = async (sessionId: number) => {
 };
 export const postSessionRequestAPI = async (sessionId: number) => {
   await axiosAuth.post("session_request/" + sessionId);
+};
+
+// Users
+export const getUsersAPI = async (params: any = {}) => {
+  const { data } = await axiosAuth.get("users?" + objectToUrlParams(params));
+  return data;
+};
+export const putUserMeAPI = async (params: any = {}) => {
+  const { data } = await axiosAuth.put("user/me", params);
+  return data;
 };

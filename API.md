@@ -213,6 +213,59 @@ Used to get own profile information.
 403 FORBIDDEN
 ```
 
+## Update user
+
+Used to update own profile information.
+
+**URL** : `/api/user/me`
+
+**Method** : `PUT`
+
+**Auth required** : YES
+
+**Data constraints**
+
+```json
+{
+  "email": "[valid email address]",
+  "username": "[valid username]",
+  "firstname": "[first name in plain text]",
+  "lastname": "[last name in plain text]",
+  "password": "[user password in plain text]"
+}
+```
+
+**Data example**
+
+```json
+{
+  "email": "TeamBackend.isch@besser.forever",
+  "username": "Grüsse",
+  "firstname": "Gehen",
+  "lastname": "Raus",
+  "password": "anDenAnderenK(onn)ing"
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+
+
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
 ## Delete user
 
 Used to delete own profile.
@@ -1268,4 +1321,90 @@ Authorization: Bearer [access token]
 
 ```
 409 CONFLICT "The request has already been accepted or rejected"
+```
+
+## Get SessionRequests for session
+
+Used to get all session requests for a specific session.
+
+**URL** : `/api/session_request/{sessionId}`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "singleSessionRequest": [
+    {
+      "sessionRequests": "[Hashmap of userIds and their status]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+## Get SessionRequests for user
+
+Used to get all session requests for a specific user.
+
+**URL** : `/api/session_request`
+
+**Method** : `GET`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**Content**
+
+```json
+{
+  "sessionRequest": [
+    {
+      "userSessions": "[Hashmap of sessionIds and their status]"
+    }
+  ]
+}
+```
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
 ```

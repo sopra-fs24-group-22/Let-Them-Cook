@@ -52,8 +52,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           <li>
             <Link to="/chefs">Chefs</Link>
           </li>
+
           <li>
-            <Link to="/chefs">
+            <Link to="/user">
               <FontAwesomeIcon icon={faUser} />
             </Link>
           </li>

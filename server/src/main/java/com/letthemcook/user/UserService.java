@@ -28,10 +28,14 @@ import org.springframework.web.server.ResponseStatusException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+
+import static org.springframework.util.ClassUtils.getMethod;
 
 @Service
 @Transactional
@@ -136,6 +140,16 @@ public class UserService {
     }
   }
 
+  public void updateUser(User user, String accessToken) {
+    String username = jwtService.extractUsername(accessToken);
+    User userToUpdate = userRepository.getByUsername(username);
+
+    User updatedUser = updateUserData(userToUpdate, user);
+
+    // Update user
+    userRepository.save(updatedUser);
+  }
+
   public void deleteUser(String accessToken) {
     String username = jwtService.extractUsername(accessToken);
     User user = userRepository.getByUsername(username);
@@ -201,7 +215,7 @@ public class UserService {
 
   // ######################################### Util #########################################
 
-  private void checkIfUserExists(User userToBeCreated) {
+  protected void checkIfUserExists(User userToBeCreated) {
     User userByEmail = userRepository.getByEmail(userToBeCreated.getEmail());
     User userByUsername = userRepository.getByUsername(userToBeCreated.getUsername());
 
@@ -213,5 +227,39 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
               String.format(baseErrorMessage, "username"));
     }
+  }
+
+  protected User updateUserData(User existingUser, User user) {
+
+    Method[] getters = {
+            getMethod(User.class, "getUsername"),
+            getMethod(User.class, "getFirstname"),
+            getMethod(User.class, "getLastname"),
+            getMethod(User.class, "getEmail")
+    };
+
+    Method[] setters = {
+            getMethod(User.class, "setUsername", String.class),
+            getMethod(User.class, "setFirstname", String.class),
+            getMethod(User.class, "setLastname", String.class),
+            getMethod(User.class, "setEmail", String.class)
+    };
+
+    for (int i = 0; i < getters.length; i++) {
+      try {
+        Object value = getters[i].invoke(user);
+        if (value != null) {
+          setters[i].invoke(existingUser, value);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    if (user.getPassword() != null) {
+      existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+    }
+
+    return existingUser;
   }
 }

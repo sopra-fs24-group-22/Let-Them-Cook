@@ -88,19 +88,20 @@ const RecipesPage = () => {
   };
 
   const rateRecipe = async (recipeId: number, rating: number) => {
-    try {
-      await postRateRecipeAPI(recipeId, rating);
-    } catch (error) {
-      alert("Error while rating the recipe. Please try again.");
-    }
+    await postRateRecipeAPI(recipeId, rating).catch((error) => {
+      if (error.code === "ERR_BAD_REQUEST")
+        alert("You cannot rate your own recipe.");
+      else alert("Error while rating the recipe. Please try again.");
+    });
   };
 
   const rateRecipeAndReloadSingleRecipe = async (
     recipeId: number,
     rating: number,
   ) => {
-    await rateRecipe(recipeId, rating);
-    await fetchRecipe(recipeId);
+    await rateRecipe(recipeId, rating).then(async () => {
+      await fetchRecipe(recipeId);
+    });
   };
 
   // Function to save a new session
@@ -478,12 +479,15 @@ const RecipesPage = () => {
                           recipeId={recipe.id}
                           avgRating={recipe.avgTotalRating}
                           nrRating={recipe.nrRatings}
-                          callbackFunction={(
+                          callbackFunction={async (
                             recipeId: number,
                             rating: number,
                           ) => {
-                            rateRecipe(recipeId, rating);
-                            reloadRecipes();
+                            await rateRecipe(recipeId, rating).then(
+                              async () => {
+                                await reloadRecipes();
+                              },
+                            );
                           }}
                         />
                       </p>

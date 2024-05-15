@@ -44,8 +44,16 @@ import { StarRating } from "../components/ui/StarRating";
 import { ENV } from "../env";
 
 const RecipesPage = () => {
-  // Get the recipeId from the URL
-  const { recipeId: URLrecipeId } = useParams();
+  // Parse the URL parameters
+  const { param: URLparam } = useParams();
+  const URLrecipeId =
+    URLparam !== undefined && URLparam.startsWith("id=")
+      ? URLparam.split("id=")[1]
+      : undefined;
+  const URLchefName =
+    URLparam !== undefined && URLparam.startsWith("chef=")
+      ? URLparam.split("chef=")[1]
+      : undefined;
 
   // Vars for creating a new recipe
   const [editingRecipeId, setEditingRecipeId] = useState<number>(0);
@@ -221,7 +229,7 @@ const RecipesPage = () => {
   >(undefined);
   const [creatorNameFilter, setCreatorNameFilter] = useState<
     string | undefined
-  >(undefined);
+  >(URLchefName);
   const [maxCookingTimeFilter, setMaxCookingTimeFilter] = useState<
     number | undefined
   >(undefined);
@@ -555,6 +563,17 @@ const RecipesPage = () => {
                 </Container>
               </Col>
             ))}
+            {recipes.length === 0 && (
+              <p
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  marginTop: "20px",
+                }}
+              >
+                No recipes found.
+              </p>
+            )}
           </Row>
         </Container>
       </MainLayout>

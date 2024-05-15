@@ -4,11 +4,16 @@ import { Header1 } from "../components/ui/Header";
 import { getMyUser } from "../api/user.api";
 import { Container, Row } from "react-bootstrap";
 import { RecipeTile, SessionTile, Tile } from "../components/ui/Dashboard";
-import { getRecipesAPI, getSessionsAPI } from "../api/app.api";
+import {
+  getOpenSessionsAPI,
+  getRecipesAPI,
+  getSessionsAPI,
+} from "../api/app.api";
 
 const AppPage = () => {
   // const ERROR_LOADING_DASHBOARD =
   //   "Error while loading the dashboard. Please reload the page.";
+
   useEffect(() => {
     fetchUserAndSessions();
     fetchNewestRecipes();
@@ -18,16 +23,27 @@ const AppPage = () => {
   // Fetching User, Sessions
   const [user, setUser] = useState<any>(null);
   const [sessions, setSessions] = useState<any>([]);
+  const [openSessions, setOpenSessions] = useState<any>([]);
   const fetchUserAndSessions = async () => {
     try {
+      // User
       const user = await getMyUser();
       setUser(user);
 
-      const session = await getSessionsAPI({
+      // Sessions
+      const sessions = await getSessionsAPI({
         hostId: user.id,
         limit: 6,
       });
-      setSessions(session);
+      setSessions(sessions);
+
+      // Open Sessions (only the first 6 that arent shown in upcoming sessions already)
+      const openSessions = await getOpenSessionsAPI();
+      setOpenSessions(
+        openSessions
+          .filter((s: any) => !sessions.map((se: any) => se.id).includes(s.id))
+          .slice(0, 6),
+      );
     } catch (e) {
       // alert(ERROR_LOADING_DASHBOARD);
     }
@@ -60,6 +76,24 @@ const AppPage = () => {
                 ))}
                 {sessions.length === 0 && (
                   <p style={{ marginTop: "10px" }}>No sessions found.</p>
+                )}
+              </Row>
+            </Container>
+          </Tile>
+        </Row>
+      </Container>
+
+      {/* Open sessions */}
+      <Container style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
+        <Row>
+          <Tile title="Sessions open for registration" xs={12}>
+            <Container>
+              <Row>
+                {openSessions.map((s: any) => (
+                  <SessionTile name={s.sessionName} id={s.id} date={s.date} />
+                ))}
+                {openSessions.length === 0 && (
+                  <p style={{ marginTop: "10px" }}>No open sessions found.</p>
                 )}
               </Row>
             </Container>

@@ -114,6 +114,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/107
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/141
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/86
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/80
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/125
 
 ### Tristan Koning
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/99

@@ -89,6 +89,10 @@ export const getSessionRequestsAPI = async (sessionId: number) => {
   const { data } = await axiosAuth.get("session_request/" + sessionId);
   return data;
 };
+export const getOpenSessionsAPI = async () => {
+  const { data } = await axiosAuth.get("sessions/open");
+  return data;
+};
 
 // Users
 export const getUsersAPI = async (params: any = {}) => {

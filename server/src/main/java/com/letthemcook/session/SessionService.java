@@ -305,6 +305,7 @@ public class SessionService {
             if (new Date().getTime() - lastActive.getTime() > 60000) {
               sessionUserState.removeUserFromStepCount(participantId);
               session.setSessionUserState(sessionUserState);
+              session.setCurrentParticipantCount(session.getCurrentParticipantCount() - 1);
               sessionRepository.save(session);
             }
           }

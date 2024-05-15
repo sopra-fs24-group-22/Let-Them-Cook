@@ -16,6 +16,8 @@ import {
   postSessionAPI,
   postSessionRequestAPI,
   getSessionRequestsAPI,
+  postSessionRequestAcceptAPI,
+  postSessionRequestDenyAPI,
 } from "../api/app.api";
 import { getMyUser, getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
@@ -77,6 +79,7 @@ const SessionsPage = () => {
   const [show, setShow] = useState(false);
   const [showRequests, setShowRequests] = useState(false);
   const [sessionRequests, setSessionRequests] = useState<any[]>([]);
+  const [currentManagedSession, setCurrentManagedSession] = useState<number>();
   const handleClose = () => {
     setShow(false);
     setRecipe(undefined);
@@ -85,6 +88,7 @@ const SessionsPage = () => {
     setDuration(undefined);
     setParticipants(undefined);
     setShowRequests(false);
+    setCurrentManagedSession(undefined);
   };
   const handleShow = async () => {
     setShow(true);
@@ -93,17 +97,39 @@ const SessionsPage = () => {
   const manageRequests = async (sessionId: number) => {
     fetchSessionRequests(sessionId);
     setShowRequests(true);
+    setCurrentManagedSession(sessionId);
+  };
+
+  const acceptRequest = async (
+    sessionId: number | undefined,
+    userId: number,
+  ) => {
+    const body = {
+      userId: userId,
+    };
+    try {
+      await postSessionRequestAcceptAPI(Number(sessionId), body);
+    } catch (error) {
+      alert("Error while accepting the request. Please try again.");
+    }
+  };
+
+  const denyRequest = async (sessionId: number | undefined, userId: number) => {
+    const body = {
+      userId: 1,
+    };
+    try {
+      await postSessionRequestDenyAPI(Number(sessionId), body);
+    } catch (error) {
+      alert("Error while denying the request. Please try again.");
+    }
   };
 
   const fetchSessionRequests = async (sessionId: number) => {
     try {
       const res = await getSessionRequestsAPI(sessionId);
-      for (const request of res) {
-        const id = request.requesterId;
-        const user = await getUsers(id);
-        res.username = user.username;
-      }
-      setSessionRequests([res]);
+      setSessionRequests([res.sessionRequests]);
+      console.log(sessionRequests);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
     }
@@ -477,12 +503,12 @@ const SessionsPage = () => {
             {sessionRequests.map((request, index) => (
               <Row key={index}>
                 <Col xs={6}>
-                  <Header3>{index}</Header3>
+                  <Header3>{request[1]}</Header3>
                 </Col>
                 <Col xs={3}>
                   <PrimaryButton
                     onClick={() => {
-                      alert("Request accepted.");
+                      acceptRequest(currentManagedSession, request.userId);
                     }}
                   >
                     Accept
@@ -491,7 +517,7 @@ const SessionsPage = () => {
                 <Col xs={0}>
                   <SecondaryButton
                     onClick={() => {
-                      alert("Request denied.");
+                      denyRequest(currentManagedSession, request.userId);
                     }}
                   >
                     Deny

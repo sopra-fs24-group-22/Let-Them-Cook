@@ -66,7 +66,7 @@ public class SessionServiceTest {
     session.setParticipants(new ArrayList<>());
     session.setMaxParticipantCount(2);
     session.setSessionName("sessionName");
-    session.setDate(LocalDateTime.now().plusDays(1));
+    session.setDate(LocalDateTime.now().plusDays(2));
 
     SessionUserState sessionUserState = new SessionUserState();
     sessionUserState.setSessionId(session.getId());
@@ -556,6 +556,39 @@ public class SessionServiceTest {
 
     assertEquals(1, result.size());
     assertEquals(sessionRepository.getById(1L), result.get(0));
+  }
+
+  // ######################################### Get open sessions Tests #########################################
+
+  @Test
+  public void testGetOpenSessionsNotFull() {
+    // Setup
+    Session session = sessionRepository.getById(1L);
+
+    // Mock services
+    when(sessionRepository.findAllByDateAfter(any())).thenReturn(List.of(session));
+
+    // Perform test
+    List<Session> result = sessionService.getOpenSessions();
+
+    assertEquals(1, result.size());
+    assertEquals(session, result.get(0));
+  }
+
+  @Test
+  public void testGetOpenSessionsFullDoesntReturn() {
+    // Setup
+    Session session = sessionRepository.getById(1L);
+    session.setCurrentParticipantCount(2);
+    session.setCurrentParticipantCount(2);
+
+    // Mock services
+    when(sessionRepository.findAllByDateAfter(any())).thenReturn(List.of(session));
+
+    // Perform test
+    List<Session> result = sessionService.getOpenSessions();
+
+    assertEquals(0, result.size());
   }
 
   // ######################################### Util Tests #########################################

@@ -109,4 +109,19 @@ public class SessionController {
 
     return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
   }
+
+  @GetMapping("/api/sessions/open")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<ArrayList<SessionDTO>> getOpenSessions() {
+    List<Session> queriedSessions = sessionService.getOpenSessions();
+
+    // Convert each user to the API representation
+    ArrayList<SessionDTO> sessionsGetDTOS = new ArrayList<>();
+    for (Session session : queriedSessions) {
+      sessionsGetDTOS.add(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(sessionsGetDTOS);
+  }
 }

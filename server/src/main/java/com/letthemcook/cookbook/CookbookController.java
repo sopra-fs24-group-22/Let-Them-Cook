@@ -2,6 +2,7 @@ package com.letthemcook.cookbook;
 
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.dto.RecipeGetDTO;
+import com.letthemcook.recipe.dto.RecipeRatingGetDTO;
 import com.letthemcook.rest.mapper.DTORecipeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,13 +41,13 @@ public class CookbookController {
   @GetMapping("/api/cookbook/{id}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<ArrayList<RecipeGetDTO>> getCookbook(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
+  public ResponseEntity<ArrayList<RecipeRatingGetDTO>> getCookbook(@PathVariable Long id, @RequestHeader("Authorization") String accessToken) {
     ArrayList<Recipe> recipes = cookbookService.getCookbook(id, accessToken);
 
     // Convert each recipe to the API representation
-    ArrayList<RecipeGetDTO> recipesGetDTOS = new ArrayList<>();
+    ArrayList<RecipeRatingGetDTO> recipesGetDTOS = new ArrayList<>();
     for (Recipe recipe : recipes) {
-      recipesGetDTOS.add(DTORecipeMapper.INSTANCE.convertRecipeToRecipeGetDTO(recipe));
+      recipesGetDTOS.add(DTORecipeMapper.INSTANCE.convertRecipeAndRatingToRecipeRatingGetDTO(recipe, recipe.getRating()));
     }
 
     return ResponseEntity.ok(recipesGetDTOS);

@@ -98,7 +98,12 @@ const SessionsPage = () => {
   const fetchSessionRequests = async (sessionId: number) => {
     try {
       const res = await getSessionRequestsAPI(sessionId);
-      setSessionRequests(res);
+      for (const request of res) {
+        const id = request.requesterId;
+        const user = await getUsers(id);
+        res.username = user.username;
+      }
+      setSessionRequests([res]);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
     }
@@ -329,12 +334,18 @@ const SessionsPage = () => {
                             Join
                           </JoinButton>
                           <JoinButton
-                            onClick={() => requestParticipation(session.id)}
+                            onClick={(event) => {
+                              requestParticipation(session.id);
+                              event.stopPropagation();
+                            }}
                           >
                             Request participation
                           </JoinButton>
                           <JoinButton
-                            onClick={() => manageRequests(session.id)}
+                            onClick={(event) => {
+                              manageRequests(session.id);
+                              event.stopPropagation();
+                            }}
                             style={{
                               display:
                                 currentUserId === session.host
@@ -463,11 +474,31 @@ const SessionsPage = () => {
         </Modal.Header>
         <Modal.Body>
           <Container>
-            <Row>
-              <Col>
-                <Header2>Requests</Header2>
-              </Col>
-            </Row>
+            {sessionRequests.map((request, index) => (
+              <Row key={index}>
+                <Col xs={6}>
+                  <Header3>{index}</Header3>
+                </Col>
+                <Col xs={3}>
+                  <PrimaryButton
+                    onClick={() => {
+                      alert("Request accepted.");
+                    }}
+                  >
+                    Accept
+                  </PrimaryButton>
+                </Col>
+                <Col xs={0}>
+                  <SecondaryButton
+                    onClick={() => {
+                      alert("Request denied.");
+                    }}
+                  >
+                    Deny
+                  </SecondaryButton>
+                </Col>
+              </Row>
+            ))}
           </Container>
         </Modal.Body>
         <Modal.Footer>

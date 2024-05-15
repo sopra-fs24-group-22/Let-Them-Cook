@@ -7,6 +7,7 @@ import { postRegisterAPI } from "../api/app.api";
 import { setAccessToken } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { AxiosError } from "axios";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -39,8 +40,10 @@ const RegisterPage = () => {
       const accessToken = res;
       setAccessToken(accessToken);
       navigate("/home");
-    } catch (error) {
-      setErrorMessage("Registration failed. Please try again.");
+    } catch (error: AxiosError | any) {
+      if (error.code === "ERR_BAD_REQUEST")
+        setErrorMessage(error.response.data.split('"')[1]);
+      else setErrorMessage("Registration failed. Please try again.");
     }
     setIsLoading(false);
   };

@@ -3,10 +3,7 @@ package com.letthemcook.user;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.auth.token.dto.TokenResponseDTO;
 import com.letthemcook.rest.mapper.DTOUserMapper;
-import com.letthemcook.user.dto.GetMeRequestDTO;
-import com.letthemcook.user.dto.LoginRequestDTO;
-import com.letthemcook.user.dto.LogoutRequestDTO;
-import com.letthemcook.user.dto.RegisterRequestDTO;
+import com.letthemcook.user.dto.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,7 +93,7 @@ public class UserController {
   @ResponseBody
   public ResponseEntity<GetMeRequestDTO> getUser(@RequestHeader("Authorization") String accessToken) {
       User user = userService.getUser(accessToken);
-      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
+      return ResponseEntity.ok(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user, user.getRating()));
   }
 
   @PutMapping("/api/user/me")
@@ -126,10 +123,19 @@ public class UserController {
     // Convert each user to the API representation
     List<GetMeRequestDTO> userDTOs = new ArrayList<>();
     for (User user : users) {
-      userDTOs.add(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user));
+      userDTOs.add(DTOUserMapper.INSTANCE.convertEntityToGetMeResponseDTO(user, user.getRating()));
     }
 
     return ResponseEntity.ok(userDTOs);
+  }
+
+  @PostMapping("/api/user/{id}/rate")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Void> postRating(@PathVariable Long id, @RequestBody UserRateDTO userRateDTO, @RequestHeader("Authorization") String accessToken) {
+    userService.postRating(id, userRateDTO.getRating(), accessToken);
+
+    return ResponseEntity.ok().build();
   }
 
   // ######################################### Util #########################################

@@ -15,6 +15,7 @@ import {
   getCookbookAPI,
   postSessionAPI,
   postSessionRequestAPI,
+  getSessionRequestsAPI,
 } from "../api/app.api";
 import { getMyUser, getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
@@ -24,9 +25,11 @@ import { ENV } from "../env";
 
 const SessionsPage = () => {
   const navigate = useNavigate();
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const fetchUser = async () => {
     try {
       const user = await getMyUser();
+      setCurrentUserId(user.id);
       await fetchAllRecipes(user.id);
     } catch (e) {
       alert("Error while fetching the user. Please reload the page.");
@@ -72,6 +75,8 @@ const SessionsPage = () => {
 
   // Modal for creating a new session
   const [show, setShow] = useState(false);
+  const [showRequests, setShowRequests] = useState(false);
+  const [sessionRequests, setSessionRequests] = useState<any[]>([]);
   const handleClose = () => {
     setShow(false);
     setRecipe(undefined);
@@ -79,9 +84,29 @@ const SessionsPage = () => {
     setStart(undefined);
     setDuration(undefined);
     setParticipants(undefined);
+    setShowRequests(false);
   };
   const handleShow = async () => {
     setShow(true);
+  };
+
+  const manageRequests = async (sessionId: number) => {
+    fetchSessionRequests(sessionId);
+    setShowRequests(true);
+  };
+
+  const fetchSessionRequests = async (sessionId: number) => {
+    try {
+      const res = await getSessionRequestsAPI(sessionId);
+      for (const request of res) {
+        const id = request.requesterId;
+        const user = await getUsers(id);
+        res.username = user.username;
+      }
+      setSessionRequests([res]);
+    } catch (error) {
+      alert("Error while fetching the session requests. Please try again.");
+    }
   };
 
   // Get all recipes for the New-Session-PopUp/Session-Overview
@@ -309,9 +334,26 @@ const SessionsPage = () => {
                             Join
                           </JoinButton>
                           <JoinButton
-                            onClick={() => requestParticipation(session.id)}
+                            onClick={(event) => {
+                              requestParticipation(session.id);
+                              event.stopPropagation();
+                            }}
                           >
                             Request participation
+                          </JoinButton>
+                          <JoinButton
+                            onClick={(event) => {
+                              manageRequests(session.id);
+                              event.stopPropagation();
+                            }}
+                            style={{
+                              display:
+                                currentUserId === session.host
+                                  ? "inline-block"
+                                  : "none",
+                            }}
+                          >
+                            Manage requests
                           </JoinButton>
                         </Col>
                       </Row>
@@ -424,6 +466,43 @@ const SessionsPage = () => {
           >
             Save
           </PrimaryButton>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={showRequests} onHide={handleClose}>
+        <Modal.Header>
+          <Modal.Title>Manage requests</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Container>
+            {sessionRequests.map((request, index) => (
+              <Row key={index}>
+                <Col xs={6}>
+                  <Header3>{index}</Header3>
+                </Col>
+                <Col xs={3}>
+                  <PrimaryButton
+                    onClick={() => {
+                      alert("Request accepted.");
+                    }}
+                  >
+                    Accept
+                  </PrimaryButton>
+                </Col>
+                <Col xs={0}>
+                  <SecondaryButton
+                    onClick={() => {
+                      alert("Request denied.");
+                    }}
+                  >
+                    Deny
+                  </SecondaryButton>
+                </Col>
+              </Row>
+            ))}
+          </Container>
+        </Modal.Body>
+        <Modal.Footer>
+          <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
         </Modal.Footer>
       </Modal>
     </>

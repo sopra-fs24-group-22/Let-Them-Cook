@@ -251,6 +251,20 @@ public class SessionService {
     return userSessions;
   }
 
+  public List<Session> getOpenSessions() {
+    List<Session> sessions = sessionRepository.findAllByDateAfter(LocalDateTime.now());
+    List<Session> openSessions = new ArrayList<>();
+
+    // Find open sessions, i.e. sessions that don't have a full participant count
+    for (Session session : sessions) {
+      if (session.getCurrentParticipantCount() < session.getMaxParticipantCount()) {
+        openSessions.add(session);
+      }
+    }
+
+    return openSessions;
+  }
+
   // ######################################### Util #########################################
 
   private Boolean checkIfUserIsParticipant(Long sessionId, String username) {

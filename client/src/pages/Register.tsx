@@ -39,8 +39,10 @@ const RegisterPage = () => {
       const accessToken = res;
       setAccessToken(accessToken);
       navigate("/home");
-    } catch (error) {
-      setErrorMessage("Registration failed. Please try again.");
+    } catch (error: any) {
+      if (error.code === "ERR_BAD_REQUEST")
+        setErrorMessage(error.response.data.split('"')[1]);
+      else setErrorMessage("Registration failed. Please try again.");
     }
     setIsLoading(false);
   };

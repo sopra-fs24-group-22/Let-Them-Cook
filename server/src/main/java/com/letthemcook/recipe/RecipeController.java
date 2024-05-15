@@ -65,13 +65,13 @@ public class RecipeController {
   @GetMapping("/api/recipes")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<ArrayList<RecipeGetDTO>> getRecipes(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
+  public ResponseEntity<ArrayList<RecipeRatingGetDTO>> getRecipes(@RequestParam(defaultValue = "10") Integer limit, @RequestParam(defaultValue = "0") Integer offset, @RequestParam(required = false) Map<String,String> allParams) {
     List<Recipe> queriedRecipes = recipeService.getRecipes(limit, offset, allParams);
 
     // Convert each recipe to the API representation
-    ArrayList<RecipeGetDTO> recipesGetDTOS = new ArrayList<>();
+    ArrayList<RecipeRatingGetDTO> recipesGetDTOS = new ArrayList<>();
     for (Recipe recipe : queriedRecipes) {
-      recipesGetDTOS.add(DTORecipeMapper.INSTANCE.convertRecipeToRecipeGetDTO(recipe));
+      recipesGetDTOS.add(DTORecipeMapper.INSTANCE.convertRecipeAndRatingToRecipeRatingGetDTO(recipe, recipe.getRating()));
     }
 
     return ResponseEntity.status(HttpStatus.OK).body(recipesGetDTOS);

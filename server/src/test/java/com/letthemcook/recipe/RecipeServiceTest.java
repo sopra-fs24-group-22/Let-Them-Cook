@@ -382,7 +382,7 @@ public class RecipeServiceTest {
 
     Recipe recipe = new Recipe();
     recipe.setId(1L);
-    recipe.setCreatorId(1L);
+    recipe.setCreatorId(2L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
     recipe.setRating(rating);

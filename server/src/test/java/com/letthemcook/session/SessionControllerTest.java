@@ -23,13 +23,13 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 @WebMvcTest(SessionController.class)
   @WebAppConfiguration
@@ -60,15 +60,19 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
       // Setup test recipe
       ArrayList<Long> participantList = new ArrayList<>();
       participantList.add(2L);
-      Date date = new Date();
+      LocalDateTime date = LocalDateTime.now().plusDays(1);
 
       Session session = new Session();
       session.setId(1L);
       session.setSessionName("Test Session");
       session.setMaxParticipantCount(2);
       session.setHostId(1L);
+      session.setHostName("testUser");
       session.setRecipeId(4L);
+      session.setRecipeName("Test Recipe");
+      session.setMaxParticipantCount(3);
       session.setParticipants(participantList);
+      session.setCurrentParticipantCount(1);
       session.setDate(date);
 
       when(sessionRepository.getById(session.getId())).thenReturn(session);
@@ -230,5 +234,52 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sessionName").value(session.getSessionName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].maxParticipantCount").value(session.getMaxParticipantCount()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].currentParticipantCount").value(session.getCurrentParticipantCount()));
+  }
+
+  // ######################################### Get Open Sessions Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetOpenSessionsOneSession() throws Exception {
+    // Setup test session
+    Session session = sessionRepository.getById(1L);
+
+    // Mock service
+    when(sessionService.getOpenSessions()).thenReturn(List.of(session));
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/sessions/open")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(1));
+
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetOpenSessionsWithMultipleSessions() throws Exception {
+    // Setup test session
+    Session session = sessionRepository.getById(1L);
+    Session session2 = new Session();
+    session2.setId(2L);
+    session2.setSessionName("Test Session 2");
+    session2.setMaxParticipantCount(3);
+    session2.setRecipeId(2L);
+    session2.setDate(LocalDateTime.now());
+    session2.setHostId(1L);
+    session2.setParticipants(new ArrayList<>());
+
+    // Mock service
+    when(sessionService.getOpenSessions()).thenReturn(List.of(session, session2));
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/sessions/open")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
   }
 }

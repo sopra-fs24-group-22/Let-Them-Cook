@@ -144,6 +144,11 @@ public class RecipeService {
     Rating recipeRating = recipe.getRating();
     String username = jwtService.extractUsername(accessToken);
 
+    // Check if rater and ratee are same user
+    if(recipe.getCreatorId().equals(userRepository.getByUsername(username).getId())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot rate your own recipe");
+    }
+
     recipeRating.addRating(rating, userRepository.getByUsername(username).getId());
     recipe.setRating(recipeRating);
     recipeRepository.save(recipe);

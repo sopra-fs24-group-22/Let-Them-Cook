@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout/MainLayout";
 import { Header1 } from "../components/ui/Header";
-import { getMyUser } from "../api/user.api";
 import { Container, Row } from "react-bootstrap";
 import { RecipeTile, SessionTile, Tile } from "../components/ui/Dashboard";
 import {
@@ -9,6 +8,8 @@ import {
   getRecipesAPI,
   getSessionsAPI,
 } from "../api/app.api";
+import { useSelector } from "react-redux";
+import { State } from "../features";
 
 const AppPage = () => {
   // const ERROR_LOADING_DASHBOARD =
@@ -20,16 +21,12 @@ const AppPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetching User, Sessions
-  const [user, setUser] = useState<any>(null);
+  // Fetching  Sessions
+  const { user } = useSelector((state: State) => state.app);
   const [sessions, setSessions] = useState<any>([]);
   const [openSessions, setOpenSessions] = useState<any>([]);
   const fetchUserAndSessions = async () => {
     try {
-      // User
-      const user = await getMyUser();
-      setUser(user);
-
       // Sessions
       const sessions = await getSessionsAPI({
         hostId: user.id,

@@ -8,12 +8,12 @@ import { setAccessToken } from "../api/axios";
 export interface AppState {
   appLoading: boolean;
   isLoggedIn: boolean;
-  user: User | null;
+  user: User;
 }
 const initialState: AppState = {
   appLoading: true,
   isLoggedIn: false,
-  user: null,
+  user: { id: 0, username: "", email: "", firstname: "", lastname: "" },
 };
 
 // Actions
@@ -28,7 +28,7 @@ export const loadAccessTokenAndUser = createAsyncThunk(
   async (_, { dispatch }: any) => {
     const accessToken = await refreshAccessTokenAPI();
     setAccessToken(accessToken);
-    const { user } = await getMyUser();
+    const user = await getMyUser();
     return user as User;
   },
 );

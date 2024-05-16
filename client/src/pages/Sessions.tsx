@@ -19,18 +19,20 @@ import {
   postSessionRequestAcceptAPI,
   postSessionRequestDenyAPI,
 } from "../api/app.api";
-import { getMyUser, getUsers } from "../api/user.api";
+import { getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
+import { useSelector } from "react-redux";
+import { State } from "../features";
 
 const SessionsPage = () => {
+  const { user } = useSelector((state: State) => state.app);
   const navigate = useNavigate();
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const fetchUser = async () => {
     try {
-      const user = await getMyUser();
       setCurrentUserId(user.id);
       await fetchAllRecipes(user.id);
     } catch (e) {

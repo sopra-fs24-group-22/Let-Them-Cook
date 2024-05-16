@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import { Header1 } from "../components/ui/Header";
-import { getMyUser } from "../api/user.api";
 import { MeetingProvider, MeetingConsumer } from "@videosdk.live/react-sdk";
 import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
@@ -16,8 +15,11 @@ import {
   putChecklistAPI,
 } from "../api/app.api";
 import { ListGroup } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import { State } from "../features";
 
 const SessionViewer = () => {
+  const { user } = useSelector((state: State) => state.app);
   const { sessionID } = useParams();
   const navigate = useNavigate();
 
@@ -42,7 +44,6 @@ const SessionViewer = () => {
       setMeetingId(meetingId);
 
       // Set Mode (CONFERENCE if Session owner, VIEWER if not)
-      const user = await getMyUser();
       setUsername(user.username);
 
       if (res.hostId === user.id) {
@@ -108,8 +109,8 @@ const SessionViewer = () => {
       const { currentStepValues } = checklistData;
 
       // Ensure userID is not null before accessing currentStepValues
-      if (userID !== null) {
-        const userChecklist = currentStepValues[userID] || {};
+      if (user.id !== null) {
+        const userChecklist = currentStepValues[user.id] || {};
         setUserChecklistData(userChecklist);
       }
       // Fetch recipe details separately
@@ -140,13 +141,8 @@ const SessionViewer = () => {
     }
   };
 
-  const [userID, setUserID] = useState<number | null>(null);
-
   const fetchData = async () => {
     try {
-      const user = await getMyUser();
-      setUserID(user.id);
-
       // Fetch checklist data only after user ID is set
       await fetchChecklistData();
 

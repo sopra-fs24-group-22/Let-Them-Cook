@@ -1,5 +1,4 @@
 import Layout from "../components/Layout/MainLayout";
-import { getMyUser } from "../api/user.api";
 import { useEffect, useState } from "react";
 import { Input, Label } from "../components/ui/Input";
 import { ENV } from "../env";
@@ -8,8 +7,11 @@ import { PrimaryButton } from "../components/ui/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { putUserMeAPI } from "../api/app.api";
+import { useSelector } from "react-redux";
+import { State } from "../features";
 
 const UserPage = () => {
+  const { user } = useSelector((state: State) => state.app);
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -24,7 +26,6 @@ const UserPage = () => {
 
   const initFetch = async () => {
     try {
-      const user = await getMyUser();
       setFirstname(user.firstname);
       setLastname(user.lastname);
       setUsername(user.username);

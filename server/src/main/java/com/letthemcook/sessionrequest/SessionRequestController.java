@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class SessionRequestController {
@@ -63,10 +65,15 @@ public class SessionRequestController {
   @GetMapping("/api/session_request/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody
-  public ResponseEntity<SessionRequestGetSingleDTO> getSingleSessionRequests(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) throws IOException {
-    SingleSessionRequests singleSessionRequests = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
-    SessionRequestGetSingleDTO sessionRequestGetSingleDTO = DTOSingleSessionRequestMapper.INSTANCE.convertEntityToGetSingleSessionRequestsDTO(singleSessionRequests);
+  public ResponseEntity<ArrayList<SessionRequestGetSingleDTO>> getSingleSessionRequests(@PathVariable Long sessionId, @RequestHeader("Authorization") String accessToken) throws IOException {
+    ArrayList<SingleSessionRequests> singleSessionRequests = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
 
-    return ResponseEntity.status(HttpStatus.OK).body(sessionRequestGetSingleDTO);
+    ArrayList<SessionRequestGetSingleDTO> sessionRequestGetSingleDTOs = new ArrayList<>();
+    for (SingleSessionRequests singleSessionRequest : singleSessionRequests) {
+      SessionRequestGetSingleDTO sessionRequestGetSingleDTO = DTOSingleSessionRequestMapper.INSTANCE.convertEntityToGetSingleSessionRequestsDTO(singleSessionRequest);
+      sessionRequestGetSingleDTOs.add(sessionRequestGetSingleDTO);
+    }
+
+    return ResponseEntity.status(HttpStatus.OK).body(sessionRequestGetSingleDTOs);
   }
 }

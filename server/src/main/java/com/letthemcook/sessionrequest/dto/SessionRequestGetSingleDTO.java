@@ -2,16 +2,35 @@ package com.letthemcook.sessionrequest.dto;
 
 import com.letthemcook.sessionrequest.QueueStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SessionRequestGetSingleDTO {
-  private HashMap<Long, QueueStatus> sessionRequests = new HashMap<Long, QueueStatus>();
+  private Long userId;
+  private String username;
+  private QueueStatus queueStatus;
 
-  public HashMap<Long, QueueStatus> getSessionRequests() {
-    return sessionRequests;
+  public Long getUserId() {
+    return userId;
   }
 
-  public void setSessionRequests(HashMap<Long, QueueStatus> sessionRequests) {
-    this.sessionRequests = sessionRequests;
+  public void setUserId(Long userId) {
+    this.userId = userId;
+  }
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public QueueStatus getQueueStatus() {
+    return queueStatus;
+  }
+
+  public void setQueueStatus(QueueStatus queueStatus) {
+    this.queueStatus = queueStatus;
   }
 }

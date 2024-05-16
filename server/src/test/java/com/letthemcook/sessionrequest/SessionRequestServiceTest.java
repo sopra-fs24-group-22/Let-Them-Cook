@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -188,7 +189,6 @@ public class SessionRequestServiceTest {
 
   @Test
   public void getSingleSessionRequestReturnsCorrectDataWhenUserIsHost() {
-    Long sessionId = 1L;
     String accessToken = "accessToken";
     String username = "username";
     Long userId = 1L;
@@ -197,7 +197,16 @@ public class SessionRequestServiceTest {
     user.setUsername(username);
 
     Session session = new Session();
+    Long sessionId = 1L;
     session.setHostId(userId);
+
+    SessionRequest request = new SessionRequest();
+    request.setUserId(userId);
+    request.setUserSessions(new HashMap<>());
+    request.getUserSessions().put(sessionId, QueueStatus.PENDING);
+
+    List<SessionRequest> sessionRequests = new ArrayList<>();
+    sessionRequests.add(request);
 
     SessionRequest sessionRequest = new SessionRequest();
     sessionRequest.setUserSessions(new HashMap<>());
@@ -206,15 +215,14 @@ public class SessionRequestServiceTest {
 
     when(jwtService.extractUsername(accessToken)).thenReturn(username);
     when(userRepository.getByUsername(username)).thenReturn(user);
+    when(userRepository.getById(userId)).thenReturn(user);
     when(sessionRepository.getById(sessionId)).thenReturn(session);
-    when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
-    when(sessionRepository.getById(sessionId)).thenReturn(session);
-    when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
+    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId)).thenReturn(sessionRequests);
 
-    SingleSessionRequests result = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
+    ArrayList<SingleSessionRequests> result = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
 
-    assertTrue(result.getSessionRequests().containsKey(userId));
-    assertEquals(QueueStatus.PENDING, result.getSessionRequests().get(userId));
+    assertFalse(result.isEmpty());
+    assertEquals(QueueStatus.PENDING, result.get(0).getQueueStatus());
   }
 
   @Test
@@ -235,6 +243,31 @@ public class SessionRequestServiceTest {
     when(sessionRepository.getById(sessionId)).thenReturn(session);
 
     assertThrows(ResponseStatusException.class, () -> sessionRequestService.getSingleSessionRequest(sessionId, accessToken));
+  }
+
+  @Test
+  public void getSingleSessionRequestReturnsEmptyListWhenNoSessionRequests() {
+    Long sessionId = 1L;
+    String accessToken = "accessToken";
+    String username = "username";
+    Long userId = 1L;
+    User user = new User();
+    user.setId(userId);
+    user.setUsername(username);
+
+    Session session = new Session();
+    session.setHostId(userId);
+
+    List<SessionRequest> sessionRequests = new ArrayList<>();
+
+    when(jwtService.extractUsername(accessToken)).thenReturn(username);
+    when(userRepository.getByUsername(username)).thenReturn(user);
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId)).thenReturn(sessionRequests);
+
+    ArrayList<SingleSessionRequests> result = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
+
+    assertTrue(result.isEmpty());
   }
 
   // ######################################### Test Get User SessionRequest #######################################

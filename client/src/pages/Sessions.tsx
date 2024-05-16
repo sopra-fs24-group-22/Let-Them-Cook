@@ -503,7 +503,7 @@ const SessionsPage = () => {
             {sessionRequests.map((request, index) => (
               <Row key={index}>
                 <Col xs={6}>
-                  //TODO: Add mapping after refactoring of endpoint
+                  {/* //TODO: Add mapping after refactoring of endpoint */}
                   <Header3>{request[1]}</Header3>
                 </Col>
                 <Col xs={3}>

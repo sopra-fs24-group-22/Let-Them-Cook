@@ -73,7 +73,7 @@ export const SessionTile: React.FC<SessionTileProps> = ({ name, id, date }) => {
       textLeft={name}
       textRight={dateString}
       id={id}
-      baseUrl="sessions"
+      baseUrl="sessions/"
     />
   );
 };
@@ -93,7 +93,7 @@ export const RecipeTile: React.FC<RecipeTileProps> = ({
     textLeft={name}
     textRight={"by " + creatorName}
     id={id}
-    baseUrl="recipes"
+    baseUrl="recipes/id="
   />
 );
 
@@ -125,7 +125,7 @@ const BaseTile: React.FC<BaseTileProps> = ({
         cursor: "pointer",
         backgroundColor: isHovered ? "#e5dcd0" : "",
       }}
-      onClick={() => navigate("/" + baseUrl + "/" + id)}
+      onClick={() => navigate("/" + baseUrl + id)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

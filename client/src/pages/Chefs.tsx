@@ -2,8 +2,11 @@ import { Col, Container, Row } from "react-bootstrap";
 import Layout from "../components/Layout/MainLayout";
 import { getUsersAPI } from "../api/app.api";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ChefsPage = () => {
+  const navigate = useNavigate();
+
   const [chefs, setChefs] = useState<any[]>([]);
   const fetchChefs = async () => {
     try {
@@ -30,7 +33,12 @@ const ChefsPage = () => {
                 padding: "10px 20px",
               }}
             >
-              <h3>{chef.firstname + " " + chef.lastname}</h3>
+              <h3
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/recipes/chef=" + chef.username)}
+              >
+                {chef.firstname + " " + chef.lastname}
+              </h3>
               <p style={{ fontSize: "80%" }}>@{chef.username}</p>
             </Col>
           ))}

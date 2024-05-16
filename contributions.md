@@ -128,3 +128,5 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/81
 ### David Lanz
 
 ### Gian Gyger
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/134
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/135

@@ -2,11 +2,13 @@ package com.letthemcook.cookbook;
 
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
+import com.letthemcook.recipe.RecipeRepository;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -49,6 +52,8 @@ public class CookbookControllerTest {
   private MockMvc mockMvc;
   @Autowired
   private CookbookController cookbookController;
+  @MockBean
+  private RecipeRepository recipeRepository;
 
   // ######################################### Setup & Teardown #########################################
 
@@ -63,6 +68,7 @@ public class CookbookControllerTest {
     recipe.setCreatorId(1L);
     recipe.setTitle("Test Recipe");
     recipe.setChecklist(checklist);
+    when(recipeRepository.getById(1L)).thenReturn(recipe);
 
     // Setup test cookbook
     Cookbook cookbook = new Cookbook(1L);
@@ -148,5 +154,55 @@ public class CookbookControllerTest {
                     .with(csrf())
                     .contentType("application/json"))
             .andExpect(status().isNotFound());
+  }
+
+  // ######################################### Get cookbook test #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetCookbookSuccess() throws Exception {
+    // Setup
+    Cookbook cookbook = cookbookRepository.getByOwnerId(1L);
+
+    // Add recipes of cookbook to List
+    ArrayList<Recipe> recipes = new ArrayList<>();
+    for (Long recipeId : cookbook.getRecipeIds()) {
+      recipes.add(recipeRepository.getById(recipeId));
+    }
+
+    // Mock Services
+    when(cookbookService.getCookbook(Mockito.anyLong(), Mockito.anyString())).thenReturn(recipes);
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/cookbook/1")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType("application/json"))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(recipes.size()));
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetCookbookNotFound() throws Exception {
+    when(cookbookService.getCookbook(anyLong(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/cookbook/1")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType("application/json"))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetCookbookForbidden() throws Exception {
+    when(cookbookService.getCookbook(anyLong(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/cookbook/1")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType("application/json"))
+            .andExpect(status().isForbidden());
   }
 }

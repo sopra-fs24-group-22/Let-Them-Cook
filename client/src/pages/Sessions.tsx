@@ -18,6 +18,7 @@ import {
   getSessionRequestsAPI,
   postSessionRequestAcceptAPI,
   postSessionRequestDenyAPI,
+  getSessionRequestsUserAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
@@ -71,9 +72,21 @@ const SessionsPage = () => {
     }
   };
 
+  const [sessionRequestsUser, setSessionRequestsUser] = useState<any[]>([]);
+
+  const fetchUserSessionRequests = async () => {
+    try {
+      const res = await getSessionRequestsUserAPI();
+      setSessionRequestsUser(res.userSessions);
+    } catch (error) {
+      alert("Error while fetching the session requests. Please try again.");
+    }
+  };
+
   useEffect(() => {
     fetchUser();
     fetchSessions("ALL");
+    fetchUserSessionRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -111,6 +124,7 @@ const SessionsPage = () => {
     };
     try {
       await postSessionRequestAcceptAPI(Number(sessionId), body);
+      await fetchSessionRequests(Number(sessionId));
     } catch (error) {
       alert("Error while accepting the request. Please try again.");
     }
@@ -118,10 +132,11 @@ const SessionsPage = () => {
 
   const denyRequest = async (sessionId: number | undefined, userId: number) => {
     const body = {
-      userId: 1,
+      userId: userId,
     };
     try {
       await postSessionRequestDenyAPI(Number(sessionId), body);
+      await fetchSessionRequests(Number(sessionId));
     } catch (error) {
       alert("Error while denying the request. Please try again.");
     }
@@ -130,7 +145,7 @@ const SessionsPage = () => {
   const fetchSessionRequests = async (sessionId: number) => {
     try {
       const res = await getSessionRequestsAPI(sessionId);
-      setSessionRequests([res.sessionRequests]);
+      setSessionRequests(res);
       console.log(sessionRequests);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
@@ -203,6 +218,7 @@ const SessionsPage = () => {
   const requestParticipation = async (sessionId: number) => {
     try {
       await postSessionRequestAPI(sessionId);
+      alert("Session request sent.");
     } catch (error) {
       alert("You have already sent a session request for this session.");
     }
@@ -352,12 +368,19 @@ const SessionsPage = () => {
                   >
                     <Container>
                       <Row>
-                        <Col xs={11}>
+                        <Col xs={10}>
                           <Header2>{session.sessionName}</Header2>
                         </Col>
-                        <Col xs={1}>
+                        <Col>
                           <JoinButton
                             onClick={() => navigate("/sessions/" + session.id)}
+                            style={{
+                              display:
+                                sessionRequestsUser[session.id] ===
+                                  "ACCEPTED" || currentUserId === session.host
+                                  ? "inline-block"
+                                  : "none",
+                            }}
                           >
                             Join
                           </JoinButton>
@@ -366,9 +389,17 @@ const SessionsPage = () => {
                               requestParticipation(session.id);
                               event.stopPropagation();
                             }}
+                            style={{
+                              display:
+                                currentUserId !== session.host
+                                  ? "inline-block"
+                                  : "none",
+                            }}
                           >
                             Request participation
                           </JoinButton>
+                        </Col>
+                        <Col>
                           <JoinButton
                             onClick={(event) => {
                               manageRequests(session.id);
@@ -504,12 +535,21 @@ const SessionsPage = () => {
           <Container>
             {sessionRequests.map((request, index) => (
               <Row key={index}>
-                <Col xs={6}>
-                  {/* //TODO: Add mapping after refactoring of endpoint */}
-                  <Header3>{request[1]}</Header3>
+                <Col>
+                  <Header3>{request.username}</Header3>
+                </Col>
+                <Col>
+                  <Header3>Status: {request.queueStatus}</Header3>
                 </Col>
                 <Col xs={3}>
                   <PrimaryButton
+                    style={{
+                      display:
+                        request.queueStatus === "REJECTED" ||
+                        request.queueStatus === "ACCEPTED"
+                          ? "none"
+                          : "inline-block",
+                    }}
                     onClick={() => {
                       acceptRequest(currentManagedSession, request.userId);
                     }}
@@ -519,6 +559,13 @@ const SessionsPage = () => {
                 </Col>
                 <Col xs={0}>
                   <SecondaryButton
+                    style={{
+                      display:
+                        request.queueStatus === "REJECTED" ||
+                        request.queueStatus === "ACCEPTED"
+                          ? "none"
+                          : "inline-block",
+                    }}
                     onClick={() => {
                       denyRequest(currentManagedSession, request.userId);
                     }}

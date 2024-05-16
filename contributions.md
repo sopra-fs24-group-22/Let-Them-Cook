@@ -105,6 +105,10 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/82
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/107
 
 ### David Lanz
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/133
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/89
+
+
 
 ### Gian Gyger
 (in WK)
@@ -126,6 +130,9 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/94
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/81
 
 ### David Lanz
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/89
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/92
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/105
 
 ### Gian Gyger
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/134

@@ -386,10 +386,7 @@ const SessionsPage = () => {
                           Join
                         </JoinButton>
                         <JoinButton
-                          onClick={(event) => {
-                            requestParticipation(session.id);
-                            event.stopPropagation();
-                          }}
+                          onClick={() => requestParticipation(session.id)}
                           style={{
                             display:
                               currentUserId !== session.host
@@ -400,10 +397,7 @@ const SessionsPage = () => {
                           Request participation
                         </JoinButton>
                         <JoinButton
-                          onClick={(event) => {
-                            manageRequests(session.id);
-                            event.stopPropagation();
-                          }}
+                          onClick={() => manageRequests(session.id)}
                           style={{
                             display:
                               currentUserId === session.host

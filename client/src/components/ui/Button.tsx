@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import React, { ReactNode } from "react";
 
 export const PrimaryButton = styled.button`
   background-color: #8b5858;
@@ -36,28 +37,37 @@ export const SecondaryButton = styled.button`
   }
 `;
 
-export const JoinButton = styled.button`
-  background-color: #1fdb33;
-  color: #000000;
-  padding: 7px 15px;
-  border-radius: 5px;
-  outline: 0;
-  border: 0;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-size: 1.3rem;
-  font-weight: 500;
-  margin: 5px;
-  &:hover {
-    background-color: #18af28;
-    color: #fff;
-  }
-
-  &:disabled {
-    cursor: default;
-    opacity: 0.7;
-  }
-`;
+interface MJoinButtonProps {
+  children?: ReactNode;
+  onClick?: Function | undefined;
+  style?: any;
+}
+export const JoinButton: React.FC<MJoinButtonProps> = ({
+  children,
+  onClick,
+  style,
+}) => (
+  <PrimaryButton
+    style={Object.assign(
+      {
+        fontSize: "1.3rem",
+        fontWeight: 500,
+        margin: "5px",
+      },
+      style,
+    )}
+    onClick={
+      onClick
+        ? (event: any) => {
+            onClick();
+            event.stopPropagation();
+          }
+        : void 0
+    }
+  >
+    {children}
+  </PrimaryButton>
+);
 
 export const ButtonGroup = styled.div`
   width: 100%;

@@ -155,6 +155,10 @@ public class SessionService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This session is full");
     }
 
+    if (Objects.equals(session.getHostId(), user.getId())) {
+      return sessionRepository.getById(sessionId);
+    }
+
     ArrayList<Long> participants = session.getParticipants();
 
     // Increment currentParticipantCount
@@ -298,14 +302,19 @@ public class SessionService {
       if (session.getParticipants() != null) {
         SessionUserState sessionUserState = session.getSessionUserState();
 
-        for (Long participantId : session.getParticipants()) {
+        ArrayList<Long> participants = session.getParticipants();
+        for (Long participantId : participants) {
           Date lastActive = sessionUserState.getLastActiveUsers().get(participantId);
 
           if(lastActive != null) {
             if (new Date().getTime() - lastActive.getTime() > 60000) {
+              participants.remove(participantId);
               sessionUserState.removeUserFromStepCount(participantId);
+
+              session.setParticipants(participants);
               session.setSessionUserState(sessionUserState);
               session.setCurrentParticipantCount(session.getCurrentParticipantCount() - 1);
+
               sessionRepository.save(session);
             }
           }

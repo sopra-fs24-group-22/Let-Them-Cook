@@ -366,57 +366,49 @@ const SessionsPage = () => {
                   <Accordion.Header
                     style={{ display: "flex", background: "#f0f0f0" }}
                   >
-                    <Container>
-                      <Row>
-                        <Col xs={10}>
-                          <Header2>{session.sessionName}</Header2>
-                        </Col>
-                        <Col>
-                          <JoinButton
-                            onClick={() => navigate("/sessions/" + session.id)}
-                            style={{
-                              display:
-                                sessionRequestsUser[session.id] ===
-                                  "ACCEPTED" || currentUserId === session.host
-                                  ? "inline-block"
-                                  : "none",
-                            }}
-                          >
-                            Join
-                          </JoinButton>
-                          <JoinButton
-                            onClick={(event) => {
-                              requestParticipation(session.id);
-                              event.stopPropagation();
-                            }}
-                            style={{
-                              display:
-                                currentUserId !== session.host
-                                  ? "inline-block"
-                                  : "none",
-                            }}
-                          >
-                            Request participation
-                          </JoinButton>
-                        </Col>
-                        <Col>
-                          <JoinButton
-                            onClick={(event) => {
-                              manageRequests(session.id);
-                              event.stopPropagation();
-                            }}
-                            style={{
-                              display:
-                                currentUserId === session.host
-                                  ? "inline-block"
-                                  : "none",
-                            }}
-                          >
-                            Manage requests
-                          </JoinButton>
-                        </Col>
-                      </Row>
-                    </Container>
+                    <div style={{ textAlign: "left", width: "100%" }}>
+                      <Header2
+                        style={{ display: "inline-block", marginTop: "5px" }}
+                      >
+                        {session.sessionName}
+                      </Header2>
+                      <span style={{ float: "right", marginRight: "10px" }}>
+                        <JoinButton
+                          onClick={() => navigate("/sessions/" + session.id)}
+                          style={{
+                            display:
+                              sessionRequestsUser[session.id] === "ACCEPTED" ||
+                              currentUserId === session.host
+                                ? "inline-block"
+                                : "none",
+                          }}
+                        >
+                          Join
+                        </JoinButton>
+                        <JoinButton
+                          onClick={() => requestParticipation(session.id)}
+                          style={{
+                            display:
+                              currentUserId !== session.host
+                                ? "inline-block"
+                                : "none",
+                          }}
+                        >
+                          Request participation
+                        </JoinButton>
+                        <JoinButton
+                          onClick={() => manageRequests(session.id)}
+                          style={{
+                            display:
+                              currentUserId === session.host
+                                ? "inline-block"
+                                : "none",
+                          }}
+                        >
+                          Manage requests
+                        </JoinButton>
+                      </span>
+                    </div>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
                     <div>Date & start time: {formatDateTime(session.date)}</div>

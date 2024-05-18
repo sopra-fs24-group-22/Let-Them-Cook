@@ -7,7 +7,7 @@ import {
   HLine,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import { Accordion, Col, Container, Modal, Row } from "react-bootstrap";
+import { Accordion, Card, Col, Container, Modal, Row } from "react-bootstrap";
 import MainLayout from "../components/Layout/MainLayout";
 import {
   getRecipesAPI,
@@ -56,11 +56,12 @@ const SessionsPage = () => {
       if (hostFilter !== "") filter = { ...filter, hostName: hostFilter };
       if (sessionNameFilter !== "")
         filter = { ...filter, sessionName: sessionNameFilter };
+      if (view === "MY") filter = { ...filter, hostId: currentUserId };
 
       const res =
         view === "ALL"
           ? await getSessionsAPI(filter)
-          : await getSessionsAPI(filter); //! DEV ONLY
+          : await getSessionsAPI(filter);
       for (const session of res) {
         const id = session.hostId;
         const host = await getUsers(id);
@@ -77,6 +78,7 @@ const SessionsPage = () => {
   const fetchUserSessionRequests = async () => {
     try {
       const res = await getSessionRequestsUserAPI();
+
       setSessionRequestsUser(res.userSessions);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
@@ -352,6 +354,12 @@ const SessionsPage = () => {
         </ButtonGroup>
         <Container fluid>
           <Row>
+            <style>
+              {`
+                .accordion-button { background-color: #fff !important; }
+                .accordion-button:focus { box-shadow: none !important; }
+              `.replace(/ /g, "")}
+            </style>
             <Accordion style={{ padding: "0" }}>
               {sessions.map((session, index) => (
                 <Accordion.Item
@@ -359,7 +367,6 @@ const SessionsPage = () => {
                   eventKey={String(index)}
                   style={{
                     width: "100%",
-                    background: "#f0f0f0",
                     marginTop: "5px",
                   }}
                 >

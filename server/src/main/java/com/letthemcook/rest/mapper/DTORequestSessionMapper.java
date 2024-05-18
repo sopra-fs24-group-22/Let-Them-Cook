@@ -2,7 +2,6 @@ package com.letthemcook.rest.mapper;
 
 import com.letthemcook.sessionrequest.SessionRequest;
 import com.letthemcook.sessionrequest.dto.SessionRequestDTO;
-import com.letthemcook.sessionrequest.dto.SessionRequestGetSingleDTO;
 import com.letthemcook.sessionrequest.dto.SessionRequestsGetDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

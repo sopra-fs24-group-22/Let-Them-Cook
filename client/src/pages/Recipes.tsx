@@ -37,13 +37,16 @@ import {
   Header3,
   SecondaryText,
 } from "../components/ui/Header";
-import { getMyUser } from "../api/user.api";
 import { Tooltip } from "react-tooltip";
 import { useParams } from "react-router-dom";
 import { StarRating } from "../components/ui/StarRating";
 import { ENV } from "../env";
+import { useSelector } from "react-redux";
+import { State } from "../features";
 
 const RecipesPage = () => {
+  const { user } = useSelector((state: State) => state.app);
+
   // Parse the URL parameters
   const { param: URLparam } = useParams();
   const URLrecipeId =
@@ -131,7 +134,7 @@ const RecipesPage = () => {
         await putRecipeAPI(updatedBody);
       }
       handleClose();
-      await fetchRecipes(pageView, userId);
+      await fetchRecipes(pageView, user.id);
     } catch (error) {
       alert("Error while saving the recipe. Please try again.");
     }
@@ -157,7 +160,7 @@ const RecipesPage = () => {
   const deleteRecipe = async (recipeId: number) => {
     try {
       await deleteRecipeAPI(recipeId.toString());
-      await fetchRecipes(pageView, userId);
+      await fetchRecipes(pageView, user.id);
     } catch (error) {
       alert("Error while deleting the recipe. Please try again.");
     }
@@ -235,7 +238,7 @@ const RecipesPage = () => {
   >(undefined);
 
   useEffect(() => {
-    if (userId && userId !== 0) reloadRecipes();
+    if (user.id && user.id !== 0) reloadRecipes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipeTitleFilter, creatorNameFilter, maxCookingTimeFilter]);
 
@@ -247,7 +250,7 @@ const RecipesPage = () => {
 
   const changeView = async (view: "ALL" | "MY") => {
     setPageView(view);
-    await fetchRecipes(view, userId);
+    await fetchRecipes(view, user.id);
   };
 
   const fetchRecipes = async (view: "ALL" | "MY", UserId: number) => {
@@ -279,7 +282,7 @@ const RecipesPage = () => {
   };
 
   const reloadRecipes = async () => {
-    await fetchRecipes(pageView, userId);
+    await fetchRecipes(pageView, user.id);
   };
 
   const addRecipeToCookbook = async (recipeId: number) => {
@@ -304,11 +307,8 @@ const RecipesPage = () => {
     }
   };
 
-  const [userId, setUserId] = useState<number>(0);
   const initFetch = async () => {
     try {
-      const user = await getMyUser();
-      setUserId(user.id);
       fetchRecipes("ALL", user.id);
     } catch (e) {
       alert("Error while fetching the data. Please reload the page.");
@@ -501,7 +501,7 @@ const RecipesPage = () => {
                       </p>
                     </Col>
                     <Col xs={1}>
-                      {recipe.creatorId === userId && (
+                      {recipe.creatorId === user.id && (
                         <>
                           <FontAwesomeIcon
                             className="editRecipeIcon"
@@ -536,7 +536,7 @@ const RecipesPage = () => {
                           />
                         </>
                       )}
-                      {recipe.creatorId !== userId &&
+                      {recipe.creatorId !== user.id &&
                         !cookbookRecipeIds.includes(recipe.id) && (
                           <FontAwesomeIcon
                             className="addRecipeToCookbookIcon"
@@ -547,7 +547,7 @@ const RecipesPage = () => {
                             }}
                           />
                         )}
-                      {recipe.creatorId !== userId &&
+                      {recipe.creatorId !== user.id &&
                         cookbookRecipeIds.includes(recipe.id) && (
                           <FontAwesomeIcon
                             className="removeRecipeFromCookbookIcon"

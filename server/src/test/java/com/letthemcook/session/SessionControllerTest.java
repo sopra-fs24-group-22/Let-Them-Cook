@@ -2,6 +2,7 @@ package com.letthemcook.session;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.session.dto.CheckPutDTO;
 import com.letthemcook.session.dto.SessionPostDTO;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserController;
@@ -12,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,10 +24,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -57,7 +61,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
     @BeforeEach
     public void setup() {
-      // Setup test recipe
+      // Setup test session
       ArrayList<Long> participantList = new ArrayList<>();
       participantList.add(2L);
       LocalDateTime date = LocalDateTime.now().plusDays(1);
@@ -74,6 +78,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
       session.setParticipants(participantList);
       session.setCurrentParticipantCount(1);
       session.setDate(date);
+
+      SessionUserState sessionUserState = new SessionUserState();
+      sessionUserState.setSessionId(session.getId());
+      sessionUserState.setRecipeSteps(3);
+      sessionUserState.setLastActiveUsers(new HashMap<>());
+      sessionUserState.setCurrentStepValues(new HashMap<>());
+      session.setSessionUserState(sessionUserState);
 
       when(sessionRepository.getById(session.getId())).thenReturn(session);
       sessionRepository.save(session);
@@ -281,5 +292,116 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(2));
+  }
+
+  // ######################################### Get Checklist Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetChecklistSuccess() throws Exception {
+    // Setup test session
+    Session session = sessionRepository.getById(1L);
+
+    // Mock service
+    when(sessionService.getSessionUserState(Mockito.anyLong(), Mockito.anyString())).thenReturn(session.getSessionUserState());
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1/checklist")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.size()").value(3));
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetChecklistNotFound() throws Exception {
+    // Mock service
+    when(sessionService.getSessionUserState(Mockito.anyLong(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1/checklist")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetChecklistUnauthorized() throws Exception {
+    // Mock Services
+    when(sessionService.getSessionUserState(Mockito.anyLong(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1/checklist")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  // ######################################### Put Checklist Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testPutChecklistSuccess() throws Exception {
+    // Setup DTO
+    Session session = sessionRepository.getById(1L);
+    CheckPutDTO checkPutDTO = new CheckPutDTO();
+    checkPutDTO.setIsChecked(true);
+    checkPutDTO.setStepIndex(1L);
+
+    // Mock service
+    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString())).thenReturn(session);
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/session/1/checklist")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(checkPutDTO)))
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+  }
+
+  @Test
+  @WithMockUser
+  public void testPutChecklistNotFound() throws Exception {
+    // Setup DTO
+    CheckPutDTO checkPutDTO = new CheckPutDTO();
+    checkPutDTO.setIsChecked(true);
+    checkPutDTO.setStepIndex(1L);
+
+    // Mock service
+    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/session/1/checklist")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(checkPutDTO)))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+  }
+
+  @Test
+  @WithMockUser
+  public void testPutChecklistUnauthorized() throws Exception {
+    // Setup DTO
+    CheckPutDTO checkPutDTO = new CheckPutDTO();
+    checkPutDTO.setIsChecked(true);
+    checkPutDTO.setStepIndex(1L);
+
+    // Mock service
+    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+
+    // Perform test
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/session/1/checklist")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(checkPutDTO)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
 }

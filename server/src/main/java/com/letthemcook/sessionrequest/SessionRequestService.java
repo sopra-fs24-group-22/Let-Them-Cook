@@ -4,6 +4,7 @@ import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.session.Session;
 import com.letthemcook.session.SessionRepository;
 import com.letthemcook.sessionrequest.dto.SessionRequestDTO;
+import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -85,7 +86,7 @@ public class SessionRequestService {
     return sessionRequestRepository.getSessionRequestByUserId(userId);
   }
 
-  public SingleSessionRequests getSingleSessionRequest(Long sessionId, String accessToken) {
+  public ArrayList<SingleSessionRequests> getSingleSessionRequest(Long sessionId, String accessToken) {
     String username = jwtService.extractUsername(accessToken);
     Long userId = userRepository.getByUsername(username).getId();
     Session session = sessionRepository.getById(sessionId);
@@ -95,17 +96,23 @@ public class SessionRequestService {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not the host of this session");
     }
 
+    // All session requests containing the session id
     List<SessionRequest> userSessionRequests = getSessionRequestsContainingSessionId(sessionId);
-    HashMap<Long, QueueStatus> sessionRequests = new HashMap<Long, QueueStatus>();
 
-    // Add request information to the
+    ArrayList<SingleSessionRequests> singleSessionRequests = new ArrayList<>();
+
+    // Add request information to the list
     for (SessionRequest sessionRequest : userSessionRequests) {
          QueueStatus status = sessionRequest.getUserSessions().get(sessionId);
-         sessionRequests.put(sessionRequest.getUserId(), status);
-    }
 
-    SingleSessionRequests singleSessionRequests = new SingleSessionRequests();
-    singleSessionRequests.setSessionRequests(sessionRequests);
+         User user = userRepository.getById(sessionRequest.getUserId());
+         SingleSessionRequests singleSessionRequest = new SingleSessionRequests();
+         singleSessionRequest.setUserId(user.getId());
+         singleSessionRequest.setUsername(user.getUsername());
+         singleSessionRequest.setQueueStatus(status);
+
+          singleSessionRequests.add(singleSessionRequest);
+    }
 
     return singleSessionRequests;
   }

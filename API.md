@@ -1346,7 +1346,7 @@ Authorization: Bearer [access token]
 
 ```json
 {
-  "singleSessionRequest": [
+  "SingleSessionRequest": [
     {
       "sessionRequests": "[Hashmap of userIds and their status]"
     }
@@ -1391,7 +1391,9 @@ Authorization: Bearer [access token]
 {
   "sessionRequest": [
     {
-      "userSessions": "[Hashmap of sessionIds and their status]"
+      "userId": "[userId]",
+      "username": "[username]",
+      "queueStatus": "[queueStatus]"
     }
   ]
 }

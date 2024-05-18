@@ -18,19 +18,22 @@ import {
   getSessionRequestsAPI,
   postSessionRequestAcceptAPI,
   postSessionRequestDenyAPI,
+  getSessionRequestsUserAPI,
 } from "../api/app.api";
-import { getMyUser, getUsers } from "../api/user.api";
+import { getUsers } from "../api/user.api";
 import { useNavigate } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
+import { useSelector } from "react-redux";
+import { State } from "../features";
 
 const SessionsPage = () => {
+  const { user } = useSelector((state: State) => state.app);
   const navigate = useNavigate();
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
   const fetchUser = async () => {
     try {
-      const user = await getMyUser();
       setCurrentUserId(user.id);
       await fetchAllRecipes(user.id);
     } catch (e) {
@@ -69,9 +72,21 @@ const SessionsPage = () => {
     }
   };
 
+  const [sessionRequestsUser, setSessionRequestsUser] = useState<any[]>([]);
+
+  const fetchUserSessionRequests = async () => {
+    try {
+      const res = await getSessionRequestsUserAPI();
+      setSessionRequestsUser(res.userSessions);
+    } catch (error) {
+      alert("Error while fetching the session requests. Please try again.");
+    }
+  };
+
   useEffect(() => {
     fetchUser();
     fetchSessions("ALL");
+    fetchUserSessionRequests();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -109,6 +124,7 @@ const SessionsPage = () => {
     };
     try {
       await postSessionRequestAcceptAPI(Number(sessionId), body);
+      await fetchSessionRequests(Number(sessionId));
     } catch (error) {
       alert("Error while accepting the request. Please try again.");
     }
@@ -116,10 +132,11 @@ const SessionsPage = () => {
 
   const denyRequest = async (sessionId: number | undefined, userId: number) => {
     const body = {
-      userId: 1,
+      userId: userId,
     };
     try {
       await postSessionRequestDenyAPI(Number(sessionId), body);
+      await fetchSessionRequests(Number(sessionId));
     } catch (error) {
       alert("Error while denying the request. Please try again.");
     }
@@ -128,7 +145,7 @@ const SessionsPage = () => {
   const fetchSessionRequests = async (sessionId: number) => {
     try {
       const res = await getSessionRequestsAPI(sessionId);
-      setSessionRequests([res.sessionRequests]);
+      setSessionRequests(res);
       console.log(sessionRequests);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
@@ -201,6 +218,7 @@ const SessionsPage = () => {
   const requestParticipation = async (sessionId: number) => {
     try {
       await postSessionRequestAPI(sessionId);
+      alert("Session request sent.");
     } catch (error) {
       alert("You have already sent a session request for this session.");
     }
@@ -348,42 +366,49 @@ const SessionsPage = () => {
                   <Accordion.Header
                     style={{ display: "flex", background: "#f0f0f0" }}
                   >
-                    <Container>
-                      <Row>
-                        <Col xs={11}>
-                          <Header2>{session.sessionName}</Header2>
-                        </Col>
-                        <Col xs={1}>
-                          <JoinButton
-                            onClick={() => navigate("/sessions/" + session.id)}
-                          >
-                            Join
-                          </JoinButton>
-                          <JoinButton
-                            onClick={(event) => {
-                              requestParticipation(session.id);
-                              event.stopPropagation();
-                            }}
-                          >
-                            Request participation
-                          </JoinButton>
-                          <JoinButton
-                            onClick={(event) => {
-                              manageRequests(session.id);
-                              event.stopPropagation();
-                            }}
-                            style={{
-                              display:
-                                currentUserId === session.host
-                                  ? "inline-block"
-                                  : "none",
-                            }}
-                          >
-                            Manage requests
-                          </JoinButton>
-                        </Col>
-                      </Row>
-                    </Container>
+                    <div style={{ textAlign: "left", width: "100%" }}>
+                      <Header2
+                        style={{ display: "inline-block", marginTop: "5px" }}
+                      >
+                        {session.sessionName}
+                      </Header2>
+                      <span style={{ float: "right", marginRight: "10px" }}>
+                        <JoinButton
+                          onClick={() => navigate("/sessions/" + session.id)}
+                          style={{
+                            display:
+                              sessionRequestsUser[session.id] === "ACCEPTED" ||
+                              currentUserId === session.host
+                                ? "inline-block"
+                                : "none",
+                          }}
+                        >
+                          Join
+                        </JoinButton>
+                        <JoinButton
+                          onClick={() => requestParticipation(session.id)}
+                          style={{
+                            display:
+                              currentUserId !== session.host
+                                ? "inline-block"
+                                : "none",
+                          }}
+                        >
+                          Request participation
+                        </JoinButton>
+                        <JoinButton
+                          onClick={() => manageRequests(session.id)}
+                          style={{
+                            display:
+                              currentUserId === session.host
+                                ? "inline-block"
+                                : "none",
+                          }}
+                        >
+                          Manage requests
+                        </JoinButton>
+                      </span>
+                    </div>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
                     <div>Date & start time: {formatDateTime(session.date)}</div>
@@ -502,12 +527,21 @@ const SessionsPage = () => {
           <Container>
             {sessionRequests.map((request, index) => (
               <Row key={index}>
-                <Col xs={6}>
-                  {/* //TODO: Add mapping after refactoring of endpoint */}
-                  <Header3>{request[1]}</Header3>
+                <Col>
+                  <Header3>{request.username}</Header3>
+                </Col>
+                <Col>
+                  <Header3>Status: {request.queueStatus}</Header3>
                 </Col>
                 <Col xs={3}>
                   <PrimaryButton
+                    style={{
+                      display:
+                        request.queueStatus === "REJECTED" ||
+                        request.queueStatus === "ACCEPTED"
+                          ? "none"
+                          : "inline-block",
+                    }}
                     onClick={() => {
                       acceptRequest(currentManagedSession, request.userId);
                     }}
@@ -517,6 +551,13 @@ const SessionsPage = () => {
                 </Col>
                 <Col xs={0}>
                   <SecondaryButton
+                    style={{
+                      display:
+                        request.queueStatus === "REJECTED" ||
+                        request.queueStatus === "ACCEPTED"
+                          ? "none"
+                          : "inline-block",
+                    }}
                     onClick={() => {
                       denyRequest(currentManagedSession, request.userId);
                     }}

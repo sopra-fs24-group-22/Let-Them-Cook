@@ -42,6 +42,16 @@ public class SessionController {
     return ResponseEntity.status(HttpStatus.OK).body(DTOSessionMapper.INSTANCE.convertEntityToSingleSessionDTO(session));
   }
 
+  @PutMapping("/api/session")
+  @ResponseStatus(HttpStatus.OK)
+  @ResponseBody
+  public ResponseEntity<Void> updateSession(@RequestBody SessionDTO sessionPutDTO, @RequestHeader("Authorization") String accessToken) {
+    Session session = DTOSessionMapper.INSTANCE.convertEntityToSessionPutDTO(sessionPutDTO);
+    sessionService.updateSession(session, accessToken);
+
+    return ResponseEntity.status(HttpStatus.OK).build();
+  }
+
   @DeleteMapping("/api/session/{sessionId}")
   @ResponseStatus(HttpStatus.OK)
   @ResponseBody

@@ -933,6 +933,89 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
+## Put recipe
+
+Used to update an existing session.
+
+**URL** : `/api/session`
+
+**Method** : `PUT`
+
+**Auth required** : YES
+
+**Headers**
+```
+Authorization: Bearer [access token]
+```
+
+**Data constraints**
+
+```json
+{
+  "hostName": "[Host username]",
+  "recipeId": "[Recipe id]",
+  "recipeName": "[recipe name]",
+  "sessionName": "[Session name]",
+  "maxParticipantCount": "Integer: Maximum number of participants",
+  "participants": "[List of participant user ids]",
+  "date": "[Date of session]",
+  "duration": "[Duration of session in minutes]"
+}
+```
+
+**Data example**
+
+```json
+{
+  "hostname": "Trizzy",
+  "recipeId": 1,
+  "recipeName": "Butter Chicken",
+  "sessionName": "Test session",
+  "maxParticipantCount": 5,
+  "participants": [12, 23, 16],
+  "date": "2012-04-23T18:25:43.511Z",
+  "duration": 60
+}
+```
+
+### Success Response
+
+**Code** : `200 OK`
+
+**No Content**
+
+### Error Response
+
+**Condition** : Invalid access token.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN
+```
+
+**Condition** : Session was not found.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "Recipe not found"
+```
+
+**Condition** : User tries to update a recipe they do not own.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN "User is not allowed to update this recipe"
+```
+
 ## Delete a session
 
 Used to delete a scheduled session.

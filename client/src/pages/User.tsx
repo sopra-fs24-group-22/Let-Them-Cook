@@ -76,6 +76,7 @@ const UserPage = () => {
 
   useEffect(() => {
     initFetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

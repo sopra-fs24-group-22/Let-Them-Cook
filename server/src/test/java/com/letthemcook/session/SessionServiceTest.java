@@ -203,6 +203,50 @@ public class SessionServiceTest {
     assertThrows(ResponseStatusException.class, () -> sessionService.deleteSession(sessionId, accessToken));
   }
 
+  // ######################################### Update Session Tests #####################################
+
+  @Test
+  public void updateSessionReturnsUpdatedSession() {
+    String accessToken = "accessToken";
+    Session session = new Session();
+    session.setId(1L);
+    session.setSessionName("Updated Session");
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(new User());
+    when(sessionRepository.getById(1L)).thenReturn(session);
+
+    sessionService.updateSession(session, accessToken);
+
+    verify(sessionRepository, times(1)).save(session);
+  }
+
+  @Test
+  public void updateSessionThrowsExceptionWhenSessionNotFound() {
+    String accessToken = "accessToken";
+    Session session = new Session();
+    session.setId(1L);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("username");
+    when(sessionRepository.getById(1L)).thenReturn(null);
+
+    assertThrows(ResponseStatusException.class, () -> sessionService.updateSession(session, accessToken));
+  }
+
+  @Test
+  public void updateSessionThrowsExceptionWhenUserNotAuthorized() {
+    String accessToken = "accessToken";
+    Session session = new Session();
+    session.setId(1L);
+    session.setHostId(2L);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn("username");
+    when(userRepository.getByUsername("username")).thenReturn(new User());
+    when(sessionRepository.getById(1L)).thenReturn(session);
+
+    assertThrows(ResponseStatusException.class, () -> sessionService.updateSession(session, accessToken));
+  }
+
   // ######################################### Get Session Credentials Tests ##############################
 
   @Test

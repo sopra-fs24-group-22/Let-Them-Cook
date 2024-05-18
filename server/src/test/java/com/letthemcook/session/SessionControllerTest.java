@@ -3,6 +3,7 @@ package com.letthemcook.session;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.session.dto.CheckPutDTO;
+import com.letthemcook.session.dto.SessionDTO;
 import com.letthemcook.session.dto.SessionPostDTO;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserController;
@@ -32,6 +33,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -113,7 +117,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
       // Mock session service
       Session session = sessionRepository.getById(1L);
-      when(sessionService.createSession(Mockito.any(), Mockito.any())).thenReturn(session);
+      when(sessionService.createSession(any(), any())).thenReturn(session);
 
       // Perform test
       MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/session")
@@ -230,7 +234,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     sessions.add(session);
 
     // Mock Services
-    when(sessionService.getSessionsByUser(Mockito.any())).thenReturn(sessions);
+    when(sessionService.getSessionsByUser(any())).thenReturn(sessions);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/session/me")
@@ -245,6 +249,50 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sessionName").value(session.getSessionName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].maxParticipantCount").value(session.getMaxParticipantCount()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].currentParticipantCount").value(session.getCurrentParticipantCount()));
+  }
+
+  // ######################################### Put Session Tests #########################################
+
+  @Test
+  @WithMockUser(username = "testUser", password = "testPassword")
+  public void updateSessionSuccess() throws Exception {
+    Date date = new Date();
+    SessionDTO sessionPutDTO = new SessionDTO();
+    sessionPutDTO.setId(1L);
+    sessionPutDTO.setSessionName("Updated Session");
+    sessionPutDTO.setMaxParticipantCount(3);
+    sessionPutDTO.setRecipe(2L);
+    sessionPutDTO.setDate(date);
+    sessionPutDTO.setHost(1L);
+    sessionPutDTO.setParticipants(new ArrayList<>());
+
+    doNothing().when(sessionService).updateSession(any(), any());
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/session")
+                    .header("Authorization", "Bearer testToken")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionPutDTO)))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void updateSessionFailureUnauthorized() throws Exception {
+    Date date = new Date();
+    SessionDTO sessionPutDTO = new SessionDTO();
+    sessionPutDTO.setId(1L);
+    sessionPutDTO.setSessionName("Updated Session");
+    sessionPutDTO.setMaxParticipantCount(3);
+    sessionPutDTO.setRecipe(2L);
+    sessionPutDTO.setDate(date);
+    sessionPutDTO.setHost(1L);
+    sessionPutDTO.setParticipants(new ArrayList<>());
+
+    mockMvc.perform(MockMvcRequestBuilders.put("/api/session")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionPutDTO)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
 
   // ######################################### Get Open Sessions Tests #########################################
@@ -303,7 +351,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     Session session = sessionRepository.getById(1L);
 
     // Mock service
-    when(sessionService.getSessionUserState(Mockito.anyLong(), Mockito.anyString())).thenReturn(session.getSessionUserState());
+    when(sessionService.getSessionUserState(Mockito.anyLong(), anyString())).thenReturn(session.getSessionUserState());
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1/checklist")
@@ -318,7 +366,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
   @WithMockUser
   public void testGetChecklistNotFound() throws Exception {
     // Mock service
-    when(sessionService.getSessionUserState(Mockito.anyLong(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+    when(sessionService.getSessionUserState(Mockito.anyLong(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1/checklist")
@@ -332,7 +380,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
   @WithMockUser
   public void testGetChecklistUnauthorized() throws Exception {
     // Mock Services
-    when(sessionService.getSessionUserState(Mockito.anyLong(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    when(sessionService.getSessionUserState(Mockito.anyLong(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.get("/api/session/1/checklist")
@@ -354,7 +402,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     checkPutDTO.setStepIndex(1L);
 
     // Mock service
-    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString())).thenReturn(session);
+    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), anyString())).thenReturn(session);
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.put("/api/session/1/checklist")
@@ -374,7 +422,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     checkPutDTO.setStepIndex(1L);
 
     // Mock service
-    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.put("/api/session/1/checklist")
@@ -394,7 +442,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
     checkPutDTO.setStepIndex(1L);
 
     // Mock service
-    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), Mockito.anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
+    when(sessionService.checkStep(Mockito.anyLong(), Mockito.anyInt(), Mockito.anyBoolean(), anyString())).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
     // Perform test
     mockMvc.perform(MockMvcRequestBuilders.put("/api/session/1/checklist")

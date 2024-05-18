@@ -52,4 +52,17 @@ public interface DTOSessionMapper {
   @Mapping(source = "currentStepValues", target = "currentStepValues")
   SessionUserStateDTO convertEntityToSessionUserStateDTO(SessionUserState sessionUserState);
 
+  // ######################################### PUT Session #########################################
+
+  @Mapping(source = "sessionName", target = "sessionName")
+  @Mapping(source = "host", target = "hostId")
+  @Mapping(source = "hostName", target = "hostName")
+  @Mapping(source = "recipe", target = "recipeId")
+  @Mapping(source = "recipeName", target = "recipeName")
+  @Mapping(source = "maxParticipantCount", target = "maxParticipantCount")
+  @Mapping(source = "currentParticipantCount", target = "currentParticipantCount")
+  @Mapping(source = "participants", target = "participants")
+  @Mapping(source = "date", target = "date")
+  @Mapping(source = "duration", target = "duration")
+  Session convertEntityToSessionPutDTO(SessionDTO sessionDTO);
 }

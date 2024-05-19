@@ -7,7 +7,7 @@ import {
   HLine,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import { Accordion, Card, Col, Container, Modal, Row } from "react-bootstrap";
+import { Accordion, Col, Container, Modal, Row } from "react-bootstrap";
 import MainLayout from "../components/Layout/MainLayout";
 import {
   getRecipesAPI,
@@ -148,7 +148,6 @@ const SessionsPage = () => {
     try {
       const res = await getSessionRequestsAPI(sessionId);
       setSessionRequests(res);
-      console.log(sessionRequests);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
     }
@@ -340,7 +339,11 @@ const SessionsPage = () => {
               value={
                 dateFilter ? dateFilter.toISOString().substring(0, 10) : ""
               }
-              onChange={(e) => setDateFilter(new Date(e.target.value))}
+              onChange={(e) => {
+                setDateFilter(
+                  e.target.value ? new Date(e.target.value) : undefined,
+                );
+              }}
             />
 
             <SecondaryButton onClick={deleteFilter} style={{ width: "100%" }}>
@@ -385,7 +388,7 @@ const SessionsPage = () => {
                           style={{
                             display:
                               sessionRequestsUser[session.id] === "ACCEPTED" ||
-                              currentUserId === session.host
+                                currentUserId === session.host
                                 ? "inline-block"
                                 : "none",
                           }}
@@ -545,7 +548,7 @@ const SessionsPage = () => {
                     style={{
                       display:
                         request.queueStatus === "REJECTED" ||
-                        request.queueStatus === "ACCEPTED"
+                          request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
                     }}
@@ -561,7 +564,7 @@ const SessionsPage = () => {
                     style={{
                       display:
                         request.queueStatus === "REJECTED" ||
-                        request.queueStatus === "ACCEPTED"
+                          request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
                     }}

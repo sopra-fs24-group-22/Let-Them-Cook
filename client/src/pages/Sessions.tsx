@@ -56,11 +56,12 @@ const SessionsPage = () => {
       if (hostFilter !== "") filter = { ...filter, hostName: hostFilter };
       if (sessionNameFilter !== "")
         filter = { ...filter, sessionName: sessionNameFilter };
+      if (view === "MY") filter = { ...filter, hostId: currentUserId };
 
       const res =
         view === "ALL"
           ? await getSessionsAPI(filter)
-          : await getSessionsAPI(filter); //! DEV ONLY
+          : await getSessionsAPI(filter);
       for (const session of res) {
         const id = session.hostId;
         const host = await getUsers(id);
@@ -77,6 +78,7 @@ const SessionsPage = () => {
   const fetchUserSessionRequests = async () => {
     try {
       const res = await getSessionRequestsUserAPI();
+
       setSessionRequestsUser(res.userSessions);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
@@ -146,7 +148,6 @@ const SessionsPage = () => {
     try {
       const res = await getSessionRequestsAPI(sessionId);
       setSessionRequests(res);
-      console.log(sessionRequests);
     } catch (error) {
       alert("Error while fetching the session requests. Please try again.");
     }
@@ -338,7 +339,11 @@ const SessionsPage = () => {
               value={
                 dateFilter ? dateFilter.toISOString().substring(0, 10) : ""
               }
-              onChange={(e) => setDateFilter(new Date(e.target.value))}
+              onChange={(e) => {
+                setDateFilter(
+                  e.target.value ? new Date(e.target.value) : undefined,
+                );
+              }}
             />
 
             <SecondaryButton onClick={deleteFilter} style={{ width: "100%" }}>
@@ -352,6 +357,12 @@ const SessionsPage = () => {
         </ButtonGroup>
         <Container fluid>
           <Row>
+            <style>
+              {`
+                .accordion-button { background-color: #fff !important; }
+                .accordion-button:focus { box-shadow: none !important; }
+              `.replace(/ /g, "")}
+            </style>
             <Accordion style={{ padding: "0" }}>
               {sessions.map((session, index) => (
                 <Accordion.Item
@@ -359,7 +370,6 @@ const SessionsPage = () => {
                   eventKey={String(index)}
                   style={{
                     width: "100%",
-                    background: "#f0f0f0",
                     marginTop: "5px",
                   }}
                 >
@@ -378,7 +388,7 @@ const SessionsPage = () => {
                           style={{
                             display:
                               sessionRequestsUser[session.id] === "ACCEPTED" ||
-                              currentUserId === session.host
+                                currentUserId === session.host
                                 ? "inline-block"
                                 : "none",
                           }}
@@ -538,7 +548,7 @@ const SessionsPage = () => {
                     style={{
                       display:
                         request.queueStatus === "REJECTED" ||
-                        request.queueStatus === "ACCEPTED"
+                          request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
                     }}
@@ -554,7 +564,7 @@ const SessionsPage = () => {
                     style={{
                       display:
                         request.queueStatus === "REJECTED" ||
-                        request.queueStatus === "ACCEPTED"
+                          request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
                     }}

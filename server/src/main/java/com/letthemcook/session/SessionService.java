@@ -19,9 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static org.springframework.util.ClassUtils.getMethod;
 
 @Service
 @Transactional
@@ -80,6 +83,27 @@ public class SessionService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
     }
     return session;
+  }
+
+  public void updateSession(Session session, String accessToken) {
+    String username = jwtService.extractUsername(accessToken);
+    Long sessionId = session.getId();
+
+    // Check if session exists
+    Session existingSession = sessionRepository.getById(sessionId);
+    if (existingSession == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
+    }
+
+    // Check if user is authorized to update session
+    if (!Objects.equals(existingSession.getHostId(), userRepository.getByUsername(username).getId())) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to update this session");
+    }
+
+    // Set recipe data
+    session = updateSessionData(existingSession, session);
+
+    sessionRepository.save(session);
   }
 
   public void deleteSession(Long sessionId, String accessToken) {
@@ -173,11 +197,6 @@ public class SessionService {
     // Add user to participants
     participants.add(user.getId());
     session.setParticipants(participants);
-
-//  When implementing Session Join requests
-//    if (!checkIfUserIsParticipant(sessionId, username)) {
-//      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to get the credentials of this session");
-//    }
 
     sessionRepository.save(session);
 
@@ -342,5 +361,46 @@ public class SessionService {
 
   public void deleteSessionByUser(Session session) {
     sessionRepository.delete(session);
+  }
+
+  private Session updateSessionData(Session existingSession, Session session) {
+
+    Method[] getters = {
+            getMethod(Session.class, "getHostName"),
+            getMethod(Session.class, "getRecipeId"),
+            getMethod(Session.class, "getRecipeName"),
+            getMethod(Session.class, "getSessionName"),
+            getMethod(Session.class, "getMaxParticipantCount"),
+            getMethod(Session.class, "getParticipants"),
+            getMethod(Session.class, "getDate"),
+            getMethod(Session.class, "getDuration")
+
+    };
+
+    Method[] setters = {
+            getMethod(Session.class, "setHostName", String.class),
+            getMethod(Session.class, "setRecipeId", Long.class),
+            getMethod(Session.class, "setRecipeName", String.class),
+            getMethod(Session.class, "setSessionName", String.class),
+            getMethod(Session.class, "setMaxParticipantCount", Integer.class),
+            getMethod(Session.class, "setParticipants", ArrayList.class),
+            getMethod(Session.class, "setDate", LocalDateTime.class),
+            getMethod(Session.class, "setDuration", Integer.class)
+
+
+    };
+
+    for (int i = 0; i < getters.length; i++) {
+      try {
+        Object value = getters[i].invoke(session);
+        if (value != null) {
+          setters[i].invoke(existingSession, value);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    return existingSession;
   }
 }

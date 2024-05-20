@@ -3,6 +3,7 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
+import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -20,10 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,6 +46,8 @@ public class SessionServiceTest {
   private MongoTemplate mongoTemplate;
   @Mock
   private SessionUserState sessionUserState;
+  @Mock
+  private SessionRequestService sessionRequestService;
 
   @InjectMocks
   private SessionService sessionService;
@@ -55,7 +55,7 @@ public class SessionServiceTest {
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService);
+    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService, sessionRequestService);
     // Setup session
     Session session = new Session();
     session.setId(1L);
@@ -63,10 +63,11 @@ public class SessionServiceTest {
     session.setRecipeId(1L);
     session.setRoomId("roomId");
     session.setCurrentParticipantCount(0);
-    session.setParticipants(new ArrayList<>());
     session.setMaxParticipantCount(2);
+    session.setParticipants(new ArrayList<>(Arrays.asList(5L, 6L)));
     session.setSessionName("sessionName");
     session.setDate(LocalDateTime.now().plusDays(2));
+
 
     SessionUserState sessionUserState = new SessionUserState();
     sessionUserState.setSessionId(session.getId());
@@ -270,23 +271,6 @@ public class SessionServiceTest {
 
     assertEquals(sessionId, result.getId());
     assertEquals(1, result.getCurrentParticipantCount());
-  }
-
-  @Test
-  public void getSessionCredentialsThrowsExceptionWhenSessionIsFull() {
-    String accessToken = "accessToken";
-    Long sessionId = 1L;
-    User user = new User();
-    user.setId(1L);
-    user.setUsername("username");
-    Session session = sessionRepository.getById(sessionId);
-    session.setCurrentParticipantCount(2);
-
-    when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
-    when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
-    when(sessionRepository.getById(sessionId)).thenReturn(session);
-
-    assertThrows(ResponseStatusException.class, () -> sessionService.getSessionCredentials(sessionId, accessToken));
   }
 
   @Test

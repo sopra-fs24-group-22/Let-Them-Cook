@@ -68,11 +68,14 @@ public class SessionRequestServiceTest {
 
   @Test
   public void sendSessionRequestSuccessfullySendsRequest() {
-
     User user = new User();
     user.setId(1L);
     user.setUsername("username");
     String accessToken = "accessToken";
+
+    Session session = new Session();
+    session.setId(1L);
+    session.setMaxParticipantCount(2);
 
     SessionRequest sessionRequest = new SessionRequest();
     sessionRequest.setUserId(user.getId());
@@ -82,7 +85,9 @@ public class SessionRequestServiceTest {
 
     when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
     when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
     when(sessionRequestRepository.getSessionRequestByUserId(user.getId())).thenReturn(sessionRequest);
+    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId, true)).thenReturn(new ArrayList<>());
 
     sessionRequestService.sendSessionRequest(sessionId, accessToken);
 
@@ -217,7 +222,7 @@ public class SessionRequestServiceTest {
     when(userRepository.getByUsername(username)).thenReturn(user);
     when(userRepository.getById(userId)).thenReturn(user);
     when(sessionRepository.getById(sessionId)).thenReturn(session);
-    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId)).thenReturn(sessionRequests);
+    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId, false)).thenReturn(sessionRequests);
 
     ArrayList<SingleSessionRequests> result = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
 
@@ -263,7 +268,7 @@ public class SessionRequestServiceTest {
     when(jwtService.extractUsername(accessToken)).thenReturn(username);
     when(userRepository.getByUsername(username)).thenReturn(user);
     when(sessionRepository.getById(sessionId)).thenReturn(session);
-    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId)).thenReturn(sessionRequests);
+    when(sessionRequestService.getSessionRequestsContainingSessionId(sessionId, false)).thenReturn(sessionRequests);
 
     ArrayList<SingleSessionRequests> result = sessionRequestService.getSingleSessionRequest(sessionId, accessToken);
 
@@ -352,7 +357,7 @@ public class SessionRequestServiceTest {
 
     when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
 
-    List<SessionRequest> result = sessionRequestService.getSessionRequestsContainingSessionId(sessionId);
+    List<SessionRequest> result = sessionRequestService.getSessionRequestsContainingSessionId(sessionId, false);
 
     assertFalse(result.isEmpty());
     assertEquals(userId, result.get(0).getUserId());
@@ -370,7 +375,7 @@ public class SessionRequestServiceTest {
 
     when(sessionRequestRepository.findAll()).thenReturn(Collections.singletonList(sessionRequest));
 
-    List<SessionRequest> result = sessionRequestService.getSessionRequestsContainingSessionId(sessionId);
+    List<SessionRequest> result = sessionRequestService.getSessionRequestsContainingSessionId(sessionId, false);
 
     assertTrue(result.isEmpty());
   }

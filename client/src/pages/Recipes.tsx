@@ -484,7 +484,7 @@ const RecipesPage = () => {
                         />
                         {recipe.cookingTimeMin} minutes |
                         <StarRating
-                          recipeId={recipe.id}
+                          id={recipe.id}
                           avgRating={recipe.avgTotalRating}
                           nrRating={recipe.nrRatings}
                           callbackFunction={async (
@@ -526,8 +526,8 @@ const RecipesPage = () => {
                                 // eslint-disable-next-line no-restricted-globals
                                 confirm(
                                   'Are you sure you want to delete the recipe "' +
-                                  recipe.title +
-                                  '"?',
+                                    recipe.title +
+                                    '"?',
                                 )
                               ) {
                                 deleteRecipe(recipe.id);
@@ -646,7 +646,7 @@ const RecipesPage = () => {
                 }}
                 onClick={
                   index === ingredients.length - 1
-                    ? () => { }
+                    ? () => {}
                     : () => moveIngredientsDown(index)
                 }
               />
@@ -658,7 +658,7 @@ const RecipesPage = () => {
                   color: index === 0 ? "#ccc" : "#878787",
                 }}
                 onClick={
-                  index === 0 ? () => { } : () => moveIngredientsUp(index)
+                  index === 0 ? () => {} : () => moveIngredientsUp(index)
                 }
               />
               <SecondaryIconButton
@@ -695,7 +695,7 @@ const RecipesPage = () => {
                 }}
                 onClick={
                   index === singleSteps.length - 1
-                    ? () => { }
+                    ? () => {}
                     : () => moveSingleStepDown(index)
                 }
               />
@@ -706,7 +706,7 @@ const RecipesPage = () => {
                   marginLeft: "5px",
                   color: index === 0 ? "#ccc" : "#878787",
                 }}
-                onClick={index === 0 ? () => { } : () => moveSingleStepUp(index)}
+                onClick={index === 0 ? () => {} : () => moveSingleStepUp(index)}
               />
               <SecondaryIconButton
                 icon={faTrashCan}
@@ -746,7 +746,7 @@ const RecipesPage = () => {
             <FontAwesomeIcon icon={faHourglass} style={{ margin: "0 5px" }} />
             {cookingTime}min |
             <StarRating
-              recipeId={viewingRecipeId}
+              id={viewingRecipeId}
               avgRating={avgTotalRating}
               nrRating={nrRating}
               callbackFunction={(recipeId: number, rating: number) => {

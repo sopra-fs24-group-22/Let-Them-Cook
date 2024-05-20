@@ -1,8 +1,9 @@
 import { Col, Container, Row } from "react-bootstrap";
 import Layout from "../components/Layout/MainLayout";
-import { getUsersAPI } from "../api/app.api";
+import { getUsersAPI, postRateUserAPI } from "../api/app.api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { StarRating } from "../components/ui/StarRating";
 
 const ChefsPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,13 @@ const ChefsPage = () => {
   useEffect(() => {
     fetchChefs();
   }, []);
+
+  const rateChef = async (chefId: number, rating: number) => {
+    await postRateUserAPI(chefId, rating).catch((error) => {
+      if (error.code === "ERR_BAD_REQUEST") alert("You cannot rate yourself.");
+      else alert("Error while rating the chef. Please try again.");
+    });
+  };
 
   return (
     <Layout>
@@ -39,7 +47,19 @@ const ChefsPage = () => {
               >
                 {chef.firstname + " " + chef.lastname}
               </h3>
-              <p style={{ fontSize: "80%" }}>@{chef.username}</p>
+              <p style={{ fontSize: "80%" }}>
+                @{chef.username} |
+                <StarRating
+                  id={chef.id}
+                  avgRating={chef.avgTotalRating}
+                  nrRating={chef.nrRatings}
+                  callbackFunction={async (chefId: number, rating: number) => {
+                    await rateChef(chefId, rating).then(async () => {
+                      await fetchChefs();
+                    });
+                  }}
+                />
+              </p>
             </Col>
           ))}
         </Row>

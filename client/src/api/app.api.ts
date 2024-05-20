@@ -119,3 +119,6 @@ export const putUserMeAPI = async (params: any = {}) => {
   const { data } = await axiosAuth.put("user/me", params);
   return data;
 };
+export const postRateUserAPI = async (userId: number, rating: number) => {
+  await axiosAuth.post("user/" + userId + "/rate", { rating: rating });
+};

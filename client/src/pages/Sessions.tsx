@@ -388,7 +388,7 @@ const SessionsPage = () => {
                           style={{
                             display:
                               sessionRequestsUser[session.id] === "ACCEPTED" ||
-                                currentUserId === session.host
+                              currentUserId === session.host
                                 ? "inline-block"
                                 : "none",
                           }}
@@ -548,7 +548,7 @@ const SessionsPage = () => {
                     style={{
                       display:
                         request.queueStatus === "REJECTED" ||
-                          request.queueStatus === "ACCEPTED"
+                        request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
                     }}
@@ -564,7 +564,7 @@ const SessionsPage = () => {
                     style={{
                       display:
                         request.queueStatus === "REJECTED" ||
-                          request.queueStatus === "ACCEPTED"
+                        request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
                     }}

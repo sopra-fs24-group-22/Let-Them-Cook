@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   PrimaryButton,
   SecondaryButton,
@@ -21,7 +21,7 @@ import {
   getSessionRequestsUserAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Header2, Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
@@ -40,6 +40,15 @@ const SessionsPage = () => {
       alert("Error while fetching the user. Please reload the page.");
     }
   };
+
+  // Get session ID for detail view
+  const { session: sessionDetailId } = useParams();
+  const sessionDetailRef = useRef<null | HTMLDivElement>(null);
+  useEffect(() => {
+    if (sessionDetailRef.current)
+      sessionDetailRef.current.scrollIntoView({ behavior: "smooth" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   //Session Overview
   const fetchSessions = async (view: "ALL" | "MY") => {
@@ -363,15 +372,23 @@ const SessionsPage = () => {
                 .accordion-button:focus { box-shadow: none !important; }
               `.replace(/ /g, "")}
             </style>
-            <Accordion style={{ padding: "0" }}>
-              {sessions.map((session, index) => (
+            <Accordion
+              style={{ padding: "0" }}
+              defaultActiveKey={sessionDetailId ? sessionDetailId : ""}
+            >
+              {sessions.map((session) => (
                 <Accordion.Item
-                  key={index}
-                  eventKey={String(index)}
+                  key={session.id}
+                  eventKey={String(session.id)}
                   style={{
                     width: "100%",
                     marginTop: "5px",
                   }}
+                  ref={
+                    sessionDetailId === String(session.id)
+                      ? sessionDetailRef
+                      : null
+                  }
                 >
                   <Accordion.Header
                     style={{ display: "flex", background: "#f0f0f0" }}

@@ -3,6 +3,8 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
+import com.letthemcook.sessionrequest.QueueStatus;
+import com.letthemcook.sessionrequest.SessionRequest;
 import com.letthemcook.sessionrequest.SessionRequestRepository;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
@@ -251,17 +253,15 @@ public class SessionServiceTest {
   // ######################################### Get Session Credentials Tests ##############################
 
   @Test
-  public void getSessionCredentialsReturnsExpectedSession() {
-    String accessToken = "accessToken";
+  public void getSessionCredentialsReturnsSessionForHost() {
     Long sessionId = 1L;
+    String accessToken = "accessToken";
     User user = new User();
     user.setId(1L);
     user.setUsername("username");
-    Session session = sessionRepository.getById(sessionId);
-    ArrayList<Long> participants = new ArrayList<>();
-    participants.add(1L);
-    session.setParticipants(participants);
-    session.setCurrentParticipantCount(1);
+    Session session = new Session();
+    session.setId(sessionId);
+    session.setHostId(user.getId());
 
     when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
     when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
@@ -269,28 +269,72 @@ public class SessionServiceTest {
 
     Session result = sessionService.getSessionCredentials(sessionId, accessToken);
 
-    assertEquals(sessionId, result.getId());
-    assertEquals(1, result.getCurrentParticipantCount());
+    assertEquals(session, result);
   }
 
   @Test
-  public void getSessionCredentialsThrowsExceptionWhenSessionNotFound() {
-    String accessToken = "Bearer accessToken";
+  public void getSessionCredentialsReturnsSessionForAcceptedParticipant() {
     Long sessionId = 1L;
+    String accessToken = "accessToken";
     User user = new User();
     user.setId(1L);
     user.setUsername("username");
+    Session session = new Session();
+    session.setId(sessionId);
+    session.setHostId(2L);
+    ArrayList<Long> participants = new ArrayList<>();
+    session.setParticipants(participants);
+    SessionRequest sessionRequest = new SessionRequest();
+    HashMap<Long, QueueStatus> userSessions = new HashMap<>();
+    userSessions.put(sessionId, QueueStatus.ACCEPTED);
+    sessionRequest.setUserSessions(userSessions);
 
+    when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
+    when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+    when(sessionRequestRepository.getSessionRequestByUserId(user.getId())).thenReturn(sessionRequest);
+
+    Session result = sessionService.getSessionCredentials(sessionId, accessToken);
+
+    assertEquals(session, result);
+  }
+
+  @Test
+  public void getSessionCredentialsThrowsWhenSessionNotFound() {
+    Long sessionId = 1L;
+    String accessToken = "accessToken";
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
 
     when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
     when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
     when(sessionRepository.getById(sessionId)).thenReturn(null);
 
-    try {
-      sessionService.getSessionCredentials(sessionId, "Bearer accessToken");
-    } catch (ResponseStatusException e) {
-      assertEquals(e.getStatus(), HttpStatus.NOT_FOUND);
-    }
+    assertThrows(ResponseStatusException.class, () -> sessionService.getSessionCredentials(sessionId, accessToken));
+  }
+
+  @Test
+  public void getSessionCredentialsThrowsWhenUserNotAccepted() {
+    Long sessionId = 1L;
+    String accessToken = "accessToken";
+    User user = new User();
+    user.setId(1L);
+    user.setUsername("username");
+    Session session = new Session();
+    session.setId(sessionId);
+    session.setHostId(2L);
+    SessionRequest sessionRequest = new SessionRequest();
+    HashMap<Long, QueueStatus> userSessions = new HashMap<>();
+    userSessions.put(sessionId, QueueStatus.PENDING);
+    sessionRequest.setUserSessions(userSessions);
+
+    when(jwtService.extractUsername(accessToken)).thenReturn(user.getUsername());
+    when(userRepository.getByUsername(user.getUsername())).thenReturn(user);
+    when(sessionRepository.getById(sessionId)).thenReturn(session);
+    when(sessionRequestRepository.getSessionRequestByUserId(user.getId())).thenReturn(sessionRequest);
+
+    assertThrows(ResponseStatusException.class, () -> sessionService.getSessionCredentials(sessionId, accessToken));
   }
 
   // ######################################### Get Checklist Tests #########################################

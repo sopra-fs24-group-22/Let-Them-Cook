@@ -23,7 +23,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -278,7 +277,41 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserDoesNotChangePassword() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void updateUserThrowsConflictWhenUsernameExists() {
+    User existingUser = new User();
+    existingUser.setUsername("oldUser");
+    existingUser.setEmail("old@test.com");
+
+    User newUser = new User();
+    newUser.setUsername("newUser");
+    newUser.setEmail("new@test.com");
+
+    when(jwtService.extractUsername(anyString())).thenReturn("oldUser");
+    when(userRepository.getByUsername("oldUser")).thenReturn(existingUser);
+    when(userRepository.getByUsername("newUser")).thenReturn(newUser);
+
+    assertThrows(ResponseStatusException.class, () -> userService.updateUser(newUser, "accessToken"));
+  }
+
+  @Test
+  public void updateUserThrowsConflictWhenEmailExists() {
+    User existingUser = new User();
+    existingUser.setUsername("oldUser");
+    existingUser.setEmail("old@test.com");
+
+    User newUser = new User();
+    newUser.setUsername("newUser");
+    newUser.setEmail("new@test.com");
+
+    when(jwtService.extractUsername(anyString())).thenReturn("oldUser");
+    when(userRepository.getByUsername("oldUser")).thenReturn(existingUser);
+    when(userRepository.getByEmail("new@test.com")).thenReturn(newUser);
+
+    assertThrows(ResponseStatusException.class, () -> userService.updateUser(newUser, "accessToken"));
+  }
+
+  @Test
+  public void updateUserDoesNotChangePassword() {
     String accessToken = "accessToken";
     User oldUser = new User();
     oldUser.setId(1L);
@@ -307,7 +340,7 @@ public class UserServiceTest {
   // ######################################### Delete User Tests #########################################
 
   @Test
-  public void deleteUserSuccessfullyDeletesUser() throws Exception {
+  public void deleteUserSuccessfullyDeletesUser() {
     String accessToken = "accessToken";
     User user = new User();
     user.setId(1L);
@@ -322,7 +355,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserThrowsNotFoundWhenUserDoesNotExist() throws Exception {
+  public void deleteUserThrowsNotFoundWhenUserDoesNotExist() {
     String accessToken = "accessToken";
 
     when(jwtService.extractUsername(accessToken)).thenReturn("testUser");
@@ -332,7 +365,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserSuccessfullyDeletesUserRecipes() throws Exception {
+  public void deleteUserSuccessfullyDeletesUserRecipes() {
     String accessToken = "Bearer accessToken";
     User user = new User();
     user.setId(1L);
@@ -356,7 +389,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserSuccessfullyDeletesUserSessions() throws Exception {
+  public void deleteUserSuccessfullyDeletesUserSessions() {
     String accessToken = "Bearer accessToken";
     User user = new User();
     user.setId(1L);

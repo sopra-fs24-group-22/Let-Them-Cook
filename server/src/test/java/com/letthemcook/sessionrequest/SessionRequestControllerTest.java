@@ -2,72 +2,63 @@ package com.letthemcook.sessionrequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.letthemcook.auth.config.JwtService;
+import com.letthemcook.rest.mapper.DTORequestSessionMapper;
+import com.letthemcook.rest.mapper.DTOSingleSessionRequestMapper;
 import com.letthemcook.session.Session;
-import com.letthemcook.session.SessionController;
 import com.letthemcook.session.SessionRepository;
-import com.letthemcook.session.SessionService;
-import com.letthemcook.user.User;
+import com.letthemcook.sessionrequest.dto.SessionRequestDTO;
+import com.letthemcook.sessionrequest.dto.SessionRequestGetSingleDTO;
+import com.letthemcook.sessionrequest.dto.SessionRequestsGetDTO;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.Executor;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(SessionRequestController.class)
 @WebAppConfiguration
-@ExtendWith(SpringExtension.class)
+@ContextConfiguration
 public class SessionRequestControllerTest {
   @MockBean
   private SessionRequestService sessionRequestService;
   @MockBean
   private SessionRequestRepository sessionRequestRepository;
   @MockBean
+  private SessionRepository sessionRepository;
+  @MockBean
+  private UserController userController;
+  @MockBean
   private JwtService jwtService;
   @MockBean
   private AuthenticationManager authenticationManager;
   @MockBean
   private UserDetailsService userDetailsService;
-  @MockBean
-  private SessionRepository sessionRepository;
 
   @Autowired
   private MockMvc mockMvc;
   @Autowired
   private SessionRequestController sessionRequestController;
-  @Autowired
-  private WebApplicationContext webApplicationContext;
-
 
   // ######################################### Setup & Teardown #########################################
 
@@ -92,36 +83,222 @@ public class SessionRequestControllerTest {
     sessionRequestRepository.deleteAll();
   }
 
-  // ######################################### Create Session Request #########################################
+  // ######################################### Create Session Request Test #########################################
 
-//  @Test
-//  public void createSessionRequestSuccessfullyCreatesRequest() throws Exception {
-//    Long sessionId = 2L;
-//    String accessToken = "accessToken";
-//
-//    doNothing().when(sessionRequestService).sendSessionRequest(sessionId, accessToken);
-//
-//    mockMvc.perform(MockMvcRequestBuilders.post("/api/session_request/{sessionId}", sessionId)
-//                    .header("Authorization", accessToken)
-//                    .with(csrf()))
-//            .andExpect(MockMvcResultMatchers.status().isCreated());
-//
-//    verify(sessionRequestService, times(1)).sendSessionRequest(sessionId, accessToken);
-//  }
-//
-//  @Test
-//  public void createSessionRequestThrowsExceptionWhenServiceFails() throws Exception {
-//    Long sessionId = 1L;
-//    String accessToken = "Bearer accessToken";
-//
-//    doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "You have already sent a session request for this session"))
-//            .when(sessionRequestService).sendSessionRequest(sessionId, accessToken);
-//
-//    mockMvc.perform(post("/api/session_request/{sessionId}", sessionId)
-//                    .header("Authorization", accessToken)
-//                    .with(csrf()))
-//            .andExpect(status().isConflict());
-//
-//    verify(sessionRequestService, times(1)).sendSessionRequest(sessionId, accessToken);
-//  }
+  @Test
+  @WithMockUser
+  public void testCreateSessionRequestReturnsCreatedStatus() throws Exception {
+    Long sessionId = 1L;
+    String accessToken = "Bearer accessToken";
+
+    doNothing().when(sessionRequestService).sendSessionRequest(sessionId, accessToken);
+
+    mockMvc.perform(post("/api/session_request/{sessionId}", sessionId)
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isCreated());
+
+    verify(sessionRequestService, times(1)).sendSessionRequest(sessionId, accessToken);
+  }
+
+  @Test
+  @WithMockUser
+  public void testCreateSessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+    Long sessionId = 999L; // non-existing session id
+    String accessToken = "Bearer accessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(sessionRequestService).sendSessionRequest(sessionId, accessToken);
+
+    mockMvc.perform(post("/api/session_request/{sessionId}", sessionId)
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void testCreateSessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    Long sessionId = 1L;
+
+    mockMvc.perform(post("/api/session_request/{sessionId}", sessionId)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(new SessionRequestDTO())))
+            .andExpect(status().isUnauthorized());
+  }
+
+  // ######################################### Accept Session Request Test #########################################
+
+  @Test
+  @WithMockUser
+  public void testAcceptSessionRequestReturnsOkStatus() throws Exception {
+    Long sessionId = 1L;
+    String accessToken = "Bearer accessToken";
+    SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
+
+    doNothing().when(sessionRequestService).processSessionRequest(anyLong(), any(SessionRequest.class), eq(true));
+
+    mockMvc.perform(post("/api/session_request/{sessionId}/accept", sessionId)
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionRequestDTO))
+                    .with(csrf()))
+            .andExpect(status().isOk());
+
+    verify(sessionRequestService, times(1)).processSessionRequest(anyLong(), any(SessionRequest.class), eq(true));
+  }
+
+  @Test
+  @WithMockUser
+  public void testAcceptSessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+    Long sessionId = 999L; // non-existing session id
+    String accessToken = "Bearer accessToken";
+    SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
+
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(sessionRequestService).processSessionRequest(anyLong(), any(SessionRequest.class), eq(true));
+
+    mockMvc.perform(post("/api/session_request/{sessionId}/accept", sessionId)
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionRequestDTO))
+                    .with(csrf()))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void testAcceptSessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    Long sessionId = 1L;
+    SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
+
+    mockMvc.perform(post("/api/session_request/{sessionId}/accept", sessionId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionRequestDTO))
+                    .with(csrf()))
+            .andExpect(status().isUnauthorized());
+  }
+
+  // ######################################### Deny Session Request Test #########################################
+
+  @Test
+  @WithMockUser
+  public void testDenySessionRequestReturnsOkStatus() throws Exception {
+    Long sessionId = 1L;
+    String accessToken = "Bearer accessToken";
+    SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
+
+    doNothing().when(sessionRequestService).processSessionRequest(anyLong(), any(SessionRequest.class), eq(false));
+
+    mockMvc.perform(post("/api/session_request/{sessionId}/deny", sessionId)
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionRequestDTO))
+                    .with(csrf()))
+            .andExpect(status().isOk());
+
+    verify(sessionRequestService, times(1)).processSessionRequest(anyLong(), any(SessionRequest.class), eq(false));
+  }
+
+  @Test
+  @WithMockUser
+  public void testDenySessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+    Long sessionId = 999L; // non-existing session id
+    String accessToken = "Bearer accessToken";
+    SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
+
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(sessionRequestService).processSessionRequest(anyLong(), any(SessionRequest.class), eq(false));
+
+    mockMvc.perform(post("/api/session_request/{sessionId}/deny", sessionId)
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionRequestDTO))
+                    .with(csrf()))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void testDenySessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    Long sessionId = 1L;
+    SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
+
+    mockMvc.perform(post("/api/session_request/{sessionId}/deny", sessionId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(sessionRequestDTO))
+                    .with(csrf()))
+            .andExpect(status().isUnauthorized());
+  }
+
+  // ######################################### Get Session Requests Test #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetSessionRequestsReturnsOkStatus() throws Exception {
+    String accessToken = "Bearer accessToken";
+    SessionRequest sessionRequest = new SessionRequest();
+    SessionRequestsGetDTO sessionRequestsGetDTO = DTORequestSessionMapper.INSTANCE.convertEntityToGetSessionRequestsDTO(sessionRequest);
+
+    when(sessionRequestService.getSessionRequests(accessToken)).thenReturn(sessionRequest);
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request")
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(new ObjectMapper().writeValueAsString(sessionRequestsGetDTO)));
+
+    verify(sessionRequestService, times(1)).getSessionRequests(accessToken);
+  }
+
+  @Test
+  public void testGetSessionRequestsWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request")
+                    .with(csrf()))
+            .andExpect(status().isUnauthorized());
+  }
+
+  // ######################################### Get Single Session Requests Test #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetSingleSessionRequestsReturnsOkStatus() throws Exception {
+    Long sessionId = 1L;
+    String accessToken = "Bearer accessToken";
+    ArrayList<SingleSessionRequests> singleSessionRequests = new ArrayList<>();
+    ArrayList<SessionRequestGetSingleDTO> sessionRequestGetSingleDTOs = new ArrayList<>();
+
+    when(sessionRequestService.getSingleSessionRequest(sessionId, accessToken)).thenReturn(singleSessionRequests);
+    for (SingleSessionRequests singleSessionRequest : singleSessionRequests) {
+      SessionRequestGetSingleDTO sessionRequestGetSingleDTO = DTOSingleSessionRequestMapper.INSTANCE.convertEntityToGetSingleSessionRequestsDTO(singleSessionRequest);
+      sessionRequestGetSingleDTOs.add(sessionRequestGetSingleDTO);
+    }
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request/{sessionId}", sessionId)
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(MockMvcResultMatchers.content().json(new ObjectMapper().writeValueAsString(sessionRequestGetSingleDTOs)));
+
+    verify(sessionRequestService, times(1)).getSingleSessionRequest(sessionId, accessToken);
+  }
+
+  @Test
+  public void testGetSingleSessionRequestsWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    Long sessionId = 1L;
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request/{sessionId}", sessionId)
+                    .with(csrf()))
+            .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetSingleSessionRequestsWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+    Long sessionId = 999L; // non-existing session id
+    String accessToken = "Bearer accessToken";
+
+    when(sessionRequestService.getSingleSessionRequest(sessionId, accessToken)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request/{sessionId}", sessionId)
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isNotFound());
+  }
+
 }

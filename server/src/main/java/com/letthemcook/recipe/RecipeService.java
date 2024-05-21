@@ -106,14 +106,19 @@ public class RecipeService {
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to delete this recipe");
   }
 
-  public Recipe getRecipe(Long id, String accessToken) {
-    Recipe recipe = recipeRepository.getById(id);
-
-    User user = userRepository.getByUsername(jwtService.extractUsername(accessToken));
+  public Recipe getRecipe(Long recipeId, String accessToken) {
+    Recipe recipe = recipeRepository.getById(recipeId);
+    String username = jwtService.extractUsername(accessToken);
+    User user = userRepository.getByUsername(username);
 
     if (recipe == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Recipe not found");
     }
+
+    if (!Objects.equals(recipe.getCreatorId(), user.getId()) && recipe.getPrivacyStatus() == 0) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not allowed to view this recipe");
+    }
+
     return recipe;
   }
 
@@ -144,7 +149,7 @@ public class RecipeService {
     Rating recipeRating = recipe.getRating();
     String username = jwtService.extractUsername(accessToken);
 
-    // Check if rater and ratee are same user
+    // Check if rater and rate are same user
     if(recipe.getCreatorId().equals(userRepository.getByUsername(username).getId())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot rate your own recipe");
     }

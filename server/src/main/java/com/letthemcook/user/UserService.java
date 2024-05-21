@@ -5,7 +5,6 @@ import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
 import com.letthemcook.rating.Rating;
 import com.letthemcook.recipe.Recipe;
-import com.letthemcook.recipe.RecipeRepository;
 import com.letthemcook.recipe.RecipeService;
 import com.letthemcook.session.Session;
 import com.letthemcook.session.SessionService;
@@ -52,11 +51,10 @@ public class UserService {
   private final SessionRequestService sessionRequestService;
   private final MongoTemplate mongoTemplate;
   private final SessionService sessionService;
-  private final RecipeRepository recipeRepository;
   Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, RecipeService recipeService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate, SessionService sessionService, RecipeRepository recipeRepository) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, RecipeService recipeService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate, SessionService sessionService) {
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
     this.recipeService = recipeService;
@@ -67,7 +65,6 @@ public class UserService {
     this.sessionRequestService = sessionRequestService;
     this.mongoTemplate = mongoTemplate;
     this.sessionService = sessionService;
-    this.recipeRepository = recipeRepository;
   }
 
   public Token createUser(User newUser) {
@@ -139,7 +136,7 @@ public class UserService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
       }
     } catch (Exception e) {
-      logger.info("Error generating refreshToken: " + e.getMessage());
+      logger.info("Error generating refreshToken: {}", e.getMessage());
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
     }
   }
@@ -158,8 +155,6 @@ public class UserService {
     }
 
     User updatedUser = updateUserData(userToUpdate, user);
-
-    // Update user
     userRepository.save(updatedUser);
   }
 
@@ -233,7 +228,7 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
     }
 
-    // Check if rater and ratee are same user
+    // Check if rater and rate are same user
     User rater = userRepository.getByUsername(jwtService.extractUsername(accessToken));
 
     if(userToRate.getId().equals(rater.getId())) {

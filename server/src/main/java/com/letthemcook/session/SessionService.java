@@ -3,7 +3,6 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
-import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -288,7 +287,7 @@ public class SessionService {
       return false;
     }
 
-    boolean isParticipant = false;
+    boolean isParticipant;
     isParticipant = participants.contains(userRepository.getByUsername(username).getId()) || Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId());
 
     return isParticipant;

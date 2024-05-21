@@ -466,6 +466,30 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
+### Error Response
+
+**Condition** : Recipe not found.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "Recipe not found"
+```
+
+### Error Response
+
+**Condition** : User is not allowed to view this recipe.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN "User is not allowed to view this recipe"
+```
+
 ## Put recipe
 
 Used to update an existing recipe.

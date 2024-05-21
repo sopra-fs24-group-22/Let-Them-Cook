@@ -3,6 +3,9 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
+import com.letthemcook.sessionrequest.QueueStatus;
+import com.letthemcook.sessionrequest.SessionRequest;
+import com.letthemcook.sessionrequest.SessionRequestRepository;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -36,9 +39,10 @@ public class SessionService {
   private final RecipeRepository recipeRepository;
   private final MongoTemplate mongoTemplate;
   private final VideoSDKService videoSDKService;
+  private final SessionRequestRepository sessionRequestRepository;
 
   @Autowired
-  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService) {
+  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService, SessionRequestRepository sessionRequestRepository) {
     this.sessionRepository = sessionRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
@@ -46,6 +50,7 @@ public class SessionService {
     this.recipeRepository = recipeRepository;
     this.mongoTemplate = mongoTemplate;
     this.videoSDKService = videoSDKService;
+    this.sessionRequestRepository = sessionRequestRepository;
   }
 
   public Session createSession(Session session, String accessToken) throws IOException {
@@ -169,38 +174,29 @@ public class SessionService {
   public Session getSessionCredentials(Long sessionId, String accessToken) {
     String username = jwtService.extractUsername(accessToken);
     User user = userRepository.getByUsername(username);
+    Long userId = user.getId();
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
     }
 
-    if (Objects.equals(session.getCurrentParticipantCount(), session.getMaxParticipantCount())) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This session is full");
+    Long hostId = session.getHostId();
+    if (Objects.equals(hostId, userId)) {
+      return session;
     }
 
-    if (Objects.equals(session.getHostId(), user.getId())) {
-      return sessionRepository.getById(sessionId);
+    if (!Objects.equals(sessionRequest.getUserSessions().get(sessionId), QueueStatus.ACCEPTED)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not accepted to this session");
     }
 
     ArrayList<Long> participants = session.getParticipants();
-
-    // Increment currentParticipantCount
-    for (Long participantId : participants) {
-      if (Objects.equals(participantId, user.getId())) {
-        return sessionRepository.getById(sessionId);
-      }
-    }
-
-    session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
-
-    // Add user to participants
-    participants.add(user.getId());
+    participants.add(userId);
     session.setParticipants(participants);
-
     sessionRepository.save(session);
 
-    return sessionRepository.getById(sessionId);
+    return session;
   }
 
   // TODO: Implement a Leave session endpoint to decrement currentParticipantCount
@@ -258,16 +254,28 @@ public class SessionService {
   }
 
   public List<Session> getSessionsByUser(String accessToken) {
-    // TODO: Add pending requests
     // TODO: Write tests
     String username = jwtService.extractUsername(accessToken);
 
     List<Session> sessions = sessionRepository.findAll();
     List<Session> userSessions = new ArrayList<>();
+    Long userId = userRepository.getByUsername(username).getId();
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
 
+    // Check if user is host or already in session
     for (Session session : sessions) {
-      if (Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId()) || session.getParticipants().contains(userRepository.getByUsername(username).getId())) {
+      if (Objects.equals(session.getHostId(), userId) || session.getParticipants().contains(userRepository.getByUsername(username).getId())) {
         userSessions.add(session);
+      }
+    }
+
+    // Check if user has pending or accepted requests
+    if (sessionRequest != null) {
+      for (Map.Entry<Long, QueueStatus> entry : sessionRequest.getUserSessions().entrySet()) {
+        if (entry.getValue().equals(QueueStatus.PENDING) || entry.getValue().equals(QueueStatus.ACCEPTED)) {
+          Session session = sessionRepository.getById(entry.getKey());
+          userSessions.add(session);
+        }
       }
     }
 
@@ -302,7 +310,7 @@ public class SessionService {
       return false;
     }
 
-    boolean isParticipant = false;
+    boolean isParticipant;
     isParticipant = participants.contains(userRepository.getByUsername(username).getId()) || Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId());
 
     return isParticipant;
@@ -351,7 +359,12 @@ public class SessionService {
     List<Session> sessions = sessionRepository.findAll();
 
     for (Session session : sessions) {
-      if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(session.getDuration()).plusHours(12L))) {
+      Integer duration = session.getDuration();
+      if (duration == null) {
+        // Skip this iteration of the loop
+        continue;
+      }
+    if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(duration).plusHours(12L))) {
         sessionRepository.deleteById(session.getId());
       }
     }
@@ -402,5 +415,12 @@ public class SessionService {
     }
 
     return existingSession;
+  }
+
+  public void updateSessionHostName(Long userId, String username) {
+    for (Session session : sessionRepository.getByHostId(userId)) {
+      session.setHostName(username);
+      sessionRepository.save(session);
+    }
   }
 }

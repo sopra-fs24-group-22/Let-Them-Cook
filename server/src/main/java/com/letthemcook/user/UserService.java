@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.springframework.util.ClassUtils.getMethod;
@@ -135,7 +136,7 @@ public class UserService {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
       }
     } catch (Exception e) {
-      logger.info("Error generating refreshToken: " + e.getMessage());
+      logger.info("Error generating refreshToken: {}", e.getMessage());
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "invalid refresh token!");
     }
   }
@@ -144,9 +145,16 @@ public class UserService {
     String username = jwtService.extractUsername(accessToken);
     User userToUpdate = userRepository.getByUsername(username);
 
-    User updatedUser = updateUserData(userToUpdate, user);
+    if (!Objects.equals(username, user.getUsername()) || !(Objects.equals(userToUpdate.getEmail(), user.getEmail()))) {
+      checkIfUserExists(user);
 
-    // Update user
+      String newUsername = user.getUsername();
+      Long userId = userToUpdate.getId();
+      recipeService.updateRecipeCreatorName(userId, newUsername);
+      sessionService.updateSessionHostName(userId, newUsername);
+    }
+
+    User updatedUser = updateUserData(userToUpdate, user);
     userRepository.save(updatedUser);
   }
 
@@ -220,7 +228,7 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
     }
 
-    // Check if rater and ratee are same user
+    // Check if rater and rate are same user
     User rater = userRepository.getByUsername(jwtService.extractUsername(accessToken));
 
     if(userToRate.getId().equals(rater.getId())) {

@@ -414,7 +414,7 @@ const RecipesPage = () => {
                 />
 
                 <Label htmlFor="cookingTimeFilter" style={{ marginLeft: "0" }}>
-                  Cooking time (minutes)
+                  Max cooking time (minutes)
                 </Label>
                 <Input
                   id="cookingTimeFilter"
@@ -484,7 +484,7 @@ const RecipesPage = () => {
                         />
                         {recipe.cookingTimeMin} minutes |
                         <StarRating
-                          recipeId={recipe.id}
+                          id={recipe.id}
                           avgRating={recipe.avgTotalRating}
                           nrRating={recipe.nrRatings}
                           callbackFunction={async (
@@ -615,7 +615,7 @@ const RecipesPage = () => {
             </Option>
           </Select>
 
-          <Label htmlFor="cookingTime">Cooking time (minutes)</Label>
+          <Label htmlFor="cookingTime">Max cooking time (minutes)</Label>
           <Input
             id="cookingTime"
             type="number"
@@ -746,7 +746,7 @@ const RecipesPage = () => {
             <FontAwesomeIcon icon={faHourglass} style={{ margin: "0 5px" }} />
             {cookingTime}min |
             <StarRating
-              recipeId={viewingRecipeId}
+              id={viewingRecipeId}
               avgRating={avgTotalRating}
               nrRating={nrRating}
               callbackFunction={(recipeId: number, rating: number) => {

@@ -12,9 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
@@ -22,7 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,6 +44,8 @@ public class RecipeServiceTest {
   private CookbookRepository cookbookRepository;
   @Mock
   private MongoTemplate mongoTemplate;
+  @Captor
+  private ArgumentCaptor<Recipe> recipeCaptor;
   @InjectMocks
   private RecipeService recipeService;
 
@@ -321,7 +323,7 @@ public class RecipeServiceTest {
   // ######################################### Update Recipe Tests #########################################
 
   @Test
-  public void updateRecipeSuccessfullyUpdatesRecipe() throws Exception {
+  public void updateRecipeSuccessfullyUpdatesRecipe() {
     String accessToken = "Bearer accessToken";
     Recipe recipe = new Recipe();
     recipe.setId(1L);
@@ -341,7 +343,7 @@ public class RecipeServiceTest {
   }
 
   @Test
-  public void updateRecipeThrowsNotFoundWhenRecipeDoesNotExist() throws Exception {
+  public void updateRecipeThrowsNotFoundWhenRecipeDoesNotExist() {
     String accessToken = "accessToken";
     Recipe recipe = new Recipe();
     recipe.setId(1L);
@@ -354,7 +356,7 @@ public class RecipeServiceTest {
   }
 
   @Test
-  public void updateRecipeThrowsForbiddenWhenUserIsNotAuthorized() throws Exception {
+  public void updateRecipeThrowsForbiddenWhenUserIsNotAuthorized() {
     String accessToken = "accessToken";
     Recipe recipe = new Recipe();
     recipe.setId(1L);
@@ -412,5 +414,45 @@ public class RecipeServiceTest {
     recipeService.deleteRecipeByUser(recipe);
 
     verify(recipeRepository, times(1)).delete(recipe);
+  }
+
+  @Test
+  public void updateRecipeCreatorNameUpdatesNameForAllRecipesOfUser() {
+    Long userId = 1L;
+    String newUsername = "newUser";
+    Recipe recipe1 = new Recipe();
+    recipe1.setId(1L);
+    recipe1.setCreatorId(userId);
+    recipe1.setCreatorName("oldUser");
+
+    Recipe recipe2 = new Recipe();
+    recipe2.setId(2L);
+    recipe2.setCreatorId(userId);
+    recipe2.setCreatorName("oldUser");
+
+    List<Recipe> recipes = Arrays.asList(recipe1, recipe2);
+
+    when(recipeRepository.getByCreatorId(userId)).thenReturn(recipes);
+
+    recipeService.updateRecipeCreatorName(userId, newUsername);
+
+    verify(recipeRepository, times(2)).save(recipeCaptor.capture());
+    List<Recipe> updatedRecipes = recipeCaptor.getAllValues();
+
+    for (Recipe updatedRecipe : updatedRecipes) {
+      assertEquals(newUsername, updatedRecipe.getCreatorName());
+    }
+  }
+
+  @Test
+  public void updateRecipeCreatorNameDoesNothingForUserWithNoRecipes() {
+    Long userId = 1L;
+    String newUsername = "newUser";
+
+    when(recipeRepository.getByCreatorId(userId)).thenReturn(new ArrayList<>());
+
+    recipeService.updateRecipeCreatorName(userId, newUsername);
+
+    verify(recipeRepository, times(0)).save(any(Recipe.class));
   }
 }

@@ -46,11 +46,20 @@ public class SessionRequestService {
   public void sendSessionRequest(Long sessionId, String accessToken) {
     String username = jwtService.extractUsername(accessToken);
     Long userId = userRepository.getByUsername(username).getId();
+    Session session = sessionRepository.getById(sessionId);
 
     SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
     if (sessionRequest.getUserSessions().containsKey(sessionId)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "You have already sent a session request for this session");
     }
+
+    int participants = getSessionRequestsContainingSessionId(sessionId, true).size();
+    int maxParticipants = session.getMaxParticipantCount();
+
+    if (participants >= maxParticipants) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "The session is full");
+    }
+
     sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
 
     sessionRequestRepository.save(sessionRequest);
@@ -64,7 +73,9 @@ public class SessionRequestService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user has not sent a session request for this session");
     }
 
-    if (sessionRequest.getUserSessions().get(sessionId) == QueueStatus.ACCEPTED || sessionRequest.getUserSessions().get(sessionId) == QueueStatus.REJECTED) {
+    QueueStatus status = sessionRequest.getUserSessions().get(sessionId);
+
+    if (status == QueueStatus.ACCEPTED || status == QueueStatus.REJECTED) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "The request has already been accepted or rejected");
     }
 
@@ -94,7 +105,7 @@ public class SessionRequestService {
     }
 
     // All session requests containing the session id
-    List<SessionRequest> userSessionRequests = getSessionRequestsContainingSessionId(sessionId);
+    List<SessionRequest> userSessionRequests = getSessionRequestsContainingSessionId(sessionId, false);
 
     ArrayList<SingleSessionRequests> singleSessionRequests = new ArrayList<>();
 
@@ -121,13 +132,22 @@ public class SessionRequestService {
     sessionRequestRepository.delete(sessionRequest);
   }
 
-  public List<SessionRequest> getSessionRequestsContainingSessionId(Long sessionId) {
+  // Get all session requests containing the session id, if alreadyAccepted is true, return only the requests that have been accepted
+  public List<SessionRequest> getSessionRequestsContainingSessionId(Long sessionId, Boolean alreadyAccepted) {
     List<SessionRequest> allSessionRequests = sessionRequestRepository.findAll();
     List<SessionRequest> sessionRequestsContainingSessionId = new ArrayList<>();
 
+    // Add all session requests containing the session id and only the processed ones if alreadyProcessed is true
     for (SessionRequest sessionRequest : allSessionRequests) {
       if (sessionRequest.getUserSessions().containsKey(sessionId)) {
-        sessionRequestsContainingSessionId.add(sessionRequest);
+        if (!alreadyAccepted) {
+          sessionRequestsContainingSessionId.add(sessionRequest);
+        } else {
+          QueueStatus status = sessionRequest.getUserSessions().get(sessionId);
+          if (status == QueueStatus.ACCEPTED) {
+            sessionRequestsContainingSessionId.add(sessionRequest);
+          }
+        }
       }
     }
 

@@ -252,8 +252,6 @@ Used to update own profile information.
 **Code** : `200 OK`
 
 
-
-
 ### Error Response
 
 **Condition** : Invalid access token.
@@ -264,6 +262,30 @@ Used to update own profile information.
 
 ```
 403 FORBIDDEN
+```
+
+### Error Response
+
+**Condition** : Username already exists.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "Creating user failed because username already exists"
+```
+
+### Error Response
+
+**Condition** : Email already exists.
+
+**Code** : `409 CONFLICT`
+
+**Content** :
+
+```
+409 CONFLICT "Creating user failed because email already exists"
 ```
 
 ## Delete user
@@ -442,6 +464,30 @@ Authorization: Bearer [access token]
 
 ```
 403 FORBIDDEN
+```
+
+### Error Response
+
+**Condition** : Recipe not found.
+
+**Code** : `404 NOT FOUND`
+
+**Content** :
+
+```
+404 NOT FOUND "Recipe not found"
+```
+
+### Error Response
+
+**Condition** : User is not allowed to view this recipe.
+
+**Code** : `403 FORBIDDEN`
+
+**Content** :
+
+```
+403 FORBIDDEN "User is not allowed to view this recipe"
 ```
 
 ## Put recipe

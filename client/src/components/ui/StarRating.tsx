@@ -3,14 +3,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
 interface StarRatingProps {
-  recipeId: number;
+  id: number;
   avgRating: number;
   nrRating: number;
   callbackFunction: Function;
 }
 
 export const StarRating: React.FC<StarRatingProps> = ({
-  recipeId,
+  id,
   avgRating,
   nrRating,
   callbackFunction,
@@ -36,7 +36,7 @@ export const StarRating: React.FC<StarRatingProps> = ({
           }}
           onMouseEnter={() => setHoverOverRatingStar(key)}
           onMouseLeave={() => setHoverOverRatingStar(0)}
-          onClick={() => callbackFunction(recipeId, key)}
+          onClick={() => callbackFunction(id, key)}
         />
       ))}
       ({nrRating ?? 0})

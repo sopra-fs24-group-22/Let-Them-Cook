@@ -2,16 +2,24 @@ import styled from "styled-components";
 import React, { ReactNode } from "react";
 
 export const PrimaryButton = styled.button`
-  background-color: #8b5858;
+  background: linear-gradient(
+    90deg,
+    rgba(253, 153, 29, 1) 0%,
+    rgba(252, 176, 69, 1) 100%
+  );
+  box-shadow: 0px 4px 16px 4px #fdcc90;
   color: white;
-  padding: 5px 15px;
-  border-radius: 5px;
+  padding: 8px 16px;
+  font-weight: 500;
+  border-radius: 16px;
   outline: 0;
   border: 0;
   text-transform: uppercase;
   cursor: pointer;
+  transition: transform 0.2s;
   &:hover {
     background-color: #7c5050;
+    transform: scale(1.05);
   }
   &:disabled {
     cursor: default;
@@ -20,16 +28,20 @@ export const PrimaryButton = styled.button`
 `;
 
 export const SecondaryButton = styled.button`
-  background-color: #878787;
+  background: linear-gradient(90deg, #d4d4d4 0%, #c4c4c4 100%);
+  box-shadow: 0px 4px 16px 4px #e7e7e7;
   color: white;
-  padding: 5px 15px;
-  border-radius: 5px;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-weight: 500;
   outline: 0;
   border: 0;
   text-transform: uppercase;
   cursor: pointer;
+  transition: transform 0.2s;
   &:hover {
     background-color: #737373;
+    transform: scale(1.05);
   }
   &:disabled {
     cursor: default;

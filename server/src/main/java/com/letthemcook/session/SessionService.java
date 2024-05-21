@@ -3,7 +3,6 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
-import com.letthemcook.sessionrequest.SessionRequest;
 import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
@@ -38,10 +37,9 @@ public class SessionService {
   private final RecipeRepository recipeRepository;
   private final MongoTemplate mongoTemplate;
   private final VideoSDKService videoSDKService;
-  private final SessionRequestService sessionRequestService;
 
   @Autowired
-  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService, SessionRequestService sessionRequestService) {
+  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService) {
     this.sessionRepository = sessionRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
@@ -49,7 +47,6 @@ public class SessionService {
     this.recipeRepository = recipeRepository;
     this.mongoTemplate = mongoTemplate;
     this.videoSDKService = videoSDKService;
-    this.sessionRequestService = sessionRequestService;
   }
 
   public Session createSession(Session session, String accessToken) throws IOException {
@@ -391,5 +388,12 @@ public class SessionService {
     }
 
     return existingSession;
+  }
+
+  public void updateSessionHostName(Long userId, String username) {
+    for (Session session : sessionRepository.getByHostId(userId)) {
+      session.setHostName(username);
+      sessionRepository.save(session);
+    }
   }
 }

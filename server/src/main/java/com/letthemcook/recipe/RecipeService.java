@@ -188,6 +188,13 @@ public class RecipeService {
     return existingRecipe;
   }
 
+  public void updateRecipeCreatorName(Long userId, String username) {
+    for (Recipe recipe : recipeRepository.getByCreatorId(userId)) {
+      recipe.setCreatorName(username);
+      recipeRepository.save(recipe);
+    }
+  }
+
   public void deleteRecipeByUser(Recipe recipe) {
     recipeRepository.delete(recipe);
   }

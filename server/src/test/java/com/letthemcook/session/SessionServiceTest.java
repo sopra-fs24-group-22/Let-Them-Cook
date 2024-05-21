@@ -46,16 +46,13 @@ public class SessionServiceTest {
   private MongoTemplate mongoTemplate;
   @Mock
   private SessionUserState sessionUserState;
-  @Mock
-  private SessionRequestService sessionRequestService;
-
   @InjectMocks
   private SessionService sessionService;
 
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService, sessionRequestService);
+    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService);
     // Setup session
     Session session = new Session();
     session.setId(1L);

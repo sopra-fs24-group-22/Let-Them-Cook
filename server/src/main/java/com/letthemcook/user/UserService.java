@@ -5,6 +5,7 @@ import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
 import com.letthemcook.rating.Rating;
 import com.letthemcook.recipe.Recipe;
+import com.letthemcook.recipe.RecipeRepository;
 import com.letthemcook.recipe.RecipeService;
 import com.letthemcook.session.Session;
 import com.letthemcook.session.SessionService;
@@ -33,6 +34,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static org.springframework.util.ClassUtils.getMethod;
@@ -50,10 +52,11 @@ public class UserService {
   private final SessionRequestService sessionRequestService;
   private final MongoTemplate mongoTemplate;
   private final SessionService sessionService;
+  private final RecipeRepository recipeRepository;
   Logger logger = LoggerFactory.getLogger(UserService.class);
 
   @Autowired
-  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, RecipeService recipeService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate, SessionService sessionService) {
+  public UserService(@Qualifier("userRepository") UserRepository userRepository, CookbookService cookbookService, RecipeService recipeService, SequenceGeneratorService sequenceGeneratorService, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, JwtService jwtService, SessionRequestService sessionRequestService, MongoTemplate mongoTemplate, SessionService sessionService, RecipeRepository recipeRepository) {
     this.userRepository = userRepository;
     this.cookbookService = cookbookService;
     this.recipeService = recipeService;
@@ -64,6 +67,7 @@ public class UserService {
     this.sessionRequestService = sessionRequestService;
     this.mongoTemplate = mongoTemplate;
     this.sessionService = sessionService;
+    this.recipeRepository = recipeRepository;
   }
 
   public Token createUser(User newUser) {
@@ -143,6 +147,15 @@ public class UserService {
   public void updateUser(User user, String accessToken) {
     String username = jwtService.extractUsername(accessToken);
     User userToUpdate = userRepository.getByUsername(username);
+
+    if (!Objects.equals(username, user.getUsername()) || !(Objects.equals(userToUpdate.getEmail(), user.getEmail()))) {
+      checkIfUserExists(user);
+
+      String newUsername = user.getUsername();
+      Long userId = userToUpdate.getId();
+      recipeService.updateRecipeCreatorName(userId, newUsername);
+      sessionService.updateSessionHostName(userId, newUsername);
+    }
 
     User updatedUser = updateUserData(userToUpdate, user);
 

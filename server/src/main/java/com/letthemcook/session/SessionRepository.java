@@ -9,4 +9,5 @@ public interface SessionRepository extends MongoRepository<Session, Long> {
   Session getById(Long id);
   void deleteById(Long id);
   List<Session> findAllByDateAfter(LocalDateTime date);
+  List<Session> getByHostId(Long hostId);
 }

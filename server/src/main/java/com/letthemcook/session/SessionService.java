@@ -353,7 +353,7 @@ public class SessionService {
   /**
    * Removes session from repository after its completion
    */
-  @Scheduled(fixedRate = 1800000)
+  @Scheduled(fixedRate = 60000)
   private void deleteSessions() {
     // TODO: Write tests
     List<Session> sessions = sessionRepository.findAll();
@@ -364,13 +364,18 @@ public class SessionService {
         // Skip this iteration of the loop
         continue;
       }
-    if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(duration).plusHours(12L))) {
+
+      if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(duration).plusHours(12L))) {
         sessionRepository.deleteById(session.getId());
+
+        // Delete all sessionRequests for this session
+        for (SessionRequest sessionRequest : sessionRequestRepository.findAll()) {
+          sessionRequest.getUserSessions().remove(session.getId());
+          sessionRequestRepository.save(sessionRequest);
+        }
       }
     }
   }
-
-  // ######################################### Util #########################################
 
   public void deleteSessionByUser(Session session) {
     sessionRepository.delete(session);

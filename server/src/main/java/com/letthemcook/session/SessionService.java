@@ -3,6 +3,9 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
+import com.letthemcook.sessionrequest.QueueStatus;
+import com.letthemcook.sessionrequest.SessionRequest;
+import com.letthemcook.sessionrequest.SessionRequestRepository;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -36,9 +39,10 @@ public class SessionService {
   private final RecipeRepository recipeRepository;
   private final MongoTemplate mongoTemplate;
   private final VideoSDKService videoSDKService;
+  private final SessionRequestRepository sessionRequestRepository;
 
   @Autowired
-  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService) {
+  public SessionService(@Qualifier("sessionRepository") SessionRepository sessionRepository, SequenceGeneratorService sequenceGeneratorService, UserRepository userRepository, JwtService jwtService, RecipeRepository recipeRepository, MongoTemplate mongoTemplate, VideoSDKService videoSDKService, SessionRequestRepository sessionRequestRepository) {
     this.sessionRepository = sessionRepository;
     this.sequenceGeneratorService = sequenceGeneratorService;
     this.jwtService = jwtService;
@@ -46,6 +50,7 @@ public class SessionService {
     this.recipeRepository = recipeRepository;
     this.mongoTemplate = mongoTemplate;
     this.videoSDKService = videoSDKService;
+    this.sessionRequestRepository = sessionRequestRepository;
   }
 
   public Session createSession(Session session, String accessToken) throws IOException {
@@ -170,6 +175,7 @@ public class SessionService {
     String username = jwtService.extractUsername(accessToken);
     User user = userRepository.getByUsername(username);
     Long userId = user.getId();
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
     Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
@@ -177,9 +183,14 @@ public class SessionService {
     }
 
     Long hostId = session.getHostId();
-    if (!Objects.equals(hostId, userId)) {
+    if (Objects.equals(hostId, userId)) {
       return session;
     }
+
+    if (!Objects.equals(sessionRequest.getUserSessions().get(sessionId), QueueStatus.ACCEPTED)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not accepted to this session");
+    }
+
     ArrayList<Long> participants = session.getParticipants();
     participants.add(userId);
     session.setParticipants(participants);

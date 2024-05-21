@@ -337,7 +337,12 @@ public class SessionService {
     List<Session> sessions = sessionRepository.findAll();
 
     for (Session session : sessions) {
-      if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(session.getDuration()).plusHours(12L))) {
+      Integer duration = session.getDuration();
+      if (duration == null) {
+        // Skip this iteration of the loop
+        continue;
+      }
+    if (LocalDateTime.now().isAfter(session.getDate().plusMinutes(duration).plusHours(12L))) {
         sessionRepository.deleteById(session.getId());
       }
     }

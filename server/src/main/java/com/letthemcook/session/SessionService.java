@@ -254,16 +254,28 @@ public class SessionService {
   }
 
   public List<Session> getSessionsByUser(String accessToken) {
-    // TODO: Add pending requests
     // TODO: Write tests
     String username = jwtService.extractUsername(accessToken);
 
     List<Session> sessions = sessionRepository.findAll();
     List<Session> userSessions = new ArrayList<>();
+    Long userId = userRepository.getByUsername(username).getId();
+    SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
 
+    // Check if user is host or already in session
     for (Session session : sessions) {
-      if (Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId()) || session.getParticipants().contains(userRepository.getByUsername(username).getId())) {
+      if (Objects.equals(session.getHostId(), userId) || session.getParticipants().contains(userRepository.getByUsername(username).getId())) {
         userSessions.add(session);
+      }
+    }
+
+    // Check if user has pending or accepted requests
+    if (sessionRequest != null) {
+      for (Map.Entry<Long, QueueStatus> entry : sessionRequest.getUserSessions().entrySet()) {
+        if (entry.getValue().equals(QueueStatus.PENDING) || entry.getValue().equals(QueueStatus.ACCEPTED)) {
+          Session session = sessionRepository.getById(entry.getKey());
+          userSessions.add(session);
+        }
       }
     }
 

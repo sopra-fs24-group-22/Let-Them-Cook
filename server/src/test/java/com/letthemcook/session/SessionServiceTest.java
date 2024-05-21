@@ -3,6 +3,7 @@ package com.letthemcook.session;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeRepository;
+import com.letthemcook.sessionrequest.SessionRequestRepository;
 import com.letthemcook.user.User;
 import com.letthemcook.user.UserRepository;
 import com.letthemcook.util.SequenceGeneratorService;
@@ -24,9 +25,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +45,8 @@ public class SessionServiceTest {
   private VideoSDKService videoSDKService;
   @Mock
   private MongoTemplate mongoTemplate;
+  @Mock
+  private SessionRequestRepository sessionRequestRepository;
   @Captor
   private ArgumentCaptor<Session> sessionCaptor;
   @InjectMocks
@@ -53,7 +55,7 @@ public class SessionServiceTest {
   // ######################################### Setup & Teardown #########################################
   @BeforeEach
   public void setup() {
-    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService);
+    sessionService = new SessionService(sessionRepository, sequenceGeneratorService, userRepository, jwtService, recipeRepository, mongoTemplate, videoSDKService, sessionRequestRepository);
     // Setup session
     Session session = new Session();
     session.setId(1L);

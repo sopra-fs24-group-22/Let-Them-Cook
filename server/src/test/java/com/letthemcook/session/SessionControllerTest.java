@@ -9,6 +9,7 @@ import com.letthemcook.user.User;
 import com.letthemcook.user.UserController;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -33,10 +35,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(SessionController.class)
@@ -255,7 +258,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
   @Test
   @WithMockUser(username = "testUser", password = "testPassword")
-  public void updateSessionSuccess() throws Exception {
+  public void testUpdateSessionSuccess() throws Exception {
     Date date = new Date();
     SessionDTO sessionPutDTO = new SessionDTO();
     sessionPutDTO.setId(1L);
@@ -277,7 +280,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
   }
 
   @Test
-  public void updateSessionFailureUnauthorized() throws Exception {
+  public void testUpdateSessionFailureUnauthorized() throws Exception {
     Date date = new Date();
     SessionDTO sessionPutDTO = new SessionDTO();
     sessionPutDTO.setId(1L);
@@ -452,4 +455,113 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
                     .content(new ObjectMapper().writeValueAsString(checkPutDTO)))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized());
   }
+
+  // ######################################### Delete Session Tests #########################################
+
+  @Test
+  public void testDeleteSessionSuccessfully() {
+    Long sessionId = 1L;
+    String accessToken = "Bearer accessToken";
+
+    ResponseEntity<Void> response = sessionController.deleteSession(sessionId, accessToken);
+
+    verify(sessionService, times(1)).deleteSession(sessionId, accessToken);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testDeleteSessionWithInvalidSessionId() {
+    Long sessionId = -1L;
+    String accessToken = "Bearer accessToken";
+
+    ResponseEntity<Void> response = sessionController.deleteSession(sessionId, accessToken);
+
+    verify(sessionService, times(1)).deleteSession(sessionId, accessToken);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  @Test
+  public void testDeleteSessionWithNullSessionId() {
+    Long sessionId = null;
+    String accessToken = "Bearer accessToken";
+
+    ResponseEntity<Void> response = sessionController.deleteSession(sessionId, accessToken);
+
+    verify(sessionService, times(1)).deleteSession(sessionId, accessToken);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+  }
+
+  // ######################################### Get Session Credentials Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testGetSessionCredentialsSuccessfully() throws Exception {
+    Long sessionId = 1L;
+    String accessToken = "Bearer accessToken";
+
+    Session session = new Session();
+    session.setId(sessionId);
+    when(sessionService.getSessionCredentials(sessionId, accessToken)).thenReturn(session);
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/credentials/" + sessionId)
+                    .header("Authorization", accessToken)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetSessionCredentialsUnauthorized() throws Exception {
+    String accessToken = "accessToken";
+    Long sessionId = 1L;
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/credentials/{sessionId}", sessionId)
+                    .header("Authorization", accessToken)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  // ######################################### Get Open Sessions Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testPersonalSessionsSuccessfully() throws Exception {
+    String accessToken = "Bearer accessToken";
+
+    Session session = new Session();
+    session.setId(1L);
+    when(sessionService.getSessionsByUser(accessToken)).thenReturn(List.of(session));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/me")
+                    .header("Authorization", accessToken)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  @WithMockUser
+  public void testGetPersonalSessionsWithNoSessions() throws Exception {
+    String accessToken = "Bearer accessToken";
+
+    when(sessionService.getSessionsByUser(accessToken)).thenReturn(new ArrayList<>());
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/me")
+                    .header("Authorization", accessToken)
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void testGetPersonalSessionsWithUnauthorizedUser() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/session/me")
+                    .with(csrf())
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
 }
+

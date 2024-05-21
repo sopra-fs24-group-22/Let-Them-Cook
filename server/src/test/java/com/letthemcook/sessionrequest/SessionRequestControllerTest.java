@@ -87,7 +87,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void createSessionRequestReturnsCreatedStatus() throws Exception {
+  public void testCreateSessionRequestReturnsCreatedStatus() throws Exception {
     Long sessionId = 1L;
     String accessToken = "Bearer accessToken";
 
@@ -103,7 +103,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void createSessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+  public void testCreateSessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
     Long sessionId = 999L; // non-existing session id
     String accessToken = "Bearer accessToken";
 
@@ -116,7 +116,7 @@ public class SessionRequestControllerTest {
   }
 
   @Test
-  public void createSessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+  public void testCreateSessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
     Long sessionId = 1L;
 
     mockMvc.perform(post("/api/session_request/{sessionId}", sessionId)
@@ -130,7 +130,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void acceptSessionRequestReturnsOkStatus() throws Exception {
+  public void testAcceptSessionRequestReturnsOkStatus() throws Exception {
     Long sessionId = 1L;
     String accessToken = "Bearer accessToken";
     SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
@@ -149,7 +149,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void acceptSessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+  public void testAcceptSessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
     Long sessionId = 999L; // non-existing session id
     String accessToken = "Bearer accessToken";
     SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
@@ -165,7 +165,7 @@ public class SessionRequestControllerTest {
   }
 
   @Test
-  public void acceptSessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+  public void testAcceptSessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
     Long sessionId = 1L;
     SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
 
@@ -180,7 +180,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void denySessionRequestReturnsOkStatus() throws Exception {
+  public void testDenySessionRequestReturnsOkStatus() throws Exception {
     Long sessionId = 1L;
     String accessToken = "Bearer accessToken";
     SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
@@ -199,7 +199,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void denySessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+  public void testDenySessionRequestWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
     Long sessionId = 999L; // non-existing session id
     String accessToken = "Bearer accessToken";
     SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
@@ -215,7 +215,7 @@ public class SessionRequestControllerTest {
   }
 
   @Test
-  public void denySessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+  public void testDenySessionRequestWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
     Long sessionId = 1L;
     SessionRequestDTO sessionRequestDTO = new SessionRequestDTO();
 
@@ -230,7 +230,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void getSessionRequestsReturnsOkStatus() throws Exception {
+  public void testGetSessionRequestsReturnsOkStatus() throws Exception {
     String accessToken = "Bearer accessToken";
     SessionRequest sessionRequest = new SessionRequest();
     SessionRequestsGetDTO sessionRequestsGetDTO = DTORequestSessionMapper.INSTANCE.convertEntityToGetSessionRequestsDTO(sessionRequest);
@@ -247,7 +247,7 @@ public class SessionRequestControllerTest {
   }
 
   @Test
-  public void getSessionRequestsWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+  public void testGetSessionRequestsWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request")
                     .with(csrf()))
             .andExpect(status().isUnauthorized());
@@ -257,7 +257,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void getSingleSessionRequestsReturnsOkStatus() throws Exception {
+  public void testGetSingleSessionRequestsReturnsOkStatus() throws Exception {
     Long sessionId = 1L;
     String accessToken = "Bearer accessToken";
     ArrayList<SingleSessionRequests> singleSessionRequests = new ArrayList<>();
@@ -279,7 +279,7 @@ public class SessionRequestControllerTest {
   }
 
   @Test
-  public void getSingleSessionRequestsWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+  public void testGetSingleSessionRequestsWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
     Long sessionId = 1L;
 
     mockMvc.perform(MockMvcRequestBuilders.get("/api/session_request/{sessionId}", sessionId)
@@ -289,7 +289,7 @@ public class SessionRequestControllerTest {
 
   @Test
   @WithMockUser
-  public void getSingleSessionRequestsWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
+  public void testGetSingleSessionRequestsWithInvalidSessionIdReturnsNotFoundStatus() throws Exception {
     Long sessionId = 999L; // non-existing session id
     String accessToken = "Bearer accessToken";
 

@@ -1,5 +1,5 @@
 import Layout from "../components/Layout/MainLayout";
-import { useEffect, useState } from "react";
+import { Dispatch, useEffect, useState } from "react";
 import { Input, Label } from "../components/ui/Input";
 import { ENV } from "../env";
 import { eMailIsValid } from "../helpers/eMailIsValid";
@@ -7,14 +7,15 @@ import { PrimaryButton } from "../components/ui/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { putUserMeAPI } from "../api/app.api";
-import { useSelector } from "react-redux";
-import { State } from "../features";
+import { useDispatch, useSelector } from "react-redux";
+import { loadAccessTokenAndUser, State } from "../features";
 import { Tooltip } from "react-tooltip";
 import { logout } from "../helpers/logout";
 import { useNavigate } from "react-router-dom";
 
 const UserPage = () => {
   const navigate = useNavigate();
+  const dispatch: Dispatch<any> = useDispatch();
 
   const { user } = useSelector((state: State) => state.app);
   const [firstname, setFirstname] = useState<string>("");
@@ -26,6 +27,12 @@ const UserPage = () => {
 
   const userdataIsValid = () =>
     firstname && lastname && username && email && emailIsValid;
+
+  const anyUserdataChanged = () =>
+    firstname !== user.firstname ||
+    lastname !== user.lastname ||
+    username !== user.username ||
+    email !== user.email;
 
   const [userdataIsLoading, setUserdataIsLoading] = useState<boolean>(false);
   const [userdataSaved, setUserdataSaved] = useState<boolean>(false);
@@ -44,12 +51,22 @@ const UserPage = () => {
   const saveUserdata = async () => {
     setUserdataIsLoading(true);
     try {
-      await putUserMeAPI({ firstname, lastname, username, email });
+      let data = {};
+      if (firstname !== user.firstname) data = { ...data, firstname };
+      if (lastname !== user.lastname) data = { ...data, lastname };
+      if (username !== user.username) data = { ...data, username };
+      if (email !== user.email) data = { ...data, email };
+
+      await putUserMeAPI(data);
+
       setUserdataSaved(true);
       setTimeout(() => {
         setUserdataSaved(false);
       }, 5000);
-      if (usernameIsChanged) logout(navigate);
+      if (usernameIsChanged || username !== user.username) logout(navigate);
+
+      // reload user in Redux
+      dispatch(loadAccessTokenAndUser());
     } catch (e) {
       alert("Error while saving the userdata. Please try again.");
     }
@@ -156,7 +173,7 @@ const UserPage = () => {
         value={email ? email : ""}
         onChange={(e) => {
           setEmail(e.target.value);
-          setEmailIsValid(eMailIsValid(email));
+          setEmailIsValid(eMailIsValid(e.target.value));
         }}
       />
 
@@ -169,7 +186,7 @@ const UserPage = () => {
       )}
 
       <PrimaryButton
-        disabled={!userdataIsValid()}
+        disabled={!userdataIsValid() || !anyUserdataChanged()}
         style={{ marginTop: userdataSaved ? "" : "20px" }}
         onClick={saveUserdata}
       >

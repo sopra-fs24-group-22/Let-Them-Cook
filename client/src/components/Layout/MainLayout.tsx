@@ -6,8 +6,7 @@ import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
 import { Modal } from "react-bootstrap";
 import { PrimaryButton, SecondaryButton } from "../ui/Button";
-import { postLogoutAPI } from "../../api/app.api";
-import { deleteAccessToken } from "../../api/axios";
+import { logout } from "../../helpers/logout";
 import Logo from "../ui/Logo";
 
 interface MainLayoutProps {
@@ -23,15 +22,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   const handleShowLogoutBox = () => setShowLogoutBox(true);
   const handleCloseLogoutBox = () => setShowLogoutBox(false);
   const navigate = useNavigate();
-  const logout = async () => {
-    try {
-      deleteAccessToken();
-      await postLogoutAPI({});
-      navigate("/login");
-    } catch (error) {
-      alert("Something went wrong during logout");
-    }
-  };
   return (
     <Wrapper>
       <Navbar>
@@ -94,7 +84,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           <SecondaryButton onClick={handleCloseLogoutBox}>
             No, stay logged in
           </SecondaryButton>
-          <PrimaryButton onClick={logout}>Yes, log out</PrimaryButton>
+          <PrimaryButton onClick={() => logout(navigate)}>
+            Yes, log out
+          </PrimaryButton>
         </Modal.Footer>
       </Modal>
     </Wrapper>

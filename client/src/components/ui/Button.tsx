@@ -26,6 +26,13 @@ export const PrimaryButton = styled.button`
   }
 `;
 
+export const SimplePrimaryButton = styled(PrimaryButton)`
+  &:hover {
+    filter: brightness(90%);
+    transform: scale(1);
+  }
+`;
+
 export const SecondaryButton = styled.button`
   background: linear-gradient(90deg, #bebebe 0%, #a9a9a9 100%);
   color: white;
@@ -44,6 +51,13 @@ export const SecondaryButton = styled.button`
   &:disabled {
     cursor: default;
     opacity: 0.7;
+  }
+`;
+
+export const SimpleSecondaryButton = styled(SecondaryButton)`
+  &:hover {
+    filter: brightness(90%);
+    transform: scale(1);
   }
 `;
 

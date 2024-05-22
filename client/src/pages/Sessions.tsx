@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import {
   PrimaryButton,
+  SimplePrimaryButton,
   SecondaryButton,
+  SimpleSecondaryButton,
   ButtonGroup,
   JoinButton,
   HLine,
@@ -32,6 +34,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
   faHourglass,
+  faSpinner,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
@@ -230,13 +233,25 @@ const SessionsPage = () => {
       alert("Error while saving the session. Please try again.");
     }
   };
+
+  const [currentLoadingSessionRequests, setCurrentLoadingSessionRequests] =
+    useState<any[]>([]);
+
   const requestParticipation = async (sessionId: number) => {
+    setCurrentLoadingSessionRequests([
+      ...currentLoadingSessionRequests,
+      sessionId,
+    ]);
     try {
-      await postSessionRequestAPI(sessionId);
-      alert("Session request sent.");
+      await postSessionRequestAPI(sessionId).then(async () => {
+        await fetchUserSessionRequests();
+      });
     } catch (error) {
       alert("You have already sent a session request for this session.");
     }
+    setCurrentLoadingSessionRequests(
+      currentLoadingSessionRequests.filter((e) => e !== sessionId),
+    );
   };
 
   const [pageView, setPageView] = useState<"ALL" | "MY">("ALL");
@@ -250,7 +265,7 @@ const SessionsPage = () => {
   const buttonTopBar =
     pageView === "ALL" ? (
       <>
-        <PrimaryButton
+        <SimplePrimaryButton
           style={{
             width: "50%",
             borderTopRightRadius: "0",
@@ -258,8 +273,8 @@ const SessionsPage = () => {
           }}
         >
           All sessions
-        </PrimaryButton>
-        <SecondaryButton
+        </SimplePrimaryButton>
+        <SimpleSecondaryButton
           onClick={() => changeView("MY")}
           style={{
             width: "50%",
@@ -268,11 +283,11 @@ const SessionsPage = () => {
           }}
         >
           My sessions
-        </SecondaryButton>
+        </SimpleSecondaryButton>
       </>
     ) : (
       <>
-        <SecondaryButton
+        <SimpleSecondaryButton
           onClick={() => changeView("ALL")}
           style={{
             width: "50%",
@@ -281,8 +296,8 @@ const SessionsPage = () => {
           }}
         >
           All sessions
-        </SecondaryButton>
-        <PrimaryButton
+        </SimpleSecondaryButton>
+        <SimplePrimaryButton
           style={{
             width: "50%",
             borderTopLeftRadius: "0",
@@ -290,9 +305,61 @@ const SessionsPage = () => {
           }}
         >
           My sessions
-        </PrimaryButton>
+        </SimplePrimaryButton>
       </>
     );
+
+  // Icon for the status of the session request
+  const requestStatusIcon = (
+    status: string,
+    position: "top" | "right" | "bottom" | "left",
+  ) => (
+    <>
+      <Tooltip
+        anchorSelect={".requestStatusIconAccepted"}
+        place={position}
+        style={{ zIndex: "100" }}
+      >
+        Accepted
+      </Tooltip>
+      <Tooltip
+        anchorSelect={".requestStatusIconRejected"}
+        place={position}
+        style={{ zIndex: "100" }}
+      >
+        Rejected
+      </Tooltip>
+      <Tooltip
+        anchorSelect={".requestStatusIconPending"}
+        place={position}
+        style={{ zIndex: "100" }}
+      >
+        Pending
+      </Tooltip>
+      {status === "ACCEPTED" ? (
+        <FontAwesomeIcon
+          icon={faCheck}
+          style={{ color: "green", marginLeft: "5px" }}
+          className="requestStatusIconAccepted"
+        />
+      ) : status === "REJECTED" ? (
+        <FontAwesomeIcon
+          icon={faTimes}
+          style={{ color: "red", marginLeft: "5px" }}
+          className="requestStatusIconRejected"
+        />
+      ) : status === "PENDING" ? (
+        <FontAwesomeIcon
+          icon={faHourglass}
+          style={{ color: "orange", marginLeft: "5px" }}
+          className="requestStatusIconPending"
+        />
+      ) : (
+        <></>
+      )}
+    </>
+  );
+
   // Return
   return (
     <>
@@ -404,6 +471,13 @@ const SessionsPage = () => {
                       >
                         {session.sessionName}
                       </Header2>
+                      <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                        {currentUserId !== session.host &&
+                          requestStatusIcon(
+                            sessionRequestsUser[session.id],
+                            "right",
+                          )}
+                      </span>
                       <span style={{ float: "right", marginRight: "10px" }}>
                         <JoinButton
                           onClick={() => navigate("/sessions/" + session.id)}
@@ -423,12 +497,19 @@ const SessionsPage = () => {
                             display:
                               currentUserId !== session.host &&
                               sessionRequestsUser[session.id] !== "ACCEPTED" &&
-                              sessionRequestsUser[session.id] !== "REJECTED"
+                              sessionRequestsUser[session.id] !== "REJECTED" &&
+                              sessionRequestsUser[session.id] !== "PENDING"
                                 ? "inline-block"
                                 : "none",
                           }}
                         >
-                          Request participation
+                          {currentLoadingSessionRequests.includes(
+                            session.id,
+                          ) ? (
+                            <FontAwesomeIcon icon={faSpinner} spin={true} />
+                          ) : (
+                            "Request participation"
+                          )}
                         </JoinButton>
                         <JoinButton
                           onClick={() => manageRequests(session.id)}
@@ -554,27 +635,6 @@ const SessionsPage = () => {
         </Modal.Footer>
       </Modal>
       <Modal show={showRequests} onHide={handleClose}>
-        <Tooltip
-          anchorSelect={".requestStatusIconAccepted"}
-          place="right"
-          style={{ zIndex: "100" }}
-        >
-          Accepted
-        </Tooltip>
-        <Tooltip
-          anchorSelect={".requestStatusIconRejected"}
-          place="right"
-          style={{ zIndex: "100" }}
-        >
-          Rejected
-        </Tooltip>
-        <Tooltip
-          anchorSelect={".requestStatusIconPending"}
-          place="right"
-          style={{ zIndex: "100" }}
-        >
-          Pending
-        </Tooltip>
         <Modal.Header>
           <Modal.Title>Manage requests</Modal.Title>
         </Modal.Header>
@@ -586,25 +646,7 @@ const SessionsPage = () => {
                   <span style={{ marginRight: "10px" }}>
                     {request.username}
                   </span>
-                  {request.queueStatus === "ACCEPTED" ? (
-                    <FontAwesomeIcon
-                      icon={faCheck}
-                      style={{ color: "green", marginLeft: "5px" }}
-                      className="requestStatusIconAccepted"
-                    />
-                  ) : request.queueStatus === "REJECTED" ? (
-                    <FontAwesomeIcon
-                      icon={faTimes}
-                      style={{ color: "red", marginLeft: "5px" }}
-                      className="requestStatusIconRejected"
-                    />
-                  ) : (
-                    <FontAwesomeIcon
-                      icon={faHourglass}
-                      style={{ color: "orange", marginLeft: "5px" }}
-                      className="requestStatusIconPending"
-                    />
-                  )}
+                  {requestStatusIcon(request.queueStatus, "right")}
                 </span>
                 <span style={{ float: "right" }}>
                   <PrimaryButton

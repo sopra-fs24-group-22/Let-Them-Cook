@@ -606,7 +606,7 @@ const SessionsPage = () => {
                     />
                   )}
                 </span>
-                <span style={{ float: "right", marginRight: "10px" }}>
+                <span style={{ float: "right" }}>
                   <PrimaryButton
                     style={{
                       display:
@@ -615,7 +615,7 @@ const SessionsPage = () => {
                           ? "none"
                           : "inline-block",
                       fontSize: "0.8em",
-                      marginRight: "10px",
+                      marginRight: "5px",
                     }}
                     onClick={() => {
                       acceptRequest(currentManagedSession, request.userId);

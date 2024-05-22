@@ -7,7 +7,6 @@ export const PrimaryButton = styled.button`
     rgba(253, 153, 29, 1) 0%,
     rgba(252, 176, 69, 1) 100%
   );
-  box-shadow: 0px 4px 16px 4px #fdcc90;
   color: white;
   padding: 8px 16px;
   font-weight: 500;
@@ -28,8 +27,7 @@ export const PrimaryButton = styled.button`
 `;
 
 export const SecondaryButton = styled.button`
-  background: linear-gradient(90deg, #d4d4d4 0%, #c4c4c4 100%);
-  box-shadow: 0px 4px 16px 4px #e7e7e7;
+  background: linear-gradient(90deg, #bebebe 0%, #a9a9a9 100%);
   color: white;
   padding: 8px 16px;
   border-radius: 16px;

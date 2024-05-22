@@ -5,16 +5,22 @@ import { ENV } from "../env";
 import { eMailIsValid } from "../helpers/eMailIsValid";
 import { PrimaryButton } from "../components/ui/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { putUserMeAPI } from "../api/app.api";
 import { useSelector } from "react-redux";
 import { State } from "../features";
+import { Tooltip } from "react-tooltip";
+import { logout } from "../helpers/logout";
+import { useNavigate } from "react-router-dom";
 
 const UserPage = () => {
+  const navigate = useNavigate();
+
   const { user } = useSelector((state: State) => state.app);
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [username, setUsername] = useState<string>("");
+  const [usernameIsChanged, setUsernameIsChanged] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
 
@@ -43,6 +49,7 @@ const UserPage = () => {
       setTimeout(() => {
         setUserdataSaved(false);
       }, 5000);
+      if (usernameIsChanged) logout(navigate);
     } catch (e) {
       alert("Error while saving the userdata. Please try again.");
     }
@@ -116,8 +123,22 @@ const UserPage = () => {
         maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
         style={{ margin: "0", width: "250px" }}
         value={username ? username : ""}
+        disabled={!usernameIsChanged}
         onChange={(e) => setUsername(e.target.value)}
       />
+      {!usernameIsChanged && (
+        <>
+          <Tooltip anchorSelect={".changeUsername"} place="right">
+            If you change your username, you will be logged out after saving.
+          </Tooltip>
+          <FontAwesomeIcon
+            icon={faEdit}
+            onClick={() => setUsernameIsChanged(true)}
+            style={{ cursor: "pointer", marginLeft: "10px", color: "#867b77" }}
+            className="changeUsername"
+          />
+        </>
+      )}
 
       <Label htmlFor="email" style={{ margin: "15px 0 5px 0" }}>
         E-Mail

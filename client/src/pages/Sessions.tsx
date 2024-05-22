@@ -27,6 +27,13 @@ import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
 import { useSelector } from "react-redux";
 import { State } from "../features";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faHourglass,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import { Tooltip } from "react-tooltip";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -547,18 +554,60 @@ const SessionsPage = () => {
         </Modal.Footer>
       </Modal>
       <Modal show={showRequests} onHide={handleClose}>
+        <Tooltip
+          anchorSelect={".requestStatusIconAccepted"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Accepted
+        </Tooltip>
+        <Tooltip
+          anchorSelect={".requestStatusIconRejected"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Rejected
+        </Tooltip>
+        <Tooltip
+          anchorSelect={".requestStatusIconPending"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Pending
+        </Tooltip>
         <Modal.Header>
           <Modal.Title>Manage requests</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Container>
             {sessionRequests.map((request, index) => (
-              <Row key={index}>
-                <Col>
-                  <Header3>{request.username}</Header3>
+              <Row key={index} style={{ marginBottom: "10px" }}>
+                <Col style={{ paddingTop: "5px" }}>
+                  <p>{request.username}</p>
                 </Col>
-                <Col>
-                  <Header3>Status: {request.queueStatus}</Header3>
+                <Col style={{ paddingTop: "5px" }}>
+                  <p>
+                    Status:
+                    {request.queueStatus === "ACCEPTED" ? (
+                      <FontAwesomeIcon
+                        icon={faCheck}
+                        style={{ color: "green", marginLeft: "5px" }}
+                        className="requestStatusIconAccepted"
+                      />
+                    ) : request.queueStatus === "REJECTED" ? (
+                      <FontAwesomeIcon
+                        icon={faTimes}
+                        style={{ color: "red", marginLeft: "5px" }}
+                        className="requestStatusIconRejected"
+                      />
+                    ) : (
+                      <FontAwesomeIcon
+                        icon={faHourglass}
+                        style={{ color: "orange", marginLeft: "5px" }}
+                        className="requestStatusIconPending"
+                      />
+                    )}
+                  </p>
                 </Col>
                 <Col xs={3}>
                   <PrimaryButton
@@ -568,6 +617,7 @@ const SessionsPage = () => {
                         request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
+                      fontSize: "0.8em",
                     }}
                     onClick={() => {
                       acceptRequest(currentManagedSession, request.userId);
@@ -576,7 +626,7 @@ const SessionsPage = () => {
                     Accept
                   </PrimaryButton>
                 </Col>
-                <Col xs={0}>
+                <Col>
                   <SecondaryButton
                     style={{
                       display:
@@ -584,6 +634,7 @@ const SessionsPage = () => {
                         request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
+                      fontSize: "0.8em",
                     }}
                     onClick={() => {
                       denyRequest(currentManagedSession, request.userId);

@@ -40,6 +40,9 @@ const Router = () => {
         <Route path="/sessions" element={<AppGuard />}>
           <Route path="/sessions" element={<SessionsPage />} />
         </Route>
+        <Route path="/sessions/detail/:session" element={<AppGuard />}>
+          <Route path="/sessions/detail/:session" element={<SessionsPage />} />
+        </Route>
 
         {/* In session */}
         <Route path="/sessions/:sessionID" element={<AppGuard />}>

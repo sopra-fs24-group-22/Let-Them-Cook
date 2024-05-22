@@ -144,6 +144,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/135
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/97
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/155
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/156
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/167
 
 ### Tristan Koning
 

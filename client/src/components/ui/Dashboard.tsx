@@ -73,7 +73,7 @@ export const SessionTile: React.FC<SessionTileProps> = ({ name, id, date }) => {
       textLeft={name}
       textRight={dateString}
       id={id}
-      baseUrl="sessions/"
+      baseUrl="sessions/detail/"
     />
   );
 };

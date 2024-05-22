@@ -171,12 +171,17 @@ const SessionViewer = () => {
                   key={index}
                   style={{ backgroundColor: "transparent" }}
                 >
-                  <input
-                    type="checkbox"
-                    checked={userChecklistData[index]}
-                    onChange={() => handleCheckboxChange(index)}
-                    style={{ marginRight: "10px" }}
-                  />
+                  {mode === "CONFERENCE" ? (
+                    <>• </>
+                  ) : (
+                    <input
+                      type="checkbox"
+                      checked={userChecklistData[index]}
+                      onChange={() => handleCheckboxChange(index)}
+                      style={{ marginRight: "10px" }}
+                      disabled={userChecklistData[index - 1] === false}
+                    />
+                  )}
                   {item} ({stepCounts[index] || 0} / {currentParticipantsCount})
                 </ListGroup.Item>
               ))}

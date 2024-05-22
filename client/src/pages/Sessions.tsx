@@ -7,7 +7,7 @@ import {
   HLine,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import { Accordion, Col, Container, Modal, Row } from "react-bootstrap";
+import { Accordion, Container, Modal, Row } from "react-bootstrap";
 import MainLayout from "../components/Layout/MainLayout";
 import {
   getRecipesAPI,
@@ -19,6 +19,7 @@ import {
   postSessionRequestAcceptAPI,
   postSessionRequestDenyAPI,
   getSessionRequestsUserAPI,
+  getSessionMeAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
@@ -27,6 +28,13 @@ import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
 import { useSelector } from "react-redux";
 import { State } from "../features";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faHourglass,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import { Tooltip } from "react-tooltip";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -65,12 +73,9 @@ const SessionsPage = () => {
       if (hostFilter !== "") filter = { ...filter, hostName: hostFilter };
       if (sessionNameFilter !== "")
         filter = { ...filter, sessionName: sessionNameFilter };
-      if (view === "MY") filter = { ...filter, hostId: currentUserId };
 
       const res =
-        view === "ALL"
-          ? await getSessionsAPI(filter)
-          : await getSessionsAPI(filter);
+        view === "ALL" ? await getSessionsAPI(filter) : await getSessionMeAPI();
       for (const session of res) {
         const id = session.hostId;
         const host = await getUsers(id);
@@ -416,7 +421,9 @@ const SessionsPage = () => {
                           onClick={() => requestParticipation(session.id)}
                           style={{
                             display:
-                              currentUserId !== session.host
+                              currentUserId !== session.host &&
+                              sessionRequestsUser[session.id] !== "ACCEPTED" &&
+                              sessionRequestsUser[session.id] !== "REJECTED"
                                 ? "inline-block"
                                 : "none",
                           }}
@@ -547,20 +554,59 @@ const SessionsPage = () => {
         </Modal.Footer>
       </Modal>
       <Modal show={showRequests} onHide={handleClose}>
+        <Tooltip
+          anchorSelect={".requestStatusIconAccepted"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Accepted
+        </Tooltip>
+        <Tooltip
+          anchorSelect={".requestStatusIconRejected"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Rejected
+        </Tooltip>
+        <Tooltip
+          anchorSelect={".requestStatusIconPending"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Pending
+        </Tooltip>
         <Modal.Header>
           <Modal.Title>Manage requests</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Container>
             {sessionRequests.map((request, index) => (
-              <Row key={index}>
-                <Col>
-                  <Header3>{request.username}</Header3>
-                </Col>
-                <Col>
-                  <Header3>Status: {request.queueStatus}</Header3>
-                </Col>
-                <Col xs={3}>
+              <div style={{ textAlign: "left", width: "100%", height: "45px" }}>
+                <span style={{ lineHeight: "33px", verticalAlign: "middle" }}>
+                  <span style={{ marginRight: "10px" }}>
+                    {request.username}
+                  </span>
+                  {request.queueStatus === "ACCEPTED" ? (
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      style={{ color: "green", marginLeft: "5px" }}
+                      className="requestStatusIconAccepted"
+                    />
+                  ) : request.queueStatus === "REJECTED" ? (
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      style={{ color: "red", marginLeft: "5px" }}
+                      className="requestStatusIconRejected"
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faHourglass}
+                      style={{ color: "orange", marginLeft: "5px" }}
+                      className="requestStatusIconPending"
+                    />
+                  )}
+                </span>
+                <span style={{ float: "right" }}>
                   <PrimaryButton
                     style={{
                       display:
@@ -568,6 +614,8 @@ const SessionsPage = () => {
                         request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
+                      fontSize: "0.8em",
+                      marginRight: "5px",
                     }}
                     onClick={() => {
                       acceptRequest(currentManagedSession, request.userId);
@@ -575,8 +623,6 @@ const SessionsPage = () => {
                   >
                     Accept
                   </PrimaryButton>
-                </Col>
-                <Col xs={0}>
                   <SecondaryButton
                     style={{
                       display:
@@ -584,6 +630,7 @@ const SessionsPage = () => {
                         request.queueStatus === "ACCEPTED"
                           ? "none"
                           : "inline-block",
+                      fontSize: "0.8em",
                     }}
                     onClick={() => {
                       denyRequest(currentManagedSession, request.userId);
@@ -591,9 +638,14 @@ const SessionsPage = () => {
                   >
                     Deny
                   </SecondaryButton>
-                </Col>
-              </Row>
+                </span>
+              </div>
             ))}
+            {sessionRequests.length === 0 && (
+              <Row>
+                <p>No requests yet for this session.</p>
+              </Row>
+            )}
           </Container>
         </Modal.Body>
         <Modal.Footer>

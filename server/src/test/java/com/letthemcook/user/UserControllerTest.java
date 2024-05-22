@@ -23,6 +23,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -33,6 +34,8 @@ import javax.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -55,6 +58,7 @@ public class UserControllerTest {
   private AuthenticationManager authenticationManager;
   @MockBean
   private UserDetailsService userDetailsService;
+
 
   @Autowired
   private MockMvc mockMvc;
@@ -165,7 +169,7 @@ public class UserControllerTest {
 
   // ######################################### Register Route #########################################
   @Test
-  public void registerUser_validInput() throws Exception {
+  public void testRegisterUserValidInput() throws Exception {
     // Setup registration request
     RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
     registerRequestDTO.setUsername("test@other.com");
@@ -191,7 +195,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void registerUser_takenEmail() throws Exception {
+  public void testRegisterUserTakenEmail() throws Exception {
     // Setup registration request
     RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
     registerRequestDTO.setUsername("test@other.com");
@@ -210,7 +214,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void registerUser_takenUsername() throws Exception {
+  public void testRegisterUserTakenUsername() throws Exception {
     // Setup registration request
     RegisterRequestDTO registerRequestDTO = new RegisterRequestDTO();
     registerRequestDTO.setUsername("test@test.com");
@@ -231,7 +235,7 @@ public class UserControllerTest {
   // ######################################### Logout Route #########################################
 
   @Test
-  public void logoutUser() throws Exception {
+  public void testLogoutUser() throws Exception {
     // Setup registration request
     LogoutRequestDTO logoutRequestDTO = new LogoutRequestDTO();
     logoutRequestDTO.setUsername("test@other.com");
@@ -249,8 +253,9 @@ public class UserControllerTest {
             .andExpect(MockMvcResultMatchers.jsonPath("$.Cookies").doesNotExist());
   }
 
+  // ######################################### Get User Test #########################################
   @Test
-  public void getUser_returnsUserDetails_whenAccessTokenIsValid() throws Exception {
+  public void testGetUserAccessTokenIsValid() throws Exception {
     // Given
     User user = userRepository.getById(1L);
     when(userService.getUser(Mockito.any())).thenReturn(user);
@@ -264,7 +269,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void getUser_returnsUnauthorized_whenAccessTokenIsInvalid() throws Exception {
+  public void testGetUserAccessTokenIsInvalid() throws Exception {
     // Given
     User user = userRepository.getById(1L);
     when(userService.getUser("invalidAccessToken")).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token"));
@@ -278,7 +283,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void getUser_returnsBadRequest_whenAccessTokenIsMissing() throws Exception {
+  public void testGetUserAccessTokenIsMissing() throws Exception {
     // When & Then
     mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
@@ -287,7 +292,7 @@ public class UserControllerTest {
   // ######################################### User me #########################################
 
   @Test
-  public void getUserReturnsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+  public void testGetUserUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
     // Given
     String invalidAccessToken = "invalidAccessToken";
 
@@ -300,16 +305,16 @@ public class UserControllerTest {
   }
 
   @Test
-  public void getUserReturnsBadRequestWhenAccessTokenIsMissing() throws Exception {
+  public void testGetBadRequestWhenAccessTokenIsMissing() throws Exception {
     // When & Then
     mockMvc.perform(MockMvcRequestBuilders.get("/api/user/me"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
-  // ######################################### GET users #########################################
+  // ######################################### Get Users Test #########################################
 
   @Test
-  public void getUsersReturnsAllUsers() throws Exception {
+  public void testGetUsersReturnsAllUsers() throws Exception {
     // Setup
     User user1 = userRepository.getById(1L);
 
@@ -335,10 +340,20 @@ public class UserControllerTest {
 
   }
 
+  @Test
+  public void testGetUsersReturnsEmptyListWhenNoUsers() throws Exception {
+    when(userService.getUsers(10, 0, null)).thenReturn(new ArrayList<>());
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/users")
+                    .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(0)));
+  }
+
   // ######################################### Update User #########################################
 
   @Test
-  public void updateUserUpdatesUserSuccessfully() throws Exception {
+  public void testUpdateUserUpdatesUserSuccessfully() throws Exception {
     RegisterRequestDTO updateRequestDTO = new RegisterRequestDTO();
     updateRequestDTO.setUsername("updated@test.com");
     updateRequestDTO.setPassword("updatedPassword");
@@ -358,7 +373,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserThrowsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+  public void testUpdateUserUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
     RegisterRequestDTO updateRequestDTO = new RegisterRequestDTO();
     updateRequestDTO.setUsername("updated@test.com");
     updateRequestDTO.setPassword("updatedPassword");
@@ -378,7 +393,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserThrowsBadRequestWhenAccessTokenIsMissing() throws Exception {
+  public void testUpdateUserBadRequestWhenAccessTokenIsMissing() throws Exception {
     RegisterRequestDTO updateRequestDTO = new RegisterRequestDTO();
     updateRequestDTO.setUsername("updated@test.com");
     updateRequestDTO.setPassword("updatedPassword");
@@ -395,7 +410,7 @@ public class UserControllerTest {
   // ######################################### Delete User #########################################
 
   @Test
-  public void deleteUserSuccessfullyDeletesUser() throws Exception {
+  public void testDeleteUserSuccessfully() throws Exception {
     String accessToken = "accessToken";
 
     doNothing().when(userService).deleteUser(accessToken);
@@ -409,7 +424,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserThrowsUnauthorizedWhenAccessTokenIsInvalid() throws Exception {
+  public void testDeleteUserUnauthorizedAccessTokenIsInvalid() throws Exception {
     String invalidAccessToken = "invalidAccessToken";
 
     doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).deleteUser(invalidAccessToken);
@@ -421,7 +436,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserThrowsBadRequestWhenAccessTokenIsMissing() throws Exception {
+  public void testDeleteUserBadRequestAccessTokenIsMissing() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/me"))
             .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
@@ -446,5 +461,105 @@ public class UserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(userRateDTO)))
             .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void testUserRatingSuccessfullyUpdatesWithValidInput() throws Exception {
+    UserRateDTO userRateDTO = new UserRateDTO();
+    userRateDTO.setRating(5);
+
+    String accessToken = "accessToken";
+
+    doNothing().when(userService).postRating(anyLong(), anyInt(), anyString());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/user/1/rate")
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(userRateDTO)))
+            .andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  public void testUserRatingFailsToUpdateWithInvalidUser() throws Exception {
+    UserRateDTO userRateDTO = new UserRateDTO();
+    userRateDTO.setRating(5);
+
+    String accessToken = "accessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(userService).postRating(anyLong(), anyInt(), anyString());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/user/999/rate")
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(userRateDTO)))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+  }
+
+  @Test
+  public void testUserRatingFailsToUpdateWithInvalidRating() throws Exception {
+    UserRateDTO userRateDTO = new UserRateDTO();
+    userRateDTO.setRating(6); // Rating is out of bounds
+
+    String accessToken = "accessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST)).when(userService).postRating(anyLong(), anyInt(), anyString());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/user/1/rate")
+                    .header("Authorization", accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(userRateDTO)))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
+  @Test
+  public void testUserRatingFailsToUpdateWithUnauthorizedUser() throws Exception {
+    UserRateDTO userRateDTO = new UserRateDTO();
+    userRateDTO.setRating(5);
+
+    String invalidAccessToken = "invalidAccessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).postRating(anyLong(), anyInt(), anyString());
+
+    mockMvc.perform(MockMvcRequestBuilders.post("/api/user/1/rate")
+                    .header("Authorization", invalidAccessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(userRateDTO)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  // ######################################### Refresh Test #########################################
+
+  @Test
+  public void testRefreshTokenNewTokenRefreshTokenIsValid() throws Exception {
+    String validRefreshToken = "validRefreshToken";
+
+    Token token = new Token();
+    token.setAccessToken("newAccessToken");
+    token.setRefreshToken(validRefreshToken);
+
+    when(userService.refreshAccessToken(validRefreshToken)).thenReturn(token);
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
+                    .cookie(new Cookie("refreshToken", validRefreshToken)))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.accessToken").value(token.getAccessToken()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").value(token.getRefreshToken()));
+  }
+
+  @Test
+  public void testRefreshTokenUnauthorizedRefreshTokenIsInvalid() throws Exception {
+    String invalidRefreshToken = "invalidRefreshToken";
+
+    when(userService.refreshAccessToken(invalidRefreshToken)).thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh")
+                    .cookie(new Cookie("refreshToken", invalidRefreshToken)))
+            .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+  }
+
+  @Test
+  public void testRefreshTokenBadRequestRefreshTokenIsMissing() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/refresh"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 }

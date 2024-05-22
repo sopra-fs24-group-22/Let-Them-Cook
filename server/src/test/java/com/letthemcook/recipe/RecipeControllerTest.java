@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -192,11 +193,18 @@ public class RecipeControllerTest {
               .andExpect(MockMvcResultMatchers.jsonPath("$[0].cookingTimeMin").value(10));
   }
 
+  @Test
+  public void testGetRecipesWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    mockMvc.perform(MockMvcRequestBuilders.get("/api/recipes")
+                    .with(csrf()))
+            .andExpect(status().isUnauthorized());
+  }
+
   // ######################################### Put Recipes Tests #########################################
 
   @Test
   @WithMockUser
-  public void updateRecipeSuccess() throws Exception {
+  public void testUpdateRecipeSuccess() throws Exception {
     RecipeGetDTO recipeGetDTO = new RecipeGetDTO();
     recipeGetDTO.setId(1L);
     recipeGetDTO.setTitle("Updated Recipe");
@@ -213,7 +221,7 @@ public class RecipeControllerTest {
   }
 
   @Test
-  public void updateRecipeFailureUnauthorized() throws Exception {
+  public void testUpdateRecipeFailureUnauthorized() throws Exception {
     RecipeGetDTO recipeGetDTO = new RecipeGetDTO();
     recipeGetDTO.setId(1L);
     recipeGetDTO.setTitle("Updated Recipe");
@@ -227,7 +235,7 @@ public class RecipeControllerTest {
 
   @Test
   @WithMockUser
-  public void updateRecipeFailureNotFound() throws Exception {
+  public void testUpdateRecipeFailureNotFound() throws Exception {
     RecipeGetDTO recipeGetDTO = new RecipeGetDTO();
     recipeGetDTO.setId(999L);
     recipeGetDTO.setTitle("Updated Recipe");
@@ -278,5 +286,46 @@ public class RecipeControllerTest {
     } catch (Exception e) {
       assert(e.getCause().getMessage().contains("Unauthorized"));
     }
+  }
+
+  // ######################################### Delete Recipe Tests #########################################
+
+  @Test
+  @WithMockUser
+  public void testDeleteRecipeReturnsNoContentStatus() throws Exception {
+    Long recipeId = 1L;
+    String accessToken = "Bearer accessToken";
+
+    doNothing().when(recipeService).deleteRecipe(recipeId, accessToken);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/recipe/{id}", recipeId)
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isNoContent());
+
+    verify(recipeService, times(1)).deleteRecipe(recipeId, accessToken);
+  }
+
+  @Test
+  @WithMockUser
+  public void testDeleteRecipeWithInvalidIdReturnsNotFoundStatus() throws Exception {
+    Long recipeId = 999L; // non-existing recipe id
+    String accessToken = "Bearer accessToken";
+
+    doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(recipeService).deleteRecipe(recipeId, accessToken);
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/recipe/{id}", recipeId)
+                    .header("Authorization", accessToken)
+                    .with(csrf()))
+            .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void testDeleteRecipeWithoutAuthorizationReturnsUnauthorizedStatus() throws Exception {
+    Long recipeId = 1L;
+
+    mockMvc.perform(MockMvcRequestBuilders.delete("/api/recipe/{id}", recipeId)
+                    .with(csrf()))
+            .andExpect(status().isUnauthorized());
   }
 }

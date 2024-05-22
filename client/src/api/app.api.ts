@@ -113,6 +113,12 @@ export const getSessionMeAPI = async () => {
   const { data } = await axiosAuth.get("session/me");
   return data;
 };
+export const putSessionAPI = async (body: any) => {
+  await axiosAuth.put("session", body);
+};
+export const deleteSessionAPI = async (sessionId: number) => {
+  await axiosAuth.delete("session/" + sessionId);
+};
 
 // Users
 export const getUsersAPI = async (params: any = {}) => {

@@ -979,7 +979,7 @@ Authorization: Bearer [access token]
 403 FORBIDDEN
 ```
 
-## Put recipe
+## Put session
 
 Used to update an existing session.
 

@@ -1,5 +1,5 @@
 import Layout from "../components/Layout/MainLayout";
-import { useEffect, useState } from "react";
+import { Dispatch, useEffect, useState } from "react";
 import { Input, Label } from "../components/ui/Input";
 import { ENV } from "../env";
 import { eMailIsValid } from "../helpers/eMailIsValid";
@@ -7,31 +7,32 @@ import { PrimaryButton } from "../components/ui/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { putUserMeAPI } from "../api/app.api";
-import { useSelector } from "react-redux";
-import { State } from "../features";
+import { useDispatch, useSelector } from "react-redux";
+import { loadAccessTokenAndUser, State } from "../features";
 import { Tooltip } from "react-tooltip";
 import { logout } from "../helpers/logout";
 import { useNavigate } from "react-router-dom";
 
 const UserPage = () => {
   const navigate = useNavigate();
+  const dispatch: Dispatch<any> = useDispatch();
 
   const { user } = useSelector((state: State) => state.app);
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [username, setUsername] = useState<string>("");
+  const [usernameIsChanged, setUsernameIsChanged] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
 
-  const [firstnameIsChanged, setFirstnameIsChanged] = useState<boolean>(false);
-  const [lastnameIsChanged, setLastnameIsChanged] = useState<boolean>(false);
-  const [usernameIsChanged, setUsernameIsChanged] = useState<boolean>(false);
-  const [usernameIsReallyChanged, setUsernameIsReallyChanged] =
-    useState<boolean>(false);
-  const [emailIsChanged, setEmailIsChanged] = useState<boolean>(false);
-
   const userdataIsValid = () =>
     firstname && lastname && username && email && emailIsValid;
+
+  const anyUserdataChanged = () =>
+    firstname !== user.firstname ||
+    lastname !== user.lastname ||
+    username !== user.username ||
+    email !== user.email;
 
   const [userdataIsLoading, setUserdataIsLoading] = useState<boolean>(false);
   const [userdataSaved, setUserdataSaved] = useState<boolean>(false);
@@ -51,11 +52,10 @@ const UserPage = () => {
     setUserdataIsLoading(true);
     try {
       let data = {};
-      if (firstnameIsChanged) data = { ...data, firstname };
-      if (lastnameIsChanged) data = { ...data, lastname };
-      if (usernameIsChanged && usernameIsReallyChanged)
-        data = { ...data, username };
-      if (emailIsChanged) data = { ...data, email };
+      if (firstname !== user.firstname) data = { ...data, firstname };
+      if (lastname !== user.lastname) data = { ...data, lastname };
+      if (username !== user.username) data = { ...data, username };
+      if (email !== user.email) data = { ...data, email };
 
       await putUserMeAPI(data);
 
@@ -63,12 +63,10 @@ const UserPage = () => {
       setTimeout(() => {
         setUserdataSaved(false);
       }, 5000);
-      if (usernameIsChanged && usernameIsReallyChanged) logout(navigate);
-      setFirstnameIsChanged(false);
-      setLastnameIsChanged(false);
-      setUsernameIsChanged(false);
-      setUsernameIsReallyChanged(false);
-      setEmailIsChanged(false);
+      if (usernameIsChanged || username !== user.username) logout(navigate);
+
+      // reload user in Redux
+      dispatch(loadAccessTokenAndUser());
     } catch (e) {
       alert("Error while saving the userdata. Please try again.");
     }
@@ -118,10 +116,7 @@ const UserPage = () => {
         maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
         style={{ margin: "0", width: "250px" }}
         value={firstname ? firstname : ""}
-        onChange={(e) => {
-          setFirstname(e.target.value);
-          setFirstnameIsChanged(true);
-        }}
+        onChange={(e) => setFirstname(e.target.value)}
       />
 
       <Label htmlFor="lastname" style={{ margin: "15px 0 5px 0" }}>
@@ -133,10 +128,7 @@ const UserPage = () => {
         maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
         style={{ margin: "0", width: "250px" }}
         value={lastname ? lastname : ""}
-        onChange={(e) => {
-          setLastname(e.target.value);
-          setLastnameIsChanged(true);
-        }}
+        onChange={(e) => setLastname(e.target.value)}
       />
 
       <Label htmlFor="username" style={{ margin: "15px 0 5px 0" }}>
@@ -149,10 +141,7 @@ const UserPage = () => {
         style={{ margin: "0", width: "250px" }}
         value={username ? username : ""}
         disabled={!usernameIsChanged}
-        onChange={(e) => {
-          setUsername(e.target.value);
-          setUsernameIsReallyChanged(true);
-        }}
+        onChange={(e) => setUsername(e.target.value)}
       />
       {!usernameIsChanged && (
         <>
@@ -184,8 +173,7 @@ const UserPage = () => {
         value={email ? email : ""}
         onChange={(e) => {
           setEmail(e.target.value);
-          setEmailIsValid(eMailIsValid(email));
-          setEmailIsChanged(true);
+          setEmailIsValid(eMailIsValid(e.target.value));
         }}
       />
 
@@ -198,7 +186,7 @@ const UserPage = () => {
       )}
 
       <PrimaryButton
-        disabled={!userdataIsValid()}
+        disabled={!userdataIsValid() || !anyUserdataChanged()}
         style={{ marginTop: userdataSaved ? "" : "20px" }}
         onClick={saveUserdata}
       >

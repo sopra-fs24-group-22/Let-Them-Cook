@@ -253,8 +253,7 @@ public class UserService {
     if (userByEmail != null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
               String.format(baseErrorMessage, "email"));
-    }
-    if (userByUsername != null) {
+    } else if (userByUsername != null) {
       throw new ResponseStatusException(HttpStatus.CONFLICT,
               String.format(baseErrorMessage, "username"));
     }

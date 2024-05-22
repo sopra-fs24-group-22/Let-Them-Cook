@@ -20,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
@@ -279,11 +278,13 @@ public class SessionServiceTest {
     User user = new User();
     user.setId(1L);
     user.setUsername("username");
+
     Session session = new Session();
     session.setId(sessionId);
     session.setHostId(2L);
     ArrayList<Long> participants = new ArrayList<>();
     session.setParticipants(participants);
+    session.setCurrentParticipantCount(0);
     SessionRequest sessionRequest = new SessionRequest();
     HashMap<Long, QueueStatus> userSessions = new HashMap<>();
     userSessions.put(sessionId, QueueStatus.ACCEPTED);

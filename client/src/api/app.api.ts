@@ -112,7 +112,7 @@ export const getOpenSessionsAPI = async () => {
 export const getSessionMeAPI = async () => {
   const { data } = await axiosAuth.get("session/me");
   return data;
-}
+};
 
 // Users
 export const getUsersAPI = async (params: any = {}) => {

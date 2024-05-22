@@ -18,7 +18,8 @@ import {
   getSessionRequestsAPI,
   postSessionRequestAcceptAPI,
   postSessionRequestDenyAPI,
-  getSessionRequestsUserAPI, getSessionMeAPI,
+  getSessionRequestsUserAPI,
+  getSessionMeAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
@@ -73,11 +74,8 @@ const SessionsPage = () => {
       if (sessionNameFilter !== "")
         filter = { ...filter, sessionName: sessionNameFilter };
 
-
       const res =
-        view === "ALL"
-          ? await getSessionsAPI(filter)
-          : await getSessionMeAPI();
+        view === "ALL" ? await getSessionsAPI(filter) : await getSessionMeAPI();
       for (const session of res) {
         const id = session.hostId;
         const host = await getUsers(id);
@@ -424,8 +422,8 @@ const SessionsPage = () => {
                           style={{
                             display:
                               currentUserId !== session.host &&
-                                sessionRequestsUser[session.id] !==
-                                  "ACCEPTED" && sessionRequestsUser[session.id] !== "REJECTED"
+                              sessionRequestsUser[session.id] !== "ACCEPTED" &&
+                              sessionRequestsUser[session.id] !== "REJECTED"
                                 ? "inline-block"
                                 : "none",
                           }}
@@ -583,35 +581,32 @@ const SessionsPage = () => {
         <Modal.Body>
           <Container>
             {sessionRequests.map((request, index) => (
-              <Row key={index} style={{ marginBottom: "10px" }}>
-                <Col style={{ paddingTop: "5px" }}>
-                  <p>{request.username}</p>
-                </Col>
-                <Col style={{ paddingTop: "5px" }}>
-                  <p>
-                    Status:
-                    {request.queueStatus === "ACCEPTED" ? (
-                      <FontAwesomeIcon
-                        icon={faCheck}
-                        style={{ color: "green", marginLeft: "5px" }}
-                        className="requestStatusIconAccepted"
-                      />
-                    ) : request.queueStatus === "REJECTED" ? (
-                      <FontAwesomeIcon
-                        icon={faTimes}
-                        style={{ color: "red", marginLeft: "5px" }}
-                        className="requestStatusIconRejected"
-                      />
-                    ) : (
-                      <FontAwesomeIcon
-                        icon={faHourglass}
-                        style={{ color: "orange", marginLeft: "5px" }}
-                        className="requestStatusIconPending"
-                      />
-                    )}
-                  </p>
-                </Col>
-                <Col xs={3}>
+              <div style={{ textAlign: "left", width: "100%", height: "45px" }}>
+                <span style={{ lineHeight: "33px", verticalAlign: "middle" }}>
+                  <span style={{ marginRight: "10px" }}>
+                    {request.username}
+                  </span>
+                  {request.queueStatus === "ACCEPTED" ? (
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      style={{ color: "green", marginLeft: "5px" }}
+                      className="requestStatusIconAccepted"
+                    />
+                  ) : request.queueStatus === "REJECTED" ? (
+                    <FontAwesomeIcon
+                      icon={faTimes}
+                      style={{ color: "red", marginLeft: "5px" }}
+                      className="requestStatusIconRejected"
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={faHourglass}
+                      style={{ color: "orange", marginLeft: "5px" }}
+                      className="requestStatusIconPending"
+                    />
+                  )}
+                </span>
+                <span style={{ float: "right", marginRight: "10px" }}>
                   <PrimaryButton
                     style={{
                       display:
@@ -620,6 +615,7 @@ const SessionsPage = () => {
                           ? "none"
                           : "inline-block",
                       fontSize: "0.8em",
+                      marginRight: "10px",
                     }}
                     onClick={() => {
                       acceptRequest(currentManagedSession, request.userId);
@@ -627,8 +623,6 @@ const SessionsPage = () => {
                   >
                     Accept
                   </PrimaryButton>
-                </Col>
-                <Col>
                   <SecondaryButton
                     style={{
                       display:
@@ -644,8 +638,8 @@ const SessionsPage = () => {
                   >
                     Deny
                   </SecondaryButton>
-                </Col>
-              </Row>
+                </span>
+              </div>
             ))}
             {sessionRequests.length === 0 && (
               <Row>

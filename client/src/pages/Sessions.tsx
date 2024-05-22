@@ -596,6 +596,11 @@ const SessionsPage = () => {
                 </Col>
               </Row>
             ))}
+            {sessionRequests.length === 0 && (
+              <Row>
+                <p>No requests yet for this session.</p>
+              </Row>
+            )}
           </Container>
         </Modal.Body>
         <Modal.Footer>

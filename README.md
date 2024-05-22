@@ -180,4 +180,4 @@ It would be helpful for users if they could receive notifications on the website
 
 ## License
 
-TODO
+[MIT License](LICENSE)

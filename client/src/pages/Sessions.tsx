@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import {
   PrimaryButton,
+  SimplePrimaryButton,
   SecondaryButton,
+  SimpleSecondaryButton,
   ButtonGroup,
   JoinButton,
   HLine,
@@ -263,7 +265,7 @@ const SessionsPage = () => {
   const buttonTopBar =
     pageView === "ALL" ? (
       <>
-        <PrimaryButton
+        <SimplePrimaryButton
           style={{
             width: "50%",
             borderTopRightRadius: "0",
@@ -271,8 +273,8 @@ const SessionsPage = () => {
           }}
         >
           All sessions
-        </PrimaryButton>
-        <SecondaryButton
+        </SimplePrimaryButton>
+        <SimpleSecondaryButton
           onClick={() => changeView("MY")}
           style={{
             width: "50%",
@@ -281,11 +283,11 @@ const SessionsPage = () => {
           }}
         >
           My sessions
-        </SecondaryButton>
+        </SimpleSecondaryButton>
       </>
     ) : (
       <>
-        <SecondaryButton
+        <SimpleSecondaryButton
           onClick={() => changeView("ALL")}
           style={{
             width: "50%",
@@ -294,8 +296,8 @@ const SessionsPage = () => {
           }}
         >
           All sessions
-        </SecondaryButton>
-        <PrimaryButton
+        </SimpleSecondaryButton>
+        <SimplePrimaryButton
           style={{
             width: "50%",
             borderTopLeftRadius: "0",
@@ -303,7 +305,7 @@ const SessionsPage = () => {
           }}
         >
           My sessions
-        </PrimaryButton>
+        </SimplePrimaryButton>
       </>
     );
 

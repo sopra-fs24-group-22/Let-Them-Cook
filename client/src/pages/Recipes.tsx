@@ -4,6 +4,8 @@ import {
   HLine,
   PrimaryButton,
   SecondaryButton,
+  SimplePrimaryButton,
+  SimpleSecondaryButton,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
 import Modal from "react-bootstrap/Modal";
@@ -330,7 +332,7 @@ const RecipesPage = () => {
   const buttonTopBar =
     pageView === "ALL" ? (
       <>
-        <PrimaryButton
+        <SimplePrimaryButton
           style={{
             width: "50%",
             borderTopRightRadius: "0",
@@ -338,8 +340,8 @@ const RecipesPage = () => {
           }}
         >
           All recipes
-        </PrimaryButton>
-        <SecondaryButton
+        </SimplePrimaryButton>
+        <SimpleSecondaryButton
           onClick={() => changeView("MY")}
           style={{
             width: "50%",
@@ -348,11 +350,11 @@ const RecipesPage = () => {
           }}
         >
           My cookbook
-        </SecondaryButton>
+        </SimpleSecondaryButton>
       </>
     ) : (
       <>
-        <SecondaryButton
+        <SimpleSecondaryButton
           onClick={() => changeView("ALL")}
           style={{
             width: "50%",
@@ -361,8 +363,8 @@ const RecipesPage = () => {
           }}
         >
           All recipes
-        </SecondaryButton>
-        <PrimaryButton
+        </SimpleSecondaryButton>
+        <SimplePrimaryButton
           style={{
             width: "50%",
             borderTopLeftRadius: "0",
@@ -370,7 +372,7 @@ const RecipesPage = () => {
           }}
         >
           My cookbook
-        </PrimaryButton>
+        </SimplePrimaryButton>
       </>
     );
 

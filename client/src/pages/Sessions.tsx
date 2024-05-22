@@ -7,7 +7,7 @@ import {
   HLine,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import { Accordion, Col, Container, Modal, Row } from "react-bootstrap";
+import { Accordion, Container, Modal, Row } from "react-bootstrap";
 import MainLayout from "../components/Layout/MainLayout";
 import {
   getRecipesAPI,

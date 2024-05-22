@@ -18,7 +18,7 @@ import {
   getSessionRequestsAPI,
   postSessionRequestAcceptAPI,
   postSessionRequestDenyAPI,
-  getSessionRequestsUserAPI,
+  getSessionRequestsUserAPI, getSessionMeAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
@@ -65,12 +65,12 @@ const SessionsPage = () => {
       if (hostFilter !== "") filter = { ...filter, hostName: hostFilter };
       if (sessionNameFilter !== "")
         filter = { ...filter, sessionName: sessionNameFilter };
-      if (view === "MY") filter = { ...filter, hostId: currentUserId };
+
 
       const res =
         view === "ALL"
           ? await getSessionsAPI(filter)
-          : await getSessionsAPI(filter);
+          : await getSessionMeAPI();
       for (const session of res) {
         const id = session.hostId;
         const host = await getUsers(id);
@@ -416,7 +416,9 @@ const SessionsPage = () => {
                           onClick={() => requestParticipation(session.id)}
                           style={{
                             display:
-                              currentUserId !== session.host
+                              currentUserId !== session.host &&
+                                sessionRequestsUser[session.id] !==
+                                  "ACCEPTED" && sessionRequestsUser[session.id] !== "REJECTED"
                                 ? "inline-block"
                                 : "none",
                           }}

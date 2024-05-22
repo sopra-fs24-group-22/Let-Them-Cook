@@ -3,6 +3,7 @@ package com.letthemcook.user;
 import com.letthemcook.auth.config.JwtService;
 import com.letthemcook.auth.token.Token;
 import com.letthemcook.cookbook.Cookbook;
+import com.letthemcook.cookbook.CookbookService;
 import com.letthemcook.rating.Rating;
 import com.letthemcook.recipe.Recipe;
 import com.letthemcook.recipe.RecipeService;
@@ -10,7 +11,8 @@ import com.letthemcook.session.Session;
 import com.letthemcook.session.SessionService;
 import com.letthemcook.sessionrequest.SessionRequestService;
 import com.letthemcook.util.SequenceGeneratorService;
-import com.letthemcook.cookbook.CookbookService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -26,8 +28,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -221,8 +221,8 @@ public class UserService {
     return mongoTemplate.find(query, User.class);
   }
 
-  public void postRating(Long id, Integer rating, String accessToken) {
-    User userToRate = userRepository.getById(id);
+  public void postRating(Long userToRateId, Integer rating, String accessToken) {
+    User userToRate = userRepository.getById(userToRateId);
 
     if (userToRate == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -235,8 +235,9 @@ public class UserService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot rate yourself");
     }
 
+    Long rateeId = userRepository.getByUsername(jwtService.extractUsername(accessToken)).getId();
     Rating userRating = userToRate.getRating();
-    userRating.addRating(rating, id);
+    userRating.addRating(rating, rateeId);
     userToRate.setRating(userRating);
 
     userRepository.save(userToRate);

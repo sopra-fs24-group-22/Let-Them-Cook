@@ -20,9 +20,15 @@ const UserPage = () => {
   const [firstname, setFirstname] = useState<string>("");
   const [lastname, setLastname] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-  const [usernameIsChanged, setUsernameIsChanged] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [emailIsValid, setEmailIsValid] = useState<boolean>(true);
+
+  const [firstnameIsChanged, setFirstnameIsChanged] = useState<boolean>(false);
+  const [lastnameIsChanged, setLastnameIsChanged] = useState<boolean>(false);
+  const [usernameIsChanged, setUsernameIsChanged] = useState<boolean>(false);
+  const [usernameIsReallyChanged, setUsernameIsReallyChanged] =
+    useState<boolean>(false);
+  const [emailIsChanged, setEmailIsChanged] = useState<boolean>(false);
 
   const userdataIsValid = () =>
     firstname && lastname && username && email && emailIsValid;
@@ -44,12 +50,25 @@ const UserPage = () => {
   const saveUserdata = async () => {
     setUserdataIsLoading(true);
     try {
-      await putUserMeAPI({ firstname, lastname, username, email });
+      let data = {};
+      if (firstnameIsChanged) data = { ...data, firstname };
+      if (lastnameIsChanged) data = { ...data, lastname };
+      if (usernameIsChanged && usernameIsReallyChanged)
+        data = { ...data, username };
+      if (emailIsChanged) data = { ...data, email };
+
+      await putUserMeAPI(data);
+
       setUserdataSaved(true);
       setTimeout(() => {
         setUserdataSaved(false);
       }, 5000);
-      if (usernameIsChanged) logout(navigate);
+      if (usernameIsChanged && usernameIsReallyChanged) logout(navigate);
+      setFirstnameIsChanged(false);
+      setLastnameIsChanged(false);
+      setUsernameIsChanged(false);
+      setUsernameIsReallyChanged(false);
+      setEmailIsChanged(false);
     } catch (e) {
       alert("Error while saving the userdata. Please try again.");
     }
@@ -99,7 +118,10 @@ const UserPage = () => {
         maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
         style={{ margin: "0", width: "250px" }}
         value={firstname ? firstname : ""}
-        onChange={(e) => setFirstname(e.target.value)}
+        onChange={(e) => {
+          setFirstname(e.target.value);
+          setFirstnameIsChanged(true);
+        }}
       />
 
       <Label htmlFor="lastname" style={{ margin: "15px 0 5px 0" }}>
@@ -111,7 +133,10 @@ const UserPage = () => {
         maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
         style={{ margin: "0", width: "250px" }}
         value={lastname ? lastname : ""}
-        onChange={(e) => setLastname(e.target.value)}
+        onChange={(e) => {
+          setLastname(e.target.value);
+          setLastnameIsChanged(true);
+        }}
       />
 
       <Label htmlFor="username" style={{ margin: "15px 0 5px 0" }}>
@@ -124,7 +149,10 @@ const UserPage = () => {
         style={{ margin: "0", width: "250px" }}
         value={username ? username : ""}
         disabled={!usernameIsChanged}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(e) => {
+          setUsername(e.target.value);
+          setUsernameIsReallyChanged(true);
+        }}
       />
       {!usernameIsChanged && (
         <>
@@ -157,6 +185,7 @@ const UserPage = () => {
         onChange={(e) => {
           setEmail(e.target.value);
           setEmailIsValid(eMailIsValid(email));
+          setEmailIsChanged(true);
         }}
       />
 

@@ -192,8 +192,19 @@ public class SessionService {
     }
 
     ArrayList<Long> participants = session.getParticipants();
+
+    // Increment currentParticipantCount
+    for (Long participantId : participants) {
+      if (Objects.equals(participantId, user.getId())) {
+        return sessionRepository.getById(sessionId);
+      }
+    }
+
+    session.setCurrentParticipantCount(session.getCurrentParticipantCount() + 1);
+
     participants.add(userId);
     session.setParticipants(participants);
+
     sessionRepository.save(session);
 
     return session;
@@ -224,7 +235,7 @@ public class SessionService {
   }
 
   public SessionUserState getSessionUserState(Long sessionId, String accessToken) {
-    Session session = sessionRepository.getById(sessionId);
+      Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");

@@ -174,7 +174,41 @@ Run the tests
 
 ## Illustrations
 
-TODO
+### Home Screen
+
+This is the first screen that users see after they have logged themselves in. They are greeted with a dashboard that shows them their upcoming sessions they are signed up for, the next sessions that are available to join, as well as the newest recipes that have been added to the platform.
+
+![Home Screen](img/home.png)
+
+### Recipe Screen
+
+Here users can view all recipes that have been created on the platform. They can filter the recipes with various filter such as who created the recipe. They can add a recipe to their cookbook, which they can also access from this page. 
+
+![Recipe Screen](img/recipe.png)
+
+Recipes can also be created by the user. They can add a title, ingredients, preparation time, and steps to the recipe. They can also choose if the recipe should be public or private.
+
+![Create Recipe](img/recipe_creation.png)
+
+### Session Screen
+
+Here users can view all sessions that are coming up and send a request for participation to the host user if they wish to participate in that session. They can filter the sessions with various filters such as the host of the session or the start date. Users can also see the sessions they have requested participation to or are the host of in the "My Sessions" Section
+
+![Session Screen](img/session.png)
+
+They can also create a session themselves, where they can choose a recipe to cook during the session, the start time and the maximum number of participants. Requests are also managed on this screen.![img.png](img.png)
+
+![Create Session](img/session_creation.png)
+
+Once the session has started, the user will be able to see the stream of the host, and both host and participants can see every user's progress of the recipe on the left side of the screen.
+
+![Session Stream](img/livestream.png)
+
+### Chef Screen
+
+Here users can view all chefs that are on the platform. They can also click on the name of the chef and see all the recipes they have created.
+
+![Chef Screen](img/chef.png)
 
 ## Roadmap
 

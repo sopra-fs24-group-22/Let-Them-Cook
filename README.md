@@ -1,7 +1,5 @@
-# Let Them Cook
-
 <p>
-  <img src="client/public/logo.svg" alt="Let Them Cook Logo" width="200" height="200">
+  <img src="client/src/assets/img/logo.png" alt="Let Them Cook Logo" width="216" height="40">
 </p>
 
 ## Introduction

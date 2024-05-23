@@ -141,6 +141,9 @@ public class RecipeService {
     // Only find public recipes
     query.addCriteria(Criteria.where("privacyStatus").is(1L));
 
+    // Sort by id ascending
+    query.with(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Order.desc("id")));
+
     return mongoTemplate.find(query, Recipe.class);
   }
 

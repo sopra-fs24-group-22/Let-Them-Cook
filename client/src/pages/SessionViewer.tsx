@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import MainLayout from "../components/Layout/MainLayout";
-import { Header1 } from "../components/ui/Header";
 import { MeetingProvider, MeetingConsumer } from "@videosdk.live/react-sdk";
 import { Container } from "../components/VideoCall/Container";
 import { Link, useNavigate, useParams } from "react-router-dom";

@@ -55,7 +55,7 @@ Sessions are the core feature of "Let Them Cook". Users can create, view, and jo
 
 In order for the livestream to work within sessions, we have implemented the videoSDK API within our application. This allows for the host chef to stream their cooking session live to the participants.
 
-## Launch & Deployment
+## Local development
 
 In order to develop the application locally, you need to follow the steps below:
 
@@ -170,6 +170,13 @@ Run the tests
 ```
 ./gradlew test
 ```
+
+## Deploying to production
+Deploying to production is made easy using CI/CD pipelines and pre-written scripts.
+
+In the scripts/ folder, you'll find the build.sh script. This script builds the backend and frontend for production, and puts them together correctly. It then creates a docker image based on the image specification found in the Dockerfile.
+
+This script is run automatically by Github Actions when pushing to the master branch. In the .github/workflows, you'll find the deploy.yml pipeline config. This pipeline runs the build script, builds a docker image, pushes the docker image to a remote Docker registry in the cloud, and finally automatically updates the Google Cloud Run deployment by swapping the image to the new version and restarting the service.
 
 ## Illustrations
 

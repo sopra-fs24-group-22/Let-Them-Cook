@@ -182,7 +182,7 @@ This is the first screen that users see after they have logged themselves in. Th
 
 ### Recipe Screen
 
-Here users can view all recipes that have been created on the platform. They can filter the recipes with various filter such as who created the recipe. They can add a recipe to their cookbook, which they can also access from this page. 
+Here users can view all recipes that have been created on the platform and also give them a 5-star rating. They can filter the recipes with various filter such as who created the recipe. They can add a recipe to their cookbook, which they can also access from this page. 
 
 ![Recipe Screen](img/recipe.png)
 
@@ -206,7 +206,7 @@ Once the session has started, the user will be able to see the stream of the hos
 
 ### Chef Screen
 
-Here users can view all chefs that are on the platform. They can also click on the name of the chef and see all the recipes they have created.
+Here users can view all chefs that are on the platform. Users can give each other ratings and they can also click on the name of the chef and see all the recipes they have created.
 
 ![Chef Screen](img/chef.png)
 

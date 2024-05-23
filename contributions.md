@@ -163,6 +163,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
 
 ### Gian Gyger
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/161
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/162
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/163
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/164
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/165

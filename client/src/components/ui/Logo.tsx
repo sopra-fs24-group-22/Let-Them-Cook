@@ -3,6 +3,7 @@ import { Modal } from "react-bootstrap";
 import styled from "styled-components";
 import { SecondaryButton } from "./Button";
 import { useNavigate } from "react-router-dom";
+import LogoImage from "../../assets/img/logo.png";
 
 export default function Logo() {
   const [easterEggClickCounter, setEasterEggClickCounter] = useState(0);
@@ -11,17 +12,17 @@ export default function Logo() {
     if (window.location.pathname !== "/home") {
       navigate("/");
     }
+    setEasterEggClickCounter(easterEggClickCounter + 1);
   };
   return (
     <>
       <LogoBox className="logo-box" onClick={handleNavigateHome}>
+        <img src={LogoImage} alt="Let them Cook" height="40px" />
         <LogoText
           onClick={() => {
             setEasterEggClickCounter(easterEggClickCounter + 1);
           }}
-        >
-          Let them Cook
-        </LogoText>
+        ></LogoText>
       </LogoBox>
       {/* Modal just for fun */}
       <Modal

@@ -8,7 +8,6 @@ import {
   SimpleSecondaryButton,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import Modal from "react-bootstrap/Modal";
 import {
   deleteRecipeAPI,
   getRecipesAPI,
@@ -33,6 +32,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { SecondaryIconButton } from "../components/ui/Icon";
 import { Container, Row, Col, ListGroup } from "react-bootstrap";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalTitle,
+  ModalFooter,
+} from "../components/ui/Modal";
 import {
   Header1,
   Header2,
@@ -600,14 +606,14 @@ const RecipesPage = () => {
 
       {/* Modal for creating a new recipe */}
       <Modal show={showForm} onHide={handleClose}>
-        <Modal.Header>
-          <Modal.Title>
+        <ModalHeader>
+          <ModalTitle>
             {editingRecipeId === 0
               ? "Create new recipe"
               : 'Edit recipe "' + dishName + '"'}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody>
           <Label htmlFor="dishName">Dish name</Label>
           <Input
             id="dishName"
@@ -741,8 +747,8 @@ const RecipesPage = () => {
           >
             Add step
           </SecondaryButton>
-        </Modal.Body>
-        <Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
           <PrimaryButton
             onClick={saveRecipe}
@@ -750,17 +756,15 @@ const RecipesPage = () => {
           >
             Save
           </PrimaryButton>
-        </Modal.Footer>
+        </ModalFooter>
       </Modal>
 
       {/* Modal for detail view */}
       <Modal show={showDetails} onHide={handleClose}>
-        <Modal.Header>
-          <Modal.Title>
-            <Header1>{dishName}</Header1>
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+        <ModalHeader>
+          <ModalTitle>{dishName}</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
           <SecondaryText>
             by {dishCreator} |
             <FontAwesomeIcon icon={faHourglass} style={{ margin: "0 5px" }} />
@@ -792,8 +796,8 @@ const RecipesPage = () => {
               <ListGroup.Item>{input}</ListGroup.Item>
             ))}
           </ListGroup>
-        </Modal.Body>
-        <Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
           <SecondaryButton
             onClick={() => {
               setShowDetails(false);
@@ -804,7 +808,7 @@ const RecipesPage = () => {
             Copy recipe
           </SecondaryButton>
           <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
-        </Modal.Footer>
+        </ModalFooter>
       </Modal>
     </>
   );
@@ -815,4 +819,5 @@ const Item = styled.div`
   background-color: white;
   padding: 20px;
   border-radius: 16px;
+  margin-bottom: 15px;
 `;

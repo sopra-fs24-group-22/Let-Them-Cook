@@ -17,6 +17,6 @@ export const Header2 = styled.h2`
 export const Header3 = styled.h3``;
 
 export const SecondaryText = styled.p`
-  font-size: 80%;
+  font-size: 100%;
   color: #878787;
 `;

@@ -4,10 +4,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOut } from "@fortawesome/free-solid-svg-icons";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
-import { Modal } from "react-bootstrap";
 import { PrimaryButton, SecondaryButton } from "../ui/Button";
 import { logout } from "../../helpers/logout";
 import Logo from "../ui/Logo";
+import {
+  Modal,
+  ModalBody,
+  ModalHeader,
+  ModalTitle,
+  ModalFooter,
+} from "../../components/ui/Modal";
 
 interface MainLayoutProps {
   children?: ReactNode;
@@ -77,17 +83,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       </Main>
       {/*Modal for Logout confirmation*/}
       <Modal show={showLogoutBox} onHide={handleCloseLogoutBox}>
-        <Modal.Header>
-          <Modal.Title>Are you sure you want to log out?</Modal.Title>
-        </Modal.Header>
-        <Modal.Footer>
+        <ModalHeader>
+          <ModalTitle>Are you sure you want to log out?</ModalTitle>
+        </ModalHeader>
+        <ModalFooter>
           <SecondaryButton onClick={handleCloseLogoutBox}>
             No, stay logged in
           </SecondaryButton>
           <PrimaryButton onClick={() => logout(navigate)}>
             Yes, log out
           </PrimaryButton>
-        </Modal.Footer>
+        </ModalFooter>
       </Modal>
     </Wrapper>
   );

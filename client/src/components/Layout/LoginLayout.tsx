@@ -9,16 +9,21 @@ interface LoginLayoutProps {
 
 const LoginLayout: React.FC<LoginLayoutProps> = ({ children }) => {
   return (
-    <Wrapper>
+    <LoginWrapper>
       <Navbar>
         <Logo />
       </Navbar>
       <LoginContainer>{children}</LoginContainer>
-    </Wrapper>
+    </LoginWrapper>
   );
 };
 
 export default LoginLayout;
+
+const LoginWrapper = styled(Wrapper)`
+  min-height: 600px;
+  height: 100%;
+`;
 
 const LoginContainer = styled.div`
   position: absolute;

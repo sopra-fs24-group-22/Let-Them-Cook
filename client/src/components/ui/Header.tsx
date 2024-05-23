@@ -10,7 +10,9 @@ export const Header1 = styled.h1`
   text-align: center;
 `;
 
-export const Header2 = styled.h2``;
+export const Header2 = styled.h2`
+  color: #a37c66;
+`;
 
 export const Header3 = styled.h3``;
 

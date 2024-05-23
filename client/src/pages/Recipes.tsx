@@ -45,6 +45,7 @@ import { StarRating } from "../components/ui/StarRating";
 import { ENV } from "../env";
 import { useSelector } from "react-redux";
 import { State } from "../features";
+import styled from "styled-components";
 
 const RecipesPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -389,7 +390,7 @@ const RecipesPage = () => {
               <>
                 <HLine />
 
-                <Header3 style={{ marginBottom: "20px" }}>Filter:</Header3>
+                <Header3 style={{ marginBottom: "10px" }}>Filter:</Header3>
 
                 <Label htmlFor="recipeTitleFilter" style={{ marginLeft: "0" }}>
                   Name of the recipe
@@ -459,110 +460,127 @@ const RecipesPage = () => {
         <Container>
           <Row>
             {recipes.map((recipe, index) => (
-              <Col
-                xs={4}
-                style={{
-                  borderLeft: index % 3 !== 0 ? "1px solid #ccc" : "",
-                  margin: "20px 0",
-                  padding: "10px 20px",
-                }}
-              >
-                <Container>
-                  <Row>
-                    <Col xs={11}>
-                      <Header2
-                        style={{ cursor: "pointer" }}
-                        onClick={() => handleShowDetails(recipe.id)}
-                      >
-                        {recipe.title}
-                      </Header2>
-                      <p style={{ fontSize: "10pt" }}>
-                        by {recipe.creatorName}
-                      </p>
-                      <p style={{ fontSize: "10pt" }}>
-                        <FontAwesomeIcon
-                          icon={faHourglass}
-                          style={{ margin: "0 5px 0 0" }}
-                        />
-                        {recipe.cookingTimeMin} minutes |
-                        <StarRating
-                          id={recipe.id}
-                          avgRating={recipe.avgTotalRating}
-                          nrRating={recipe.nrRatings}
-                          callbackFunction={async (
-                            recipeId: number,
-                            rating: number,
-                          ) => {
-                            await rateRecipe(recipeId, rating).then(
-                              async () => {
-                                await reloadRecipes();
-                              },
-                            );
+              <Col xs={4}>
+                <Item>
+                  <Container>
+                    <Row>
+                      <Col xs={11}>
+                        <Header2
+                          style={{ cursor: "pointer" }}
+                          onClick={() => handleShowDetails(recipe.id)}
+                        >
+                          {recipe.title}
+                        </Header2>
+                        <p
+                          style={{
+                            fontSize: "1.5rem",
+                            color: "#918173",
+                            marginBottom: 20,
                           }}
-                        />
-                      </p>
-                    </Col>
-                    <Col xs={1}>
-                      {recipe.creatorId === user.id && (
-                        <>
+                        >
+                          by {recipe.creatorName}
+                        </p>
+                        <p style={{ fontSize: "1.5rem", color: "#918173" }}>
                           <FontAwesomeIcon
-                            className="editRecipeIcon"
-                            icon={faPenToSquare}
-                            style={{ cursor: "pointer", fontSize: "12pt" }}
-                            onClick={() => {
-                              setEditingRecipeId(recipe.id);
-                              setDishName(recipe.title);
-                              setPrivacyStatus(recipe.privacyStatus);
-                              setCookingTime(recipe.cookingTimeMin);
-                              setIngredients(recipe.ingredients);
-                              setSingleSteps(recipe.checklist);
-                              setShowForm(true);
+                            icon={faHourglass}
+                            style={{ margin: "0 5px 0 0" }}
+                          />
+                          {recipe.cookingTimeMin} minutes |
+                          <StarRating
+                            id={recipe.id}
+                            avgRating={recipe.avgTotalRating}
+                            nrRating={recipe.nrRatings}
+                            callbackFunction={async (
+                              recipeId: number,
+                              rating: number,
+                            ) => {
+                              await rateRecipe(recipeId, rating).then(
+                                async () => {
+                                  await reloadRecipes();
+                                },
+                              );
                             }}
                           />
-                          <FontAwesomeIcon
-                            className="deleteRecipeIcon"
-                            icon={faTrashCan}
-                            style={{ cursor: "pointer", fontSize: "12pt" }}
-                            onClick={() => {
-                              if (
-                                // eslint-disable-next-line no-restricted-globals
-                                confirm(
-                                  'Are you sure you want to delete the recipe "' +
-                                    recipe.title +
-                                    '"?',
-                                )
-                              ) {
-                                deleteRecipe(recipe.id);
-                              }
-                            }}
-                          />
-                        </>
-                      )}
-                      {recipe.creatorId !== user.id &&
-                        !cookbookRecipeIds.includes(recipe.id) && (
-                          <FontAwesomeIcon
-                            className="addRecipeToCookbookIcon"
-                            icon={faPlus}
-                            style={{ cursor: "pointer", fontSize: "12pt" }}
-                            onClick={() => {
-                              addRecipeToCookbook(recipe.id);
-                            }}
-                          />
+                        </p>
+                      </Col>
+                      <Col xs={1}>
+                        {recipe.creatorId === user.id && (
+                          <>
+                            <FontAwesomeIcon
+                              className="editRecipeIcon"
+                              icon={faPenToSquare}
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "1.7rem",
+                                color: "#878787",
+                              }}
+                              onClick={() => {
+                                setEditingRecipeId(recipe.id);
+                                setDishName(recipe.title);
+                                setPrivacyStatus(recipe.privacyStatus);
+                                setCookingTime(recipe.cookingTimeMin);
+                                setIngredients(recipe.ingredients);
+                                setSingleSteps(recipe.checklist);
+                                setShowForm(true);
+                              }}
+                            />
+                            <FontAwesomeIcon
+                              className="deleteRecipeIcon"
+                              icon={faTrashCan}
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "1.7rem",
+                                color: "#878787",
+                              }}
+                              onClick={() => {
+                                if (
+                                  // eslint-disable-next-line no-restricted-globals
+                                  confirm(
+                                    'Are you sure you want to delete the recipe "' +
+                                      recipe.title +
+                                      '"?',
+                                  )
+                                ) {
+                                  deleteRecipe(recipe.id);
+                                }
+                              }}
+                            />
+                          </>
                         )}
-                      {recipe.creatorId !== user.id &&
-                        cookbookRecipeIds.includes(recipe.id) && (
-                          <FontAwesomeIcon
-                            className="removeRecipeFromCookbookIcon"
-                            icon={faMinus}
-                            style={{ cursor: "pointer", fontSize: "12pt" }}
-                            onClick={() => {
-                              removeRecipeFromCookbook(recipe.id);
-                            }}
-                          />
-                        )}
-                    </Col>
-                  </Row>
-                </Container>
+                        {recipe.creatorId !== user.id &&
+                          !cookbookRecipeIds.includes(recipe.id) && (
+                            <FontAwesomeIcon
+                              className="addRecipeToCookbookIcon"
+                              icon={faPlus}
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "1.8rem",
+                                color: "#878787",
+                              }}
+                              onClick={() => {
+                                addRecipeToCookbook(recipe.id);
+                              }}
+                            />
+                          )}
+                        {recipe.creatorId !== user.id &&
+                          cookbookRecipeIds.includes(recipe.id) && (
+                            <FontAwesomeIcon
+                              className="removeRecipeFromCookbookIcon"
+                              icon={faMinus}
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "1.8rem",
+                                color: "#878787",
+                              }}
+                              onClick={() => {
+                                removeRecipeFromCookbook(recipe.id);
+                              }}
+                            />
+                          )}
+                      </Col>
+                    </Row>
+                  </Container>
+                </Item>
               </Col>
             ))}
             {recipes.length === 0 && (
@@ -792,3 +810,9 @@ const RecipesPage = () => {
   );
 };
 export default RecipesPage;
+
+const Item = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 16px;
+`;

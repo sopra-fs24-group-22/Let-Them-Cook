@@ -99,6 +99,6 @@ export const ButtonGroup = styled.div`
 
 export const HLine = styled.hr`
   margin: 20px 0;
-  border-top: 2px solid #b1a99b;
+  border-top: 2px solid #d1ceca;
   opacity: 1;
 `;

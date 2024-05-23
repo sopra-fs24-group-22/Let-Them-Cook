@@ -63,7 +63,7 @@ In order to develop the application locally, you need to follow the steps below:
 
 To run the application locally, you need to have a MongoDB instance running. You can either install MongoDB locally or use a cloud service like MongoDB Atlas. For more information follow the [Official Guide](https://www.mongodb.com/docs/manual/installation/) depending on your development platform.
 
-### Gradle
+### Build server
 
 You can use the local Gradle wrapper to build the application. The Gradle wrapper is already included in the project. To build the application, you can use the following command:
 
@@ -83,6 +83,7 @@ For the server to start, you also need to set the following environment variable
 MONGO_DB_URI="Your MongoDB Connection String"
 MONGO_DB_NAME="The name of the database of your MongoDB instance"
 VIDEOSDK_API_TOKEN="Your videoSDK API Token"
+./gradlew bootRun
 ```
 
 ### Run Client

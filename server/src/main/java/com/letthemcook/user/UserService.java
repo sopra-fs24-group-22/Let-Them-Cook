@@ -145,13 +145,16 @@ public class UserService {
     String username = jwtService.extractUsername(accessToken);
     User userToUpdate = userRepository.getByUsername(username);
 
-    if (!Objects.equals(username, user.getUsername()) || !(Objects.equals(userToUpdate.getEmail(), user.getEmail()))) {
+    if ((user.getUsername() != null && !Objects.equals(username, user.getUsername())) || (user.getEmail() != null && !(Objects.equals(userToUpdate.getEmail(), user.getEmail())))) {
       checkIfUserExists(user);
 
-      String newUsername = user.getUsername();
-      Long userId = userToUpdate.getId();
-      recipeService.updateRecipeCreatorName(userId, newUsername);
-      sessionService.updateSessionHostName(userId, newUsername);
+      if (user.getUsername() != null) {
+        String newUsername = user.getUsername();
+        Long userId = userToUpdate.getId();
+
+        recipeService.updateRecipeCreatorName(userId, newUsername);
+        sessionService.updateSessionHostName(userId, newUsername);
+      }
     }
 
     User updatedUser = updateUserData(userToUpdate, user);

@@ -52,6 +52,7 @@ import { ENV } from "../env";
 import { useSelector } from "react-redux";
 import { State } from "../features";
 import styled from "styled-components";
+import { NotFoundText } from "./App";
 
 const RecipesPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -590,15 +591,9 @@ const RecipesPage = () => {
               </Col>
             ))}
             {recipes.length === 0 && (
-              <p
-                style={{
-                  width: "100%",
-                  textAlign: "center",
-                  marginTop: "20px",
-                }}
-              >
+              <NotFoundText style={{ textAlign: "center" }}>
                 No recipes found.
-              </p>
+              </NotFoundText>
             )}
           </Row>
         </Container>

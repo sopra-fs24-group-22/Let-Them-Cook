@@ -42,6 +42,7 @@ import {
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
+import { NotFoundText } from "./App";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -637,15 +638,9 @@ const SessionsPage = () => {
               ))}
             </Accordion>
             {sessions.length === 0 && (
-              <p
-                style={{
-                  width: "100%",
-                  textAlign: "center",
-                  marginTop: "20px",
-                }}
-              >
+              <NotFoundText style={{ textAlign: "center" }}>
                 No sessions found.
-              </p>
+              </NotFoundText>
             )}
           </Row>
         </Container>

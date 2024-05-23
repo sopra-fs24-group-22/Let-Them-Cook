@@ -139,7 +139,7 @@ const List = styled.div`
   width: 100%;
 `;
 
-const NotFoundText = styled.div`
+export const NotFoundText = styled.div`
   color: #878787;
 `;
 

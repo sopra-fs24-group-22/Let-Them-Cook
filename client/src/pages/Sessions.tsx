@@ -633,6 +633,17 @@ const SessionsPage = () => {
                 </Accordion.Item>
               ))}
             </Accordion>
+            {sessions.length === 0 && (
+              <p
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  marginTop: "20px",
+                }}
+              >
+                No sessions found.
+              </p>
+            )}
           </Row>
         </Container>
       </MainLayout>

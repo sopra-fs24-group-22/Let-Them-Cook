@@ -138,9 +138,11 @@ const SessionsPage = () => {
     setParticipants(undefined);
     setShowRequests(false);
     setCurrentManagedSession(undefined);
+    setEditingSessionId(0);
   };
   const handleShow = async () => {
     setShow(true);
+    setEditingSessionId(0);
   };
 
   const manageRequests = async (sessionId: number) => {
@@ -266,8 +268,8 @@ const SessionsPage = () => {
       await postSessionRequestAPI(sessionId).then(async () => {
         await fetchUserSessionRequests();
       });
-    } catch (error) {
-      alert("You have already sent a session request for this session.");
+    } catch (error: any) {
+      alert(error.response.data.split('"')[1]);
     }
     setCurrentLoadingSessionRequests(
       currentLoadingSessionRequests.filter((e) => e !== sessionId),
@@ -360,18 +362,21 @@ const SessionsPage = () => {
         <FontAwesomeIcon
           icon={faCheck}
           style={{ color: "green", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconAccepted"
         />
       ) : status === "REJECTED" ? (
         <FontAwesomeIcon
           icon={faTimes}
           style={{ color: "red", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconRejected"
         />
       ) : status === "PENDING" ? (
         <FontAwesomeIcon
           icon={faHourglass}
           style={{ color: "orange", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconPending"
         />
       ) : (
@@ -499,62 +504,67 @@ const SessionsPage = () => {
                   <Accordion.Header
                     style={{ display: "flex", background: "#f0f0f0" }}
                   >
-                    <div style={{ textAlign: "left", width: "100%" }}>
+                    <div
+                      style={{
+                        textAlign: "left",
+                        width: "100%",
+                        color: "#000",
+                      }}
+                    >
                       <Header2
                         style={{ display: "inline-block", marginTop: "5px" }}
                       >
                         {session.sessionName}
                       </Header2>
-                      <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
-                        {session.host === currentUserId && (
-                          <>
-                            <FontAwesomeIcon
-                              className="editSessionIcon"
-                              icon={faPenToSquare}
-                              style={{ cursor: "pointer", fontSize: "12pt" }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setEditingSessionId(session.id);
-                                setRecipe(session.recipe);
-                                setStart(new Date(session.date));
-                                setDuration(session.duration);
-                                setParticipants(session.maxParticipantCount);
-                                setSessionsName(session.sessionName);
-                                setShow(true);
-                              }}
-                            />
-                            <FontAwesomeIcon
-                              className="deleteSessionIcon"
-                              icon={faTrashCan}
-                              style={{
-                                cursor: "pointer",
-                                fontSize: "12pt",
-                                marginLeft: "10px",
-                              }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                if (
-                                  // eslint-disable-next-line no-restricted-globals
-                                  confirm(
-                                    'Are you sure you want to delete the recipe "' +
-                                      session.sessionName +
-                                      '"?',
-                                  )
-                                ) {
-                                  deleteSession(session.id);
-                                }
-                              }}
-                            />
-                          </>
-                        )}
-                      </span>
-                      <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
-                        {currentUserId !== session.host &&
-                          requestStatusIcon(
+                      {session.host === currentUserId && (
+                        <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                          <FontAwesomeIcon
+                            className="editSessionIcon"
+                            icon={faPenToSquare}
+                            style={{ cursor: "pointer", fontSize: "12pt" }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingSessionId(session.id);
+                              setRecipe(session.recipe);
+                              setStart(new Date(session.date));
+                              setDuration(session.duration);
+                              setParticipants(session.maxParticipantCount);
+                              setSessionsName(session.sessionName);
+                              setShow(true);
+                            }}
+                          />
+                          <FontAwesomeIcon
+                            className="deleteSessionIcon"
+                            icon={faTrashCan}
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "12pt",
+                              marginLeft: "10px",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (
+                                // eslint-disable-next-line no-restricted-globals
+                                confirm(
+                                  'Are you sure you want to delete the recipe "' +
+                                    session.sessionName +
+                                    '"?',
+                                )
+                              ) {
+                                deleteSession(session.id);
+                              }
+                            }}
+                          />
+                        </span>
+                      )}
+                      {currentUserId !== session.host && (
+                        <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                          {requestStatusIcon(
                             sessionRequestsUser[session.id],
                             "right",
                           )}
-                      </span>
+                        </span>
+                      )}
                       <span style={{ float: "right", marginRight: "10px" }}>
                         <JoinButton
                           onClick={() => navigate("/sessions/" + session.id)}
@@ -603,13 +613,21 @@ const SessionsPage = () => {
                     </div>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
-                    <div>Date & start time: {formatDateTime(session.date)}</div>
-                    <div>Host: {session.hostName}</div>
-                    <div>Max Participants: {session.maxParticipantCount}</div>
+                    <div>
+                      <b>Start:</b> {formatDateTime(session.date)}
+                    </div>
+                    <div>
+                      <b>Host:</b> {session.hostName}
+                    </div>
+                    <div>
+                      <b>Max Participants:</b> {session.maxParticipantCount}
+                    </div>
                     {allRecipes.map((recipe) => {
                       if (recipe.id === session.recipe) {
                         return (
-                          <div key={recipe.id}>Recipe: {recipe.title}</div>
+                          <div key={recipe.id}>
+                            <b>Recipe:</b> {recipe.title}
+                          </div>
                         );
                       }
                       return null;
@@ -618,6 +636,17 @@ const SessionsPage = () => {
                 </Accordion.Item>
               ))}
             </Accordion>
+            {sessions.length === 0 && (
+              <p
+                style={{
+                  width: "100%",
+                  textAlign: "center",
+                  marginTop: "20px",
+                }}
+              >
+                No sessions found.
+              </p>
+            )}
           </Row>
         </Container>
       </MainLayout>
@@ -625,7 +654,9 @@ const SessionsPage = () => {
       {/* Modal for creating a new session */}
       <Modal show={show} onHide={handleClose}>
         <Modal.Header>
-          <Modal.Title>Create new session</Modal.Title>
+          <Modal.Title>
+            {editingSessionId === 0 ? "Create new session" : "Edit session"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Label htmlFor="recipe">Recipe</Label>

@@ -51,8 +51,10 @@ const SessionViewer = () => {
       } else {
         setMode("VIEWER");
       }
-    } catch (e) {
-      alert("Error while loading the session. Please try again.");
+    } catch (error: any) {
+      if (error.code === "ERR_BAD_REQUEST")
+        alert(error.response.data.split('"')[1]);
+      else alert("Error while loading the session. Please try again.");
       navigate("/sessions");
     }
   };

@@ -141,6 +141,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/135
 
 ## 24.05.2024
 ### Claudio Fleischmann
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/90
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/97
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/155
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/156
@@ -154,6 +155,10 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/108
 
 ### David Lanz
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/169
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/159
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/177
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
 
 ### Gian Gyger
 

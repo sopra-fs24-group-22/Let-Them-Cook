@@ -74,7 +74,7 @@ export const JoinButton: React.FC<MJoinButtonProps> = ({
   <PrimaryButton
     style={Object.assign(
       {
-        fontSize: "1.3rem",
+        fontSize: "1.2rem",
         fontWeight: 500,
         margin: "5px",
       },

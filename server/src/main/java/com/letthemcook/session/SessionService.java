@@ -265,7 +265,6 @@ public class SessionService {
   }
 
   public List<Session> getSessionsByUser(String accessToken) {
-    // TODO: Write tests
     String username = jwtService.extractUsername(accessToken);
 
     List<Session> sessions = sessionRepository.findAll();
@@ -285,7 +284,19 @@ public class SessionService {
       for (Map.Entry<Long, QueueStatus> entry : sessionRequest.getUserSessions().entrySet()) {
         if (entry.getValue().equals(QueueStatus.PENDING) || entry.getValue().equals(QueueStatus.ACCEPTED)) {
           Session session = sessionRepository.getById(entry.getKey());
-          userSessions.add(session);
+
+          // Check for duplicates
+          boolean hasDuplicate = false;
+          for(Session userSession : userSessions) {
+            if (Objects.equals(userSession.getId(), session.getId())) {
+              hasDuplicate = true;
+              break;
+            }
+          }
+
+          if (!hasDuplicate) {
+            userSessions.add(session);
+          }
         }
       }
     }

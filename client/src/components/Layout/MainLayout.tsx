@@ -9,7 +9,6 @@ import { logout } from "../../helpers/logout";
 import Logo from "../ui/Logo";
 import {
   Modal,
-  ModalBody,
   ModalHeader,
   ModalTitle,
   ModalFooter,

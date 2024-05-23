@@ -34,7 +34,7 @@ import {
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
-import { Header2, Header3 } from "../components/ui/Header";
+import { Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
 import { useSelector } from "react-redux";

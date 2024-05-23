@@ -362,18 +362,21 @@ const SessionsPage = () => {
         <FontAwesomeIcon
           icon={faCheck}
           style={{ color: "green", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconAccepted"
         />
       ) : status === "REJECTED" ? (
         <FontAwesomeIcon
           icon={faTimes}
           style={{ color: "red", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconRejected"
         />
       ) : status === "PENDING" ? (
         <FontAwesomeIcon
           icon={faHourglass}
           style={{ color: "orange", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconPending"
         />
       ) : (

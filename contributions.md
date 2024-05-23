@@ -155,6 +155,10 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/108
 
 ### David Lanz
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/169
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/159
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/177
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
 
 ### Gian Gyger
 

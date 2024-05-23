@@ -268,8 +268,8 @@ const SessionsPage = () => {
       await postSessionRequestAPI(sessionId).then(async () => {
         await fetchUserSessionRequests();
       });
-    } catch (error) {
-      alert("You have already sent a session request for this session.");
+    } catch (error: any) {
+      alert(error.response.data.split('"')[1]);
     }
     setCurrentLoadingSessionRequests(
       currentLoadingSessionRequests.filter((e) => e !== sessionId),
@@ -362,18 +362,21 @@ const SessionsPage = () => {
         <FontAwesomeIcon
           icon={faCheck}
           style={{ color: "green", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconAccepted"
         />
       ) : status === "REJECTED" ? (
         <FontAwesomeIcon
           icon={faTimes}
           style={{ color: "red", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconRejected"
         />
       ) : status === "PENDING" ? (
         <FontAwesomeIcon
           icon={faHourglass}
           style={{ color: "orange", marginLeft: "5px" }}
+          onClick={(e) => e.stopPropagation()}
           className="requestStatusIconPending"
         />
       ) : (

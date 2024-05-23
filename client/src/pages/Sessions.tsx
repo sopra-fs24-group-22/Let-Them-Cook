@@ -268,8 +268,8 @@ const SessionsPage = () => {
       await postSessionRequestAPI(sessionId).then(async () => {
         await fetchUserSessionRequests();
       });
-    } catch (error) {
-      alert("You have already sent a session request for this session.");
+    } catch (error: any) {
+      alert(error.response.data.split('"')[1]);
     }
     setCurrentLoadingSessionRequests(
       currentLoadingSessionRequests.filter((e) => e !== sessionId),

@@ -17,6 +17,7 @@ import { ListGroup } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { State } from "../features";
 import { ENV } from "../env";
+import styled from "styled-components";
 
 const SessionViewer = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -166,7 +167,7 @@ const SessionViewer = () => {
       sidebarContent={
         recipe ? (
           <>
-            <h1>Checklist</h1>
+            <Title>Checklist</Title>
             <ListGroup variant="flush">
               {recipe.checklist.map((item: string, index: number) => (
                 <ListGroup.Item
@@ -197,7 +198,7 @@ const SessionViewer = () => {
       }
     >
       {recipe && recipe.title ? (
-        <Header1 style={{ marginBottom: "20px" }}>{recipe.title}</Header1>
+        <Title style={{ marginBottom: "20px" }}>{recipe.title}</Title>
       ) : (
         <></>
       )}
@@ -237,3 +238,7 @@ const SessionViewer = () => {
 };
 
 export default SessionViewer;
+
+const Title = styled.h1`
+  color: #6d5f5f;
+`;

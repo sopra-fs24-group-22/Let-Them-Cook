@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout/MainLayout";
 import { Header1 } from "../components/ui/Header";
-import { Container, Row } from "react-bootstrap";
 import { RecipeTile, SessionTile, Tile } from "../components/ui/Dashboard";
 import {
   getOpenSessionsAPI,
@@ -10,6 +9,8 @@ import {
 } from "../api/app.api";
 import { useSelector } from "react-redux";
 import { State } from "../features";
+import styled from "styled-components";
+import CookImage from "../assets/img/cook.png";
 
 const AppPage = () => {
   // const ERROR_LOADING_DASHBOARD =
@@ -61,65 +62,101 @@ const AppPage = () => {
     <Layout>
       {/* Title */}
       <Header1>Let {user?.firstname ? user.firstname : "them"} Cook!</Header1>
+      <CardList>
+        {/* My Sessions */}
+        <CardWrapper>
+          <Card style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
+            <Subtitle>My upcoming sessions</Subtitle>
+            <List>
+              {sessions.map((s: any) => (
+                <SessionTile name={s.sessionName} id={s.id} date={s.date} />
+              ))}
+              {sessions.length === 0 && (
+                <NotFoundText>No sessions found.</NotFoundText>
+              )}
+            </List>
+          </Card>
+        </CardWrapper>
 
-      {/* My Sessions */}
-      <Container style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
-        <Row>
-          <Tile title="My upcoming sessions" xs={12}>
-            <Container>
-              <Row>
-                {sessions.map((s: any) => (
-                  <SessionTile name={s.sessionName} id={s.id} date={s.date} />
-                ))}
-                {sessions.length === 0 && (
-                  <p style={{ marginTop: "10px" }}>No sessions found.</p>
-                )}
-              </Row>
-            </Container>
-          </Tile>
-        </Row>
-      </Container>
+        {/* Open sessions */}
+        <CardWrapper>
+          {" "}
+          <Card style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
+            <Subtitle>Sessions open for registration</Subtitle>
+            <List>
+              {openSessions.map((s: any) => (
+                <SessionTile name={s.sessionName} id={s.id} date={s.date} />
+              ))}
+              {openSessions.length === 0 && (
+                <NotFoundText>No open sessions found.</NotFoundText>
+              )}
+            </List>
+          </Card>
+        </CardWrapper>
 
-      {/* Open sessions */}
-      <Container style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
-        <Row>
-          <Tile title="Sessions open for registration" xs={12}>
-            <Container>
-              <Row>
-                {openSessions.map((s: any) => (
-                  <SessionTile name={s.sessionName} id={s.id} date={s.date} />
-                ))}
-                {openSessions.length === 0 && (
-                  <p style={{ marginTop: "10px" }}>No open sessions found.</p>
-                )}
-              </Row>
-            </Container>
-          </Tile>
-        </Row>
-      </Container>
-
-      {/* Newest recipes */}
-      <Container style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
-        <Row>
-          <Tile title="Newest recipes" xs={12}>
-            <Container>
-              <Row>
-                {newestRecipes.map((r: any) => (
-                  <RecipeTile
-                    name={r.title}
-                    id={r.id}
-                    creatorName={r.creatorName}
-                  />
-                ))}
-                {newestRecipes.length === 0 && (
-                  <p style={{ marginTop: "10px" }}>No recipes found.</p>
-                )}
-              </Row>
-            </Container>
-          </Tile>
-        </Row>
-      </Container>
+        {/* Newest recipes */}
+        <CardWrapper>
+          <Card style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
+            <Subtitle>Newest recipes</Subtitle>
+            <List>
+              {newestRecipes.map((r: any) => (
+                <RecipeTile
+                  name={r.title}
+                  id={r.id}
+                  creatorName={r.creatorName}
+                />
+              ))}
+              {newestRecipes.length === 0 && (
+                <NotFoundText>No recipes found.</NotFoundText>
+              )}
+            </List>
+          </Card>
+        </CardWrapper>
+      </CardList>
+      <Cook src={CookImage} />
     </Layout>
   );
 };
 export default AppPage;
+
+const Subtitle = styled.h2`
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #6d5f5f;
+`;
+
+const Card = styled.div`
+  padding: 25px;
+  background-color: white;
+  border-radius: 16px;
+  width: 100%;
+  height: 100%;
+`;
+
+const List = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+export const NotFoundText = styled.div`
+  color: #878787;
+`;
+
+const CardList = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin: -10px;
+`;
+
+const CardWrapper = styled.div`
+  padding: 10px;
+  flex: 1;
+  height: 100%;
+`;
+
+const Cook = styled.img`
+  width: 600px;
+  display: block;
+  margin: 0 auto;
+`;

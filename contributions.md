@@ -65,6 +65,7 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/49
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/46
 
 ### Gian Gyger
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/67
 (in WK)
 
 ## 03.05.2024
@@ -108,8 +109,6 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/107
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/133
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/89
 
-
-
 ### Gian Gyger
 (in WK)
 
@@ -149,6 +148,8 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/167
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/173
 
 ### Tristan Koning
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/174
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/181
 
 ### Martin Fähnrich
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
@@ -161,4 +162,10 @@ https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/177
 https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/154
 
 ### Gian Gyger
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/161
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/162
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/163
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/164
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/165
+https://github.com/sopra-fs24-group-22/Let-Them-Cook/issues/166
 

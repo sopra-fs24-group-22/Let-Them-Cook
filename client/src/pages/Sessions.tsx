@@ -9,7 +9,14 @@ import {
   HLine,
 } from "../components/ui/Button";
 import { Label, Input, Select, Option } from "../components/ui/Input";
-import { Accordion, Container, Modal, Row } from "react-bootstrap";
+import { Accordion, Container, Row } from "react-bootstrap";
+import {
+  Modal,
+  ModalTitle,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+} from "../components/ui/Modal";
 import MainLayout from "../components/Layout/MainLayout";
 import {
   getRecipesAPI,
@@ -42,6 +49,7 @@ import {
   faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
+import { NotFoundText } from "./App";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -494,6 +502,7 @@ const SessionsPage = () => {
                   style={{
                     width: "100%",
                     marginTop: "5px",
+                    border: "none",
                   }}
                   ref={
                     sessionDetailId === String(session.id)
@@ -502,7 +511,10 @@ const SessionsPage = () => {
                   }
                 >
                   <Accordion.Header
-                    style={{ display: "flex", background: "#f0f0f0" }}
+                    style={{
+                      display: "flex",
+                      background: "#f0f0f0",
+                    }}
                   >
                     <div
                       style={{
@@ -511,17 +523,34 @@ const SessionsPage = () => {
                         color: "#000",
                       }}
                     >
-                      <Header2
-                        style={{ display: "inline-block", marginTop: "5px" }}
+                      <div
+                        style={{
+                          display: "inline-block",
+                          marginTop: "10px",
+                          marginLeft: 10,
+                          fontSize: "1.6rem",
+                          fontWeight: "500",
+                          color: "#666",
+                        }}
                       >
                         {session.sessionName}
-                      </Header2>
+                      </div>
                       {session.host === currentUserId && (
-                        <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                        <span
+                          style={{
+                            fontSize: "12pt",
+                            marginLeft: "10px",
+                            color: "#666",
+                          }}
+                        >
                           <FontAwesomeIcon
                             className="editSessionIcon"
                             icon={faPenToSquare}
-                            style={{ cursor: "pointer", fontSize: "12pt" }}
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "12pt",
+                              color: "#666",
+                            }}
                             onClick={(e) => {
                               e.stopPropagation();
                               setEditingSessionId(session.id);
@@ -637,15 +666,9 @@ const SessionsPage = () => {
               ))}
             </Accordion>
             {sessions.length === 0 && (
-              <p
-                style={{
-                  width: "100%",
-                  textAlign: "center",
-                  marginTop: "20px",
-                }}
-              >
+              <NotFoundText style={{ textAlign: "center" }}>
                 No sessions found.
-              </p>
+              </NotFoundText>
             )}
           </Row>
         </Container>
@@ -653,12 +676,12 @@ const SessionsPage = () => {
 
       {/* Modal for creating a new session */}
       <Modal show={show} onHide={handleClose}>
-        <Modal.Header>
-          <Modal.Title>
+        <ModalHeader>
+          <ModalTitle>
             {editingSessionId === 0 ? "Create new session" : "Edit session"}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody>
           <Label htmlFor="recipe">Recipe</Label>
           <Select
             id="recipe"
@@ -719,8 +742,8 @@ const SessionsPage = () => {
             value={participants}
             onChange={(e) => setParticipants(Number(e.target.value))}
           />
-        </Modal.Body>
-        <Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
           <PrimaryButton
             onClick={saveNewSession}
@@ -740,13 +763,13 @@ const SessionsPage = () => {
           >
             Save
           </PrimaryButton>
-        </Modal.Footer>
+        </ModalFooter>
       </Modal>
       <Modal show={showRequests} onHide={handleClose}>
-        <Modal.Header>
-          <Modal.Title>Manage requests</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+        <ModalHeader>
+          <ModalTitle>Manage requests</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
           <Container>
             {sessionRequests.map((request, index) => (
               <div style={{ textAlign: "left", width: "100%", height: "45px" }}>
@@ -797,10 +820,10 @@ const SessionsPage = () => {
               </Row>
             )}
           </Container>
-        </Modal.Body>
-        <Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
           <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
-        </Modal.Footer>
+        </ModalFooter>
       </Modal>
     </>
   );

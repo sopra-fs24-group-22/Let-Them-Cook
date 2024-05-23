@@ -1,7 +1,5 @@
-# Let Them Cook
-
 <p>
-  <img src="client/public/logo.svg" alt="Let Them Cook Logo" width="200" height="200">
+  <img src="client/src/assets/img/logo.png" alt="Let Them Cook Logo" width="216" height="40">
 </p>
 
 ## Introduction
@@ -57,7 +55,7 @@ Sessions are the core feature of "Let Them Cook". Users can create, view, and jo
 
 In order for the livestream to work within sessions, we have implemented the videoSDK API within our application. This allows for the host chef to stream their cooking session live to the participants.
 
-## Launch & Deployment
+## Local development
 
 In order to develop the application locally, you need to follow the steps below:
 
@@ -65,7 +63,7 @@ In order to develop the application locally, you need to follow the steps below:
 
 To run the application locally, you need to have a MongoDB instance running. You can either install MongoDB locally or use a cloud service like MongoDB Atlas. For more information follow the [Official Guide](https://www.mongodb.com/docs/manual/installation/) depending on your development platform.
 
-### Gradle
+### Build server
 
 You can use the local Gradle wrapper to build the application. The Gradle wrapper is already included in the project. To build the application, you can use the following command:
 
@@ -85,6 +83,7 @@ For the server to start, you also need to set the following environment variable
 MONGO_DB_URI="Your MongoDB Connection String"
 MONGO_DB_NAME="The name of the database of your MongoDB instance"
 VIDEOSDK_API_TOKEN="Your videoSDK API Token"
+./gradlew bootRun
 ```
 
 ### Run Client
@@ -172,9 +171,50 @@ Run the tests
 ./gradlew test
 ```
 
+## Deploying to production
+Deploying to production is made easy using CI/CD pipelines and pre-written scripts.
+
+In the scripts/ folder, you'll find the build.sh script. This script builds the backend and frontend for production, and puts them together correctly. It then creates a docker image based on the image specification found in the Dockerfile.
+
+This script is run automatically by Github Actions when pushing to the master branch. In the .github/workflows, you'll find the deploy.yml pipeline config. This pipeline runs the build script, builds a docker image, pushes the docker image to a remote Docker registry in the cloud, and finally automatically updates the Google Cloud Run deployment by swapping the image to the new version and restarting the service.
+
 ## Illustrations
 
-TODO
+### Home Screen
+
+This is the first screen that users see after they have logged themselves in. They are greeted with a dashboard that shows them their upcoming sessions they are signed up for, the next sessions that are available to join, as well as the newest recipes that have been added to the platform.
+
+![Home Screen](img/home.png)
+
+### Recipe Screen
+
+Here users can view all recipes that have been created on the platform and also give them a 5-star rating. They can filter the recipes with various filter such as who created the recipe. They can add a recipe to their cookbook, which they can also access from this page. 
+
+![Recipe Screen](img/recipe.png)
+
+Recipes can also be created by the user. They can add a title, ingredients, preparation time, and steps to the recipe. They can also choose if the recipe should be public or private.
+
+![Create Recipe](img/recipe_creation.png)
+
+### Session Screen
+
+Here users can view all sessions that are coming up and send a request for participation to the host user if they wish to participate in that session. They can filter the sessions with various filters such as the host of the session or the start date. Users can also see the sessions they have requested participation to or are the host of in the "My Sessions" Section
+
+![Session Screen](img/session.png)
+
+They can also create a session themselves, where they can choose a recipe to cook during the session, the start time and the maximum number of participants. Requests are also managed on this screen.
+
+![Create Session](img/session_creation.png)
+
+Once the session has started, the user will be able to see the stream of the host, and both host and participants can see every user's progress of the recipe on the left side of the screen.
+
+![Session Stream](img/livestream.png)
+
+### Chef Screen
+
+Here users can view all chefs that are on the platform. Users can give each other ratings and they can also click on the name of the chef and see all the recipes they have created.
+
+![Chef Screen](img/chef.png)
 
 ## Roadmap
 
@@ -199,7 +239,7 @@ It would be helpful for users if they could receive notifications on the website
 
 ### Supervision
 
-- **Cedric** - [Github](https://github.com/cedric-vr)
+- **Cedric Egon von Rauscher** - [Github](https://github.com/cedric-vr)
 
 ## License
 

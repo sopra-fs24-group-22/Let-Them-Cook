@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { Header2 } from "./Header";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 interface TileProps {
   children?: ReactNode;
@@ -111,28 +112,37 @@ const BaseTile: React.FC<BaseTileProps> = ({
   baseUrl,
 }) => {
   const navigate = useNavigate();
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
-    <Col
-      style={{
-        margin: "5px",
-        padding: "10px",
-        borderRadius: "10px",
-        border: "1px solid #878787",
-        flex: "0 0 auto",
-        width: "32%",
-        cursor: "pointer",
-        backgroundColor: isHovered ? "#e5dcd0" : "",
-      }}
-      onClick={() => navigate("/" + baseUrl + id)}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <BaseTileStyled onClick={() => navigate("/" + baseUrl + id)}>
       {textLeft}
       <span style={{ float: "right", fontSize: "80%", marginTop: "3px" }}>
         {textRight}
       </span>
-    </Col>
+    </BaseTileStyled>
   );
 };
+
+const BaseTileStyled = styled.div`
+  margin: 5px;
+  border-radius: 16px;
+  flex: 0 0 auto;
+  width: 100%;
+  cursor: pointer;
+  background: linear-gradient(90deg, #bebebe 0%, #a9a9a9 100%);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 16px;
+  font-weight: 500;
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+  &:hover {
+    background-color: #737373;
+    transform: scale(1.05);
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+`;

@@ -196,7 +196,7 @@ Here users can view all sessions that are coming up and send a request for parti
 
 ![Session Screen](img/session.png)
 
-They can also create a session themselves, where they can choose a recipe to cook during the session, the start time and the maximum number of participants. Requests are also managed on this screen.![img.png](img.png)
+They can also create a session themselves, where they can choose a recipe to cook during the session, the start time and the maximum number of participants. Requests are also managed on this screen.
 
 ![Create Session](img/session_creation.png)
 

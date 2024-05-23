@@ -103,6 +103,23 @@ Install the dependencies
 npm install
 ```
 
+Create an env file and set all variables
+
+```
+cp src/env_template.ts src/env.ts
+```
+
+The file `client/src/env.ts` then should look as follows:
+
+```
+export const ENV = {
+  MAX_TEXT_INPUT_LENGTH: 50,      // Max length for text inputs
+  MIN_NUMBER_MINUTES_LENGTH: 1,   // Min value for number inputs
+  MAX_NUMBER_MINUTES_LENGTH: 500, // Max value for number inputs
+  VIDEOSDK_API_TOKEN: "Your Video SDK API Token Here",
+};
+```
+
 Start the client dev server
 
 ```
@@ -123,6 +140,12 @@ Change to the dev-proxy directory from the project root directory
 
 ```
 cd dev-proxy
+```
+
+Install the proxy dependencies
+
+```
+npm install
 ```
 
 Run the dev-proxy

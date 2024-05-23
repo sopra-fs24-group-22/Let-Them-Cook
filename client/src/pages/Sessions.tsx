@@ -22,6 +22,8 @@ import {
   postSessionRequestDenyAPI,
   getSessionRequestsUserAPI,
   getSessionMeAPI,
+  putSessionAPI,
+  deleteSessionAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,8 +36,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
   faHourglass,
+  faPenToSquare,
   faSpinner,
   faTimes,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
 
@@ -90,6 +94,15 @@ const SessionsPage = () => {
     }
   };
 
+  const deleteSession = async (sessionId: number) => {
+    try {
+      await deleteSessionAPI(sessionId);
+      await fetchSessions(pageView);
+    } catch (error) {
+      alert("Error while deleting the session. Please try again.");
+    }
+  };
+
   const [sessionRequestsUser, setSessionRequestsUser] = useState<any[]>([]);
 
   const fetchUserSessionRequests = async () => {
@@ -114,6 +127,8 @@ const SessionsPage = () => {
   const [showRequests, setShowRequests] = useState(false);
   const [sessionRequests, setSessionRequests] = useState<any[]>([]);
   const [currentManagedSession, setCurrentManagedSession] = useState<number>();
+  const [editingSessionId, setEditingSessionId] = useState<number>(0);
+
   const handleClose = () => {
     setShow(false);
     setRecipe(undefined);
@@ -123,9 +138,11 @@ const SessionsPage = () => {
     setParticipants(undefined);
     setShowRequests(false);
     setCurrentManagedSession(undefined);
+    setEditingSessionId(0);
   };
   const handleShow = async () => {
     setShow(true);
+    setEditingSessionId(0);
   };
 
   const manageRequests = async (sessionId: number) => {
@@ -226,9 +243,14 @@ const SessionsPage = () => {
       maxParticipantCount: participants,
     };
     try {
-      await postSessionAPI(body);
+      if (editingSessionId === 0) {
+        await postSessionAPI(body);
+      } else {
+        const updatedBody = Object.assign(body, { id: editingSessionId });
+        await putSessionAPI(updatedBody);
+      }
       handleClose();
-      await fetchSessions("ALL");
+      await fetchSessions(pageView);
     } catch (error) {
       alert("Error while saving the session. Please try again.");
     }
@@ -436,6 +458,20 @@ const SessionsPage = () => {
         <ButtonGroup style={{ marginBottom: "20px" }}>
           {buttonTopBar}
         </ButtonGroup>
+        <Tooltip
+          anchorSelect={".editSessionIcon"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Edit session
+        </Tooltip>
+        <Tooltip
+          anchorSelect={".deleteSessionIcon"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Delete session
+        </Tooltip>
         <Container fluid>
           <Row>
             <style>
@@ -465,19 +501,67 @@ const SessionsPage = () => {
                   <Accordion.Header
                     style={{ display: "flex", background: "#f0f0f0" }}
                   >
-                    <div style={{ textAlign: "left", width: "100%" }}>
+                    <div
+                      style={{
+                        textAlign: "left",
+                        width: "100%",
+                        color: "#000",
+                      }}
+                    >
                       <Header2
                         style={{ display: "inline-block", marginTop: "5px" }}
                       >
                         {session.sessionName}
                       </Header2>
-                      <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
-                        {currentUserId !== session.host &&
-                          requestStatusIcon(
+                      {session.host === currentUserId && (
+                        <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                          <FontAwesomeIcon
+                            className="editSessionIcon"
+                            icon={faPenToSquare}
+                            style={{ cursor: "pointer", fontSize: "12pt" }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingSessionId(session.id);
+                              setRecipe(session.recipe);
+                              setStart(new Date(session.date));
+                              setDuration(session.duration);
+                              setParticipants(session.maxParticipantCount);
+                              setSessionsName(session.sessionName);
+                              setShow(true);
+                            }}
+                          />
+                          <FontAwesomeIcon
+                            className="deleteSessionIcon"
+                            icon={faTrashCan}
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "12pt",
+                              marginLeft: "10px",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (
+                                // eslint-disable-next-line no-restricted-globals
+                                confirm(
+                                  'Are you sure you want to delete the recipe "' +
+                                    session.sessionName +
+                                    '"?',
+                                )
+                              ) {
+                                deleteSession(session.id);
+                              }
+                            }}
+                          />
+                        </span>
+                      )}
+                      {currentUserId !== session.host && (
+                        <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                          {requestStatusIcon(
                             sessionRequestsUser[session.id],
                             "right",
                           )}
-                      </span>
+                        </span>
+                      )}
                       <span style={{ float: "right", marginRight: "10px" }}>
                         <JoinButton
                           onClick={() => navigate("/sessions/" + session.id)}
@@ -526,13 +610,21 @@ const SessionsPage = () => {
                     </div>
                   </Accordion.Header>
                   <Accordion.Body style={{ background: "#f0f0f0" }}>
-                    <div>Date & start time: {formatDateTime(session.date)}</div>
-                    <div>Host: {session.hostName}</div>
-                    <div>Max Participants: {session.maxParticipantCount}</div>
+                    <div>
+                      <b>Start:</b> {formatDateTime(session.date)}
+                    </div>
+                    <div>
+                      <b>Host:</b> {session.hostName}
+                    </div>
+                    <div>
+                      <b>Max Participants:</b> {session.maxParticipantCount}
+                    </div>
                     {allRecipes.map((recipe) => {
                       if (recipe.id === session.recipe) {
                         return (
-                          <div key={recipe.id}>Recipe: {recipe.title}</div>
+                          <div key={recipe.id}>
+                            <b>Recipe:</b> {recipe.title}
+                          </div>
                         );
                       }
                       return null;
@@ -548,7 +640,9 @@ const SessionsPage = () => {
       {/* Modal for creating a new session */}
       <Modal show={show} onHide={handleClose}>
         <Modal.Header>
-          <Modal.Title>Create new session</Modal.Title>
+          <Modal.Title>
+            {editingSessionId === 0 ? "Create new session" : "Edit session"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Label htmlFor="recipe">Recipe</Label>

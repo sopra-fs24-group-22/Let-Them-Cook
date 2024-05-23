@@ -233,7 +233,7 @@ It would be helpful for users if they could receive notifications on the website
 
 ### Supervision
 
-- **Cedric** - [Github](https://github.com/cedric-vr)
+- **Cedric Egon von Rauscher** - [Github](https://github.com/cedric-vr)
 
 ## License
 

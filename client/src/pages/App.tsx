@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout/MainLayout";
 import { Header1 } from "../components/ui/Header";
-import { RecipeTile, SessionTile, Tile } from "../components/ui/Dashboard";
+import { RecipeTile, SessionTile } from "../components/ui/Dashboard";
 import {
   getOpenSessionsAPI,
   getRecipesAPI,

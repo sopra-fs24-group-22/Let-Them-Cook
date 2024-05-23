@@ -39,12 +39,7 @@ import {
   ModalTitle,
   ModalFooter,
 } from "../components/ui/Modal";
-import {
-  Header1,
-  Header2,
-  Header3,
-  SecondaryText,
-} from "../components/ui/Header";
+import { Header2, Header3, SecondaryText } from "../components/ui/Header";
 import { Tooltip } from "react-tooltip";
 import { useParams } from "react-router-dom";
 import { StarRating } from "../components/ui/StarRating";

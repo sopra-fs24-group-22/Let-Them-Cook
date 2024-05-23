@@ -4,6 +4,7 @@ import { getUsersAPI, postRateUserAPI } from "../api/app.api";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StarRating } from "../components/ui/StarRating";
+import styled from "styled-components";
 
 const ChefsPage = () => {
   const navigate = useNavigate();
@@ -34,32 +35,31 @@ const ChefsPage = () => {
       <Container>
         <Row>
           {chefs.map((chef, index) => (
-            <Col
-              xs={4}
-              style={{
-                borderLeft: index % 3 !== 0 ? "1px solid #ccc" : "",
-                padding: "10px 20px",
-              }}
-            >
-              <h3
-                style={{ cursor: "pointer" }}
-                onClick={() => navigate("/recipes/chef=" + chef.username)}
-              >
-                {chef.firstname + " " + chef.lastname}
-              </h3>
-              <p style={{ fontSize: "80%" }}>
-                @{chef.username} |
-                <StarRating
-                  id={chef.id}
-                  avgRating={chef.avgTotalRating}
-                  nrRating={chef.nrRatings}
-                  callbackFunction={async (chefId: number, rating: number) => {
-                    await rateChef(chefId, rating).then(async () => {
-                      await fetchChefs();
-                    });
-                  }}
-                />
-              </p>
+            <Col xs={4}>
+              <Item>
+                <h3
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate("/recipes/chef=" + chef.username)}
+                >
+                  {chef.firstname + " " + chef.lastname}
+                </h3>
+                <p style={{ fontSize: "80%" }}>
+                  @{chef.username} |
+                  <StarRating
+                    id={chef.id}
+                    avgRating={chef.avgTotalRating}
+                    nrRating={chef.nrRatings}
+                    callbackFunction={async (
+                      chefId: number,
+                      rating: number,
+                    ) => {
+                      await rateChef(chefId, rating).then(async () => {
+                        await fetchChefs();
+                      });
+                    }}
+                  />
+                </p>
+              </Item>
             </Col>
           ))}
         </Row>
@@ -68,3 +68,10 @@ const ChefsPage = () => {
   );
 };
 export default ChefsPage;
+
+const Item = styled.div`
+  background-color: white;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 15px;
+`;

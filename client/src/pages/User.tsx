@@ -12,6 +12,7 @@ import { loadAccessTokenAndUser, State } from "../features";
 import { Tooltip } from "react-tooltip";
 import { logout } from "../helpers/logout";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -105,7 +106,7 @@ const UserPage = () => {
 
   return (
     <Layout>
-      <h1>Change user settings</h1>
+      <Title>Change user settings</Title>
 
       <Label htmlFor="firstname" style={{ margin: "15px 0 5px 0" }}>
         First name
@@ -197,7 +198,7 @@ const UserPage = () => {
         )}
       </PrimaryButton>
 
-      <h1 style={{ marginTop: "30px" }}>Change password</h1>
+      <Title style={{ marginTop: "30px" }}>Change password</Title>
 
       <Label htmlFor="newPassword" style={{ margin: "15px 0 5px 0" }}>
         New password
@@ -246,3 +247,7 @@ const UserPage = () => {
   );
 };
 export default UserPage;
+
+const Title = styled.h1`
+  color: #867b77;
+`;

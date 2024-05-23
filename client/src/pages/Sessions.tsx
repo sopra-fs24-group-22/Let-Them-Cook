@@ -22,6 +22,8 @@ import {
   postSessionRequestDenyAPI,
   getSessionRequestsUserAPI,
   getSessionMeAPI,
+  putSessionAPI,
+  deleteSessionAPI,
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
@@ -34,8 +36,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
   faHourglass,
+  faPenToSquare,
   faSpinner,
   faTimes,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
 
@@ -90,6 +94,15 @@ const SessionsPage = () => {
     }
   };
 
+  const deleteSession = async (sessionId: number) => {
+    try {
+      await deleteSessionAPI(sessionId);
+      await fetchSessions(pageView);
+    } catch (error) {
+      alert("Error while deleting the session. Please try again.");
+    }
+  };
+
   const [sessionRequestsUser, setSessionRequestsUser] = useState<any[]>([]);
 
   const fetchUserSessionRequests = async () => {
@@ -114,6 +127,8 @@ const SessionsPage = () => {
   const [showRequests, setShowRequests] = useState(false);
   const [sessionRequests, setSessionRequests] = useState<any[]>([]);
   const [currentManagedSession, setCurrentManagedSession] = useState<number>();
+  const [editingSessionId, setEditingSessionId] = useState<number>(0);
+
   const handleClose = () => {
     setShow(false);
     setRecipe(undefined);
@@ -226,9 +241,14 @@ const SessionsPage = () => {
       maxParticipantCount: participants,
     };
     try {
-      await postSessionAPI(body);
+      if (editingSessionId === 0) {
+        await postSessionAPI(body);
+      } else {
+        const updatedBody = Object.assign(body, { id: editingSessionId });
+        await putSessionAPI(updatedBody);
+      }
       handleClose();
-      await fetchSessions("ALL");
+      await fetchSessions(pageView);
     } catch (error) {
       alert("Error while saving the session. Please try again.");
     }
@@ -436,6 +456,20 @@ const SessionsPage = () => {
         <ButtonGroup style={{ marginBottom: "20px" }}>
           {buttonTopBar}
         </ButtonGroup>
+        <Tooltip
+          anchorSelect={".editSessionIcon"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Edit session
+        </Tooltip>
+        <Tooltip
+          anchorSelect={".deleteSessionIcon"}
+          place="right"
+          style={{ zIndex: "100" }}
+        >
+          Delete session
+        </Tooltip>
         <Container fluid>
           <Row>
             <style>
@@ -471,6 +505,49 @@ const SessionsPage = () => {
                       >
                         {session.sessionName}
                       </Header2>
+                      <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
+                        {session.host === currentUserId && (
+                          <>
+                            <FontAwesomeIcon
+                              className="editSessionIcon"
+                              icon={faPenToSquare}
+                              style={{ cursor: "pointer", fontSize: "12pt" }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setEditingSessionId(session.id);
+                                setRecipe(session.recipe);
+                                setStart(new Date(session.date));
+                                setDuration(session.duration);
+                                setParticipants(session.maxParticipantCount);
+                                setSessionsName(session.sessionName);
+                                setShow(true);
+                              }}
+                            />
+                            <FontAwesomeIcon
+                              className="deleteSessionIcon"
+                              icon={faTrashCan}
+                              style={{
+                                cursor: "pointer",
+                                fontSize: "12pt",
+                                marginLeft: "10px",
+                              }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                if (
+                                  // eslint-disable-next-line no-restricted-globals
+                                  confirm(
+                                    'Are you sure you want to delete the recipe "' +
+                                      session.sessionName +
+                                      '"?',
+                                  )
+                                ) {
+                                  deleteSession(session.id);
+                                }
+                              }}
+                            />
+                          </>
+                        )}
+                      </span>
                       <span style={{ fontSize: "12pt", marginLeft: "10px" }}>
                         {currentUserId !== session.host &&
                           requestStatusIcon(

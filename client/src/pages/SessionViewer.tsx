@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import MainLayout from "../components/Layout/MainLayout";
 import { Header1 } from "../components/ui/Header";
 import { MeetingProvider, MeetingConsumer } from "@videosdk.live/react-sdk";
-import { authToken } from "../components/VideoCall/API";
 import { Container } from "../components/VideoCall/Container";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +16,7 @@ import {
 import { ListGroup } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { State } from "../features";
+import { ENV } from "../env";
 
 const SessionViewer = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -209,7 +209,7 @@ const SessionViewer = () => {
             mode: mode,
             debugMode: true, // TODO Sprint 2: turn off in production
           }}
-          token={authToken}
+          token={ENV.VIDEOSDK_API_TOKEN}
         >
           <MeetingConsumer>
             {() => (

@@ -752,7 +752,11 @@ const RecipesPage = () => {
               avgRating={avgTotalRating}
               nrRating={nrRating}
               callbackFunction={(recipeId: number, rating: number) => {
-                rateRecipeAndReloadSingleRecipe(recipeId, rating);
+                rateRecipeAndReloadSingleRecipe(recipeId, rating).then(
+                  async () => {
+                    await reloadRecipes();
+                  },
+                );
               }}
             />
           </SecondaryText>

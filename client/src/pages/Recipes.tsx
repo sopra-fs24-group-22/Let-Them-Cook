@@ -49,6 +49,7 @@ import { State } from "../features";
 import styled from "styled-components";
 import { NotFoundText } from "./App";
 import { ErrorModal } from "../components/ui/ErrorModal";
+import { ConfirmModal } from "../components/ui/ConfirmModal";
 
 const RecipesPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -163,13 +164,15 @@ const RecipesPage = () => {
     }
   };
 
-  const deleteRecipe = async (recipeId: number) => {
-    try {
-      await deleteRecipeAPI(recipeId.toString());
-      await fetchRecipes(pageView, user.id);
-    } catch (error) {
-      showErrorModal("Error while deleting the recipe. Please try again.");
-    }
+  const [deleteRecipeName, setDeleteRecipeName] = useState<string>("");
+  const [deleteRecipeId, setDeleteRecipeId] = useState<number>(0);
+  const [showDeleteRecipeModal, setShowDeleteRecipeModal] =
+    useState<boolean>(false);
+
+  const deleteRecipe = async (recipeId: number, recipeName: string) => {
+    setDeleteRecipeName(recipeName);
+    setDeleteRecipeId(recipeId);
+    setShowDeleteRecipeModal(true);
   };
 
   // Functions for single steps
@@ -576,18 +579,9 @@ const RecipesPage = () => {
                                 fontSize: "1.7rem",
                                 color: "#878787",
                               }}
-                              onClick={() => {
-                                if (
-                                  // eslint-disable-next-line no-restricted-globals
-                                  confirm(
-                                    'Are you sure you want to delete the recipe "' +
-                                      recipe.title +
-                                      '"?',
-                                  )
-                                ) {
-                                  deleteRecipe(recipe.id);
-                                }
-                              }}
+                              onClick={() =>
+                                deleteRecipe(recipe.id, recipe.title)
+                              }
                             />
                           </>
                         )}
@@ -855,6 +849,31 @@ const RecipesPage = () => {
         error={errorMessageModalText}
         show={errorMessageModalShown}
         onClose={() => setErrorMessageModalShown(false)}
+      />
+
+      {/* Modal for deleting recipe */}
+      <ConfirmModal
+        title="Are you sure?"
+        error={
+          'Are you sure you want to delete the recipe "' +
+          deleteRecipeName +
+          '"?'
+        }
+        show={showDeleteRecipeModal}
+        onAccept={async () => {
+          try {
+            await deleteRecipeAPI(deleteRecipeId.toString());
+            await fetchRecipes(pageView, user.id);
+          } catch (error) {
+            showErrorModal(
+              "Error while deleting the recipe. Please try again.",
+            );
+          }
+          setShowDeleteRecipeModal(false);
+        }}
+        onDecline={() => {
+          setShowDeleteRecipeModal(false);
+        }}
       />
     </>
   );

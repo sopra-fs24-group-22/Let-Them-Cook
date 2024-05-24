@@ -51,6 +51,7 @@ import {
 import { Tooltip } from "react-tooltip";
 import { NotFoundText } from "./App";
 import { ErrorModal } from "../components/ui/ErrorModal";
+import { ConfirmModal } from "../components/ui/ConfirmModal";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -103,13 +104,15 @@ const SessionsPage = () => {
     }
   };
 
-  const deleteSession = async (sessionId: number) => {
-    try {
-      await deleteSessionAPI(sessionId);
-      await fetchSessions(pageView);
-    } catch (error) {
-      showErrorModal("Error while deleting the session. Please try again.");
-    }
+  const [deleteSessionName, setDeleteSessionName] = useState<string>("");
+  const [deleteSessionId, setDeleteSessionId] = useState<number>(0);
+  const [showDeleteSessionModal, setShowDeleteSessionModal] =
+    useState<boolean>(false);
+
+  const deleteSession = async (sessionId: number, sessionName: string) => {
+    setDeleteSessionName(sessionName);
+    setDeleteSessionId(sessionId);
+    setShowDeleteSessionModal(true);
   };
 
   const [sessionRequestsUser, setSessionRequestsUser] = useState<any[]>([]);
@@ -620,16 +623,7 @@ const SessionsPage = () => {
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              if (
-                                // eslint-disable-next-line no-restricted-globals
-                                confirm(
-                                  'Are you sure you want to delete the recipe "' +
-                                    session.sessionName +
-                                    '"?',
-                                )
-                              ) {
-                                deleteSession(session.id);
-                              }
+                              deleteSession(session.id, session.sessionName);
                             }}
                           />
                         </span>
@@ -873,6 +867,31 @@ const SessionsPage = () => {
         show={errorMessageModalShown}
         onClose={() => setErrorMessageModalShown(false)}
         error={errorMessageModalText}
+      />
+
+      {/* Modal for deleting session */}
+      <ConfirmModal
+        title="Are you sure?"
+        error={
+          'Are you sure you want to delete the session "' +
+          deleteSessionName +
+          '"?'
+        }
+        show={showDeleteSessionModal}
+        onAccept={async () => {
+          try {
+            await deleteSessionAPI(deleteSessionId);
+            await fetchSessions(pageView);
+          } catch (error) {
+            showErrorModal(
+              "Error while deleting the session. Please try again.",
+            );
+          }
+          setShowDeleteSessionModal(false);
+        }}
+        onDecline={() => {
+          setShowDeleteSessionModal(false);
+        }}
       />
     </>
   );

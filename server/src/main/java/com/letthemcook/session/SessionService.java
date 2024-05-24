@@ -235,7 +235,7 @@ public class SessionService {
   }
 
   public SessionUserState getSessionUserState(Long sessionId, String accessToken) {
-      Session session = sessionRepository.getById(sessionId);
+    Session session = sessionRepository.getById(sessionId);
 
     if (session == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
@@ -248,6 +248,9 @@ public class SessionService {
     }
 
     SessionUserState sessionUserState = session.getSessionUserState();
+
+    Recipe recipe = recipeRepository.getById(session.getRecipeId());
+    sessionUserState.setRecipeSteps(recipe.getChecklist().size());
 
     // Add user to step count if they are not already in it
     Long userId = userRepository.getByUsername(username).getId();

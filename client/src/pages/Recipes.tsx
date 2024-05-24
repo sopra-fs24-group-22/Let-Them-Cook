@@ -772,12 +772,12 @@ const RecipesPage = () => {
           </SecondaryButton>
         </ModalBody>
         <ModalFooter>
+          <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
           {!inputIsValid() && (
             <Tooltip anchorSelect={".saveRecipeButton"} place="top">
               {saveErrorMessage}
             </Tooltip>
           )}
-          <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
           <PrimaryButton
             onClick={saveRecipe}
             disabled={!inputIsValid()}

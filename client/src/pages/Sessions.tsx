@@ -34,7 +34,7 @@ import {
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
-import { Header3, SecondaryText } from "../components/ui/Header";
+import { Header3 } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
 import { useSelector } from "react-redux";
@@ -50,6 +50,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
 import { NotFoundText } from "./App";
+import { ErrorModal } from "../components/ui/ErrorModal";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -868,22 +869,11 @@ const SessionsPage = () => {
       </Modal>
 
       {/* Modal for error messages */}
-      <Modal
+      <ErrorModal
         show={errorMessageModalShown}
-        onHide={() => setErrorMessageModalShown(false)}
-      >
-        <ModalHeader>
-          <ModalTitle>Error</ModalTitle>
-        </ModalHeader>
-        <ModalBody>
-          <SecondaryText>{errorMessageModalText}</SecondaryText>
-        </ModalBody>
-        <ModalFooter>
-          <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>
-            Ok
-          </SecondaryButton>
-        </ModalFooter>
-      </Modal>
+        onClose={() => setErrorMessageModalShown(false)}
+        error={errorMessageModalText}
+      />
     </>
   );
 };

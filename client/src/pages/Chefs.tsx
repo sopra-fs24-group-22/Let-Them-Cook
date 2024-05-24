@@ -5,15 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { StarRating } from "../components/ui/StarRating";
 import styled from "styled-components";
-import {
-  Modal,
-  ModalTitle,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "../components/ui/Modal";
-import { SecondaryText } from "../components/ui/Header";
-import { SecondaryButton } from "../components/ui/Button";
+import { ErrorModal } from "../components/ui/ErrorModal";
 
 const ChefsPage = () => {
   const navigate = useNavigate();
@@ -86,22 +78,11 @@ const ChefsPage = () => {
         </Container>
 
         {/* Modal for error messages */}
-        <Modal
+        <ErrorModal
           show={errorMessageModalShown}
-          onHide={() => setErrorMessageModalShown(false)}
-        >
-          <ModalHeader>
-            <ModalTitle>Error</ModalTitle>
-          </ModalHeader>
-          <ModalBody>
-            <SecondaryText>{errorMessageModalText}</SecondaryText>
-          </ModalBody>
-          <ModalFooter>
-            <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>
-              Ok
-            </SecondaryButton>
-          </ModalFooter>
-        </Modal>
+          onClose={() => setErrorMessageModalShown(false)}
+          error={errorMessageModalText}
+        />
       </>
     </Layout>
   );

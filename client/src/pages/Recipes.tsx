@@ -48,6 +48,7 @@ import { useSelector } from "react-redux";
 import { State } from "../features";
 import styled from "styled-components";
 import { NotFoundText } from "./App";
+import { ErrorModal } from "../components/ui/ErrorModal";
 
 const RecipesPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -849,22 +850,11 @@ const RecipesPage = () => {
       </Modal>
 
       {/* Modal for error messages */}
-      <Modal
+      <ErrorModal
+        error={errorMessageModalText}
         show={errorMessageModalShown}
-        onHide={() => setErrorMessageModalShown(false)}
-      >
-        <ModalHeader>
-          <ModalTitle>Error</ModalTitle>
-        </ModalHeader>
-        <ModalBody>
-          <SecondaryText>{errorMessageModalText}</SecondaryText>
-        </ModalBody>
-        <ModalFooter>
-          <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>
-            Ok
-          </SecondaryButton>
-        </ModalFooter>
-      </Modal>
+        onClose={() => setErrorMessageModalShown(false)}
+      />
     </>
   );
 };

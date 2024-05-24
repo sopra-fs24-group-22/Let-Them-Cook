@@ -42,6 +42,13 @@ public class SessionRequestServiceTest {
   @BeforeEach
   public void setup() {
     sessionRequestService = new SessionRequestService(sessionRequestRepository, jwtService, userRepository, sessionRepository);
+
+    Session session = new Session();
+    session.setId(1L);
+    session.setMaxParticipantCount(2);
+    session.setAcceptedParticipantCount(0);
+
+    lenient().when(sessionRepository.getById(1L)).thenReturn(session);
   }
 
   @AfterEach

@@ -67,10 +67,16 @@ public class SessionRequestService {
 
   public void processSessionRequest(Long sessionId, SessionRequest sessionRequestUser, Boolean evaluate) {
     Long userId = sessionRequestUser.getUserId();
+    Session session = sessionRepository.getById(sessionId);
     SessionRequest sessionRequest = sessionRequestRepository.getSessionRequestByUserId(userId);
 
     if (!sessionRequest.getUserSessions().containsKey(sessionId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "The user has not sent a session request for this session");
+    }
+
+    // Check if session is full
+    if (session.getAcceptedParticipantCount() >= session.getMaxParticipantCount()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "The session is full");
     }
 
     QueueStatus status = sessionRequest.getUserSessions().get(sessionId);
@@ -81,10 +87,12 @@ public class SessionRequestService {
 
     if (evaluate) {
       sessionRequest.getUserSessions().put(sessionId, QueueStatus.ACCEPTED);
+      session.setAcceptedParticipantCount(session.getAcceptedParticipantCount() + 1);
     } else {
       sessionRequest.getUserSessions().put(sessionId, QueueStatus.REJECTED);
     }
     sessionRequestRepository.save(sessionRequest);
+    sessionRepository.save(session);
   }
 
   public SessionRequest getSessionRequests(String sessionId) {

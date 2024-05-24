@@ -181,9 +181,6 @@ const SessionViewer = () => {
                       checked={userChecklistData[index]}
                       onChange={() => handleCheckboxChange(index)}
                       style={{ marginRight: "10px" }}
-                      disabled={
-                        userChecklistData[index - 1] !== true && index !== 0
-                      }
                     />
                   )}
                   {item} ({stepCounts[index] || 0} / {currentParticipantsCount})

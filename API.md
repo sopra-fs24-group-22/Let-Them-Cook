@@ -1171,7 +1171,7 @@ Authorization: Bearer [access token]
 **Content** :
 
 ```
-401 UNAUTHORIZED "This session is full"
+401 UNAUTHORIZED "The session is full."
 ```
 
 

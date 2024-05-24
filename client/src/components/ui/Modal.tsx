@@ -20,6 +20,9 @@ export const Modal: React.FC<{
           transform: show
             ? "translate(-50%, -50%) scale(1)"
             : "translate(-50%, -50%) scale(0.3)",
+          maxHeight: "100%",
+          overflowY: "auto",
+          border: "1px solid #bebebe",
         }}
       >
         {children}

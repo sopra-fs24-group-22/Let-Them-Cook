@@ -22,7 +22,7 @@ export const PrimaryButton = styled.button`
   }
   &:disabled {
     cursor: default;
-    opacity: 0.7;
+    opacity: 0.5;
   }
 `;
 

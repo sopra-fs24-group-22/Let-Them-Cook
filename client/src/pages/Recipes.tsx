@@ -48,6 +48,7 @@ import { useSelector } from "react-redux";
 import { State } from "../features";
 import styled from "styled-components";
 import { NotFoundText } from "./App";
+import { ErrorModal } from "../components/ui/ErrorModal";
 
 const RecipesPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -106,8 +107,8 @@ const RecipesPage = () => {
   const rateRecipe = async (recipeId: number, rating: number) => {
     await postRateRecipeAPI(recipeId, rating).catch((error) => {
       if (error.code === "ERR_BAD_REQUEST")
-        alert("You cannot rate your own recipe.");
-      else alert("Error while rating the recipe. Please try again.");
+        showErrorModal("You cannot rate your own recipe.");
+      else showErrorModal("Error while rating the recipe. Please try again.");
     });
   };
 
@@ -141,7 +142,7 @@ const RecipesPage = () => {
       handleClose();
       await fetchRecipes(pageView, user.id);
     } catch (error) {
-      alert("Error while saving the recipe. Please try again.");
+      showErrorModal("Error while saving the recipe. Please try again.");
     }
   };
 
@@ -158,7 +159,7 @@ const RecipesPage = () => {
       setNrRating(res.nrRatings);
       setAvgTotalRating(res.avgTotalRating);
     } catch (e) {
-      alert("Error while loading the recipe. Please try again.");
+      showErrorModal("Error while loading the recipe. Please try again.");
     }
   };
 
@@ -167,7 +168,7 @@ const RecipesPage = () => {
       await deleteRecipeAPI(recipeId.toString());
       await fetchRecipes(pageView, user.id);
     } catch (error) {
-      alert("Error while deleting the recipe. Please try again.");
+      showErrorModal("Error while deleting the recipe. Please try again.");
     }
   };
 
@@ -282,7 +283,7 @@ const RecipesPage = () => {
       setRecipes(resRecipes);
       setCookbookRecipeIds(resCookbook.map((e: any) => e.id));
     } catch (error) {
-      alert("Error while loading the recipes. Please try again.");
+      showErrorModal("Error while loading the recipes. Please try again.");
     }
   };
 
@@ -295,7 +296,7 @@ const RecipesPage = () => {
       await addRecipeToCookbookAPI(recipeId);
       await reloadRecipes();
     } catch (error) {
-      alert(
+      showErrorModal(
         "Error while adding the recipe to your cookbook. Please try again.",
       );
     }
@@ -306,7 +307,7 @@ const RecipesPage = () => {
       await removeRecipeFromCookbookAPI(recipeId);
       await reloadRecipes();
     } catch (error) {
-      alert(
+      showErrorModal(
         "Error while adding the recipe to your cookbook. Please try again.",
       );
     }
@@ -316,7 +317,7 @@ const RecipesPage = () => {
     try {
       fetchRecipes("ALL", user.id);
     } catch (e) {
-      alert("Error while fetching the data. Please reload the page.");
+      showErrorModal("Error while fetching the data. Please reload the page.");
     }
   };
 
@@ -378,6 +379,47 @@ const RecipesPage = () => {
         </SimplePrimaryButton>
       </>
     );
+
+  // Recipe modal validity messages
+  const dishNameIsValid = () => dishName && dishName !== "";
+  const cookingTimeIsValid = () =>
+    cookingTime &&
+    cookingTime > 0 &&
+    cookingTime <= ENV.MAX_NUMBER_MINUTES_LENGTH;
+  const ingredientsIsValid = () =>
+    ingredients && !ingredients.includes("") && ingredients.length > 0;
+  const singleStepsIsValid = () =>
+    singleSteps && !singleSteps.includes("") && singleSteps.length > 0;
+
+  const inputIsValid = () =>
+    dishNameIsValid() &&
+    cookingTimeIsValid() &&
+    ingredientsIsValid() &&
+    singleStepsIsValid();
+
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    let fragments = [];
+    if (!dishNameIsValid()) fragments.push("Dish name is missing.");
+    if (!cookingTimeIsValid())
+      fragments.push("Cooking time is missing or invalid.");
+    if (!ingredientsIsValid())
+      fragments.push("Ingredients are missing or empty.");
+    if (!singleStepsIsValid())
+      fragments.push("Single steps are missing or empty.");
+    setSaveErrorMessage(fragments.join(" "));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dishName, cookingTime, ingredients, singleSteps]);
+
+  // Error Modal
+  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
+  const [errorMessageModalText, setErrorMessageModalText] = useState("");
+
+  const showErrorModal = (message: string) => {
+    setErrorMessageModalText(message);
+    setErrorMessageModalShown(true);
+  };
 
   return (
     <>
@@ -741,9 +783,15 @@ const RecipesPage = () => {
         </ModalBody>
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
+          {!inputIsValid() && (
+            <Tooltip anchorSelect={".saveRecipeButton"} place="top">
+              {saveErrorMessage}
+            </Tooltip>
+          )}
           <PrimaryButton
             onClick={saveRecipe}
-            disabled={!(dishName && cookingTime && ingredients && singleSteps)}
+            disabled={!inputIsValid()}
+            className="saveRecipeButton"
           >
             Save
           </PrimaryButton>
@@ -801,6 +849,13 @@ const RecipesPage = () => {
           <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
         </ModalFooter>
       </Modal>
+
+      {/* Modal for error messages */}
+      <ErrorModal
+        error={errorMessageModalText}
+        show={errorMessageModalShown}
+        onClose={() => setErrorMessageModalShown(false)}
+      />
     </>
   );
 };

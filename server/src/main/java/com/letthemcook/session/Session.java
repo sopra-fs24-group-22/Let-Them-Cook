@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ public class Session {
   private String sessionName;
   private Integer maxParticipantCount;
   private Integer currentParticipantCount;
+  private Integer acceptedParticipantCount;
   private ArrayList<Long> participants;
   private SessionUserState sessionUserState;
   private LocalDateTime date;
@@ -137,5 +137,13 @@ public class Session {
 
   public void setRecipeName(String recipeName) {
     this.recipeName = recipeName;
+  }
+
+  public Integer getAcceptedParticipantCount() {
+    return acceptedParticipantCount;
+  }
+
+  public void setAcceptedParticipantCount(Integer acceptedParticipantCount) {
+    this.acceptedParticipantCount = acceptedParticipantCount;
   }
 }

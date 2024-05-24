@@ -849,19 +849,20 @@ const RecipesPage = () => {
       </Modal>
 
       {/* Modal for error messages */}
-      <Modal show={errorMessageModalShown} onHide={() => setErrorMessageModalShown(false)}>
+      <Modal
+        show={errorMessageModalShown}
+        onHide={() => setErrorMessageModalShown(false)}
+      >
         <ModalHeader>
-          <ModalTitle>
-            Error
-          </ModalTitle>
+          <ModalTitle>Error</ModalTitle>
         </ModalHeader>
         <ModalBody>
-          <SecondaryText>
-            {errorMessageModalText}
-          </SecondaryText>
+          <SecondaryText>{errorMessageModalText}</SecondaryText>
         </ModalBody>
         <ModalFooter>
-          <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>Ok</SecondaryButton>
+          <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>
+            Ok
+          </SecondaryButton>
         </ModalFooter>
       </Modal>
     </>

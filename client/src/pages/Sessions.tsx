@@ -34,7 +34,7 @@ import {
 } from "../api/app.api";
 import { getUsers } from "../api/user.api";
 import { useNavigate, useParams } from "react-router-dom";
-import { Header3 } from "../components/ui/Header";
+import { Header3, SecondaryText } from "../components/ui/Header";
 import { formatDateTime } from "../helpers/formatDateTime";
 import { ENV } from "../env";
 import { useSelector } from "react-redux";
@@ -60,7 +60,7 @@ const SessionsPage = () => {
       setCurrentUserId(user.id);
       await fetchAllRecipes(user.id);
     } catch (e) {
-      alert("Error while fetching the user. Please reload the page.");
+      showErrorModal("Error while fetching the user. Please reload the page.");
     }
   };
 
@@ -98,7 +98,7 @@ const SessionsPage = () => {
       }
       setSessions(res);
     } catch (error) {
-      alert("Error while loading the sessions. Please try again.");
+      showErrorModal("Error while loading the sessions. Please try again.");
     }
   };
 
@@ -107,7 +107,7 @@ const SessionsPage = () => {
       await deleteSessionAPI(sessionId);
       await fetchSessions(pageView);
     } catch (error) {
-      alert("Error while deleting the session. Please try again.");
+      showErrorModal("Error while deleting the session. Please try again.");
     }
   };
 
@@ -119,7 +119,9 @@ const SessionsPage = () => {
 
       setSessionRequestsUser(res.userSessions);
     } catch (error) {
-      alert("Error while fetching the session requests. Please try again.");
+      showErrorModal(
+        "Error while fetching the session requests. Please try again.",
+      );
     }
   };
 
@@ -170,7 +172,7 @@ const SessionsPage = () => {
       await postSessionRequestAcceptAPI(Number(sessionId), body);
       await fetchSessionRequests(Number(sessionId));
     } catch (error) {
-      alert("Error while accepting the request. Please try again.");
+      showErrorModal("Error while accepting the request. Please try again.");
     }
   };
 
@@ -182,7 +184,7 @@ const SessionsPage = () => {
       await postSessionRequestDenyAPI(Number(sessionId), body);
       await fetchSessionRequests(Number(sessionId));
     } catch (error) {
-      alert("Error while denying the request. Please try again.");
+      showErrorModal("Error while denying the request. Please try again.");
     }
   };
 
@@ -191,7 +193,9 @@ const SessionsPage = () => {
       const res = await getSessionRequestsAPI(sessionId);
       setSessionRequests(res);
     } catch (error) {
-      alert("Error while fetching the session requests. Please try again.");
+      showErrorModal(
+        "Error while fetching the session requests. Please try again.",
+      );
     }
   };
 
@@ -212,7 +216,9 @@ const SessionsPage = () => {
         recipeTitles[recipe.id] = recipe.title;
       });
     } catch (e) {
-      alert("Error while fetching all recipes. Please reload the page.");
+      showErrorModal(
+        "Error while fetching all recipes. Please reload the page.",
+      );
     }
   };
 
@@ -260,7 +266,7 @@ const SessionsPage = () => {
       handleClose();
       await fetchSessions(pageView);
     } catch (error) {
-      alert("Error while saving the session. Please try again.");
+      showErrorModal("Error while saving the session. Please try again.");
     }
   };
 
@@ -277,7 +283,7 @@ const SessionsPage = () => {
         await fetchUserSessionRequests();
       });
     } catch (error: any) {
-      alert(error.response.data.split('"')[1]);
+      showErrorModal(error.response.data.split('"')[1]);
     }
     setCurrentLoadingSessionRequests(
       currentLoadingSessionRequests.filter((e) => e !== sessionId),
@@ -424,6 +430,15 @@ const SessionsPage = () => {
     setSaveErrorMessage(fragments.join(" "));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipe, sessionName, start, duration, participants]);
+
+  // Error messages
+  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
+  const [errorMessageModalText, setErrorMessageModalText] = useState("");
+
+  const showErrorModal = (message: string) => {
+    setErrorMessageModalText(message);
+    setErrorMessageModalShown(true);
+  };
 
   // Return
   return (
@@ -849,6 +864,24 @@ const SessionsPage = () => {
         </ModalBody>
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
+        </ModalFooter>
+      </Modal>
+
+      {/* Modal for error messages */}
+      <Modal
+        show={errorMessageModalShown}
+        onHide={() => setErrorMessageModalShown(false)}
+      >
+        <ModalHeader>
+          <ModalTitle>Error</ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          <SecondaryText>{errorMessageModalText}</SecondaryText>
+        </ModalBody>
+        <ModalFooter>
+          <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>
+            Ok
+          </SecondaryButton>
         </ModalFooter>
       </Modal>
     </>

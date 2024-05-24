@@ -65,9 +65,13 @@ const AppPage = () => {
           <Card style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
             <Subtitle>My upcoming sessions</Subtitle>
             <List>
-              {sessions.map((s: any) => (
-                <SessionTile name={s.sessionName} id={s.id} date={s.date} />
-              ))}
+              {sessions.map((s: any) =>
+                s.sessionName && s.id && s.date ? (
+                  <SessionTile name={s.sessionName} id={s.id} date={s.date} />
+                ) : (
+                  ""
+                ),
+              )}
               {sessions.length === 0 && (
                 <NotFoundText>No sessions found.</NotFoundText>
               )}
@@ -81,9 +85,13 @@ const AppPage = () => {
           <Card style={{ margin: "20px 0 0 0", width: "calc(100% - 7.5px)" }}>
             <Subtitle>Sessions open for registration</Subtitle>
             <List>
-              {openSessions.map((s: any) => (
-                <SessionTile name={s.sessionName} id={s.id} date={s.date} />
-              ))}
+              {openSessions.map((s: any) =>
+                s.sessionName && s.id && s.date ? (
+                  <SessionTile name={s.sessionName} id={s.id} date={s.date} />
+                ) : (
+                  ""
+                ),
+              )}
               {openSessions.length === 0 && (
                 <NotFoundText>No open sessions found.</NotFoundText>
               )}

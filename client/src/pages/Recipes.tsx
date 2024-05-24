@@ -104,14 +104,6 @@ const RecipesPage = () => {
     setShowDetails(true);
   };
 
-  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
-  const [errorMessageModalText, setErrorMessageModalText] = useState("");
-
-  const showErrorModal = (message: string) => {
-    setErrorMessageModalText(message);
-    setErrorMessageModalShown(true);
-  };
-
   const rateRecipe = async (recipeId: number, rating: number) => {
     await postRateRecipeAPI(recipeId, rating).catch((error) => {
       if (error.code === "ERR_BAD_REQUEST")
@@ -419,6 +411,15 @@ const RecipesPage = () => {
     setSaveErrorMessage(fragments.join(" "));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dishName, cookingTime, ingredients, singleSteps]);
+
+  // Error Modal
+  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
+  const [errorMessageModalText, setErrorMessageModalText] = useState("");
+
+  const showErrorModal = (message: string) => {
+    setErrorMessageModalText(message);
+    setErrorMessageModalShown(true);
+  };
 
   return (
     <>

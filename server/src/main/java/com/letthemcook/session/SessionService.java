@@ -61,6 +61,7 @@ public class SessionService {
     session.setHostName(username);
     session.setParticipants(new ArrayList<>());
     session.setCurrentParticipantCount(0);
+    session.setAcceptedParticipantCount(0);
 
     String roomID = videoSDKService.fetchRoomId();
     session.setRoomId(roomID);

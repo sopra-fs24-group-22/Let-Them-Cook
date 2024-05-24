@@ -176,8 +176,10 @@ const SessionsPage = () => {
       await postSessionRequestAcceptAPI(Number(sessionId), body);
       await fetchSessionRequests(Number(sessionId));
     } catch (error: any) {
-      if(error.code && error.code === "ERR_BAD_REQUEST") showErrorModal("The session is already full.");
-      else showErrorModal("Error while accepting the request. Please try again.");
+      if (error.code && error.code === "ERR_BAD_REQUEST")
+        showErrorModal("The session is already full.");
+      else
+        showErrorModal("Error while accepting the request. Please try again.");
     }
   };
 
@@ -539,8 +541,11 @@ const SessionsPage = () => {
           <Row>
             <style>
               {`
-                .accordion-button { background-color: #fff !important; }
+                .accordion-item { border-radius: 20px !important; }
+                .accordion-header { border-radius: 20px !important; }
+                .accordion-button { background-color: #fff !important; border-radius: 20px !important; }
                 .accordion-button:focus { box-shadow: none !important; }
+                .accordion-body { border-bottom-left-radius: 20px !important; border-bottom-right-radius: 20px !important; }
               `.replace(/ /g, "")}
             </style>
             <Accordion

@@ -379,6 +379,38 @@ const RecipesPage = () => {
       </>
     );
 
+  // Recipe modal validity messages
+  const dishNameIsValid = () => dishName && dishName !== "";
+  const cookingTimeIsValid = () =>
+    cookingTime &&
+    cookingTime > 0 &&
+    cookingTime <= ENV.MAX_NUMBER_MINUTES_LENGTH;
+  const ingredientsIsValid = () =>
+    ingredients && !ingredients.includes("") && ingredients.length > 0;
+  const singleStepsIsValid = () =>
+    singleSteps && !singleSteps.includes("") && singleSteps.length > 0;
+
+  const inputIsValid = () =>
+    dishNameIsValid() &&
+    cookingTimeIsValid() &&
+    ingredientsIsValid() &&
+    singleStepsIsValid();
+
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    let fragments = [];
+    if (!dishNameIsValid()) fragments.push("Dish name is missing.");
+    if (!cookingTimeIsValid())
+      fragments.push("Cooking time is missing or invalid.");
+    if (!ingredientsIsValid())
+      fragments.push("Ingredients are missing or empty.");
+    if (!singleStepsIsValid())
+      fragments.push("Single steps are missing or empty.");
+    setSaveErrorMessage(fragments.join(" "));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dishName, cookingTime, ingredients, singleSteps]);
+
   return (
     <>
       <MainLayout
@@ -740,10 +772,16 @@ const RecipesPage = () => {
           </SecondaryButton>
         </ModalBody>
         <ModalFooter>
+          {!inputIsValid() && (
+            <Tooltip anchorSelect={".saveRecipeButton"} place="top">
+              {saveErrorMessage}
+            </Tooltip>
+          )}
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
           <PrimaryButton
             onClick={saveRecipe}
-            disabled={!(dishName && cookingTime && ingredients && singleSteps)}
+            disabled={!inputIsValid()}
+            className="saveRecipeButton"
           >
             Save
           </PrimaryButton>

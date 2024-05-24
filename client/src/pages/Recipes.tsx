@@ -103,11 +103,19 @@ const RecipesPage = () => {
     setShowDetails(true);
   };
 
+  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
+  const [errorMessageModalText, setErrorMessageModalText] = useState("");
+
+  const showErrorModal = (message: string) => {
+    setErrorMessageModalText(message);
+    setErrorMessageModalShown(true);
+  };
+
   const rateRecipe = async (recipeId: number, rating: number) => {
     await postRateRecipeAPI(recipeId, rating).catch((error) => {
       if (error.code === "ERR_BAD_REQUEST")
-        alert("You cannot rate your own recipe.");
-      else alert("Error while rating the recipe. Please try again.");
+        showErrorModal("You cannot rate your own recipe.");
+      else showErrorModal("Error while rating the recipe. Please try again.");
     });
   };
 
@@ -141,7 +149,7 @@ const RecipesPage = () => {
       handleClose();
       await fetchRecipes(pageView, user.id);
     } catch (error) {
-      alert("Error while saving the recipe. Please try again.");
+      showErrorModal("Error while saving the recipe. Please try again.");
     }
   };
 
@@ -158,7 +166,7 @@ const RecipesPage = () => {
       setNrRating(res.nrRatings);
       setAvgTotalRating(res.avgTotalRating);
     } catch (e) {
-      alert("Error while loading the recipe. Please try again.");
+      showErrorModal("Error while loading the recipe. Please try again.");
     }
   };
 
@@ -167,7 +175,7 @@ const RecipesPage = () => {
       await deleteRecipeAPI(recipeId.toString());
       await fetchRecipes(pageView, user.id);
     } catch (error) {
-      alert("Error while deleting the recipe. Please try again.");
+      showErrorModal("Error while deleting the recipe. Please try again.");
     }
   };
 
@@ -282,7 +290,7 @@ const RecipesPage = () => {
       setRecipes(resRecipes);
       setCookbookRecipeIds(resCookbook.map((e: any) => e.id));
     } catch (error) {
-      alert("Error while loading the recipes. Please try again.");
+      showErrorModal("Error while loading the recipes. Please try again.");
     }
   };
 
@@ -295,7 +303,7 @@ const RecipesPage = () => {
       await addRecipeToCookbookAPI(recipeId);
       await reloadRecipes();
     } catch (error) {
-      alert(
+      showErrorModal(
         "Error while adding the recipe to your cookbook. Please try again.",
       );
     }
@@ -306,7 +314,7 @@ const RecipesPage = () => {
       await removeRecipeFromCookbookAPI(recipeId);
       await reloadRecipes();
     } catch (error) {
-      alert(
+      showErrorModal(
         "Error while adding the recipe to your cookbook. Please try again.",
       );
     }
@@ -316,7 +324,7 @@ const RecipesPage = () => {
     try {
       fetchRecipes("ALL", user.id);
     } catch (e) {
-      alert("Error while fetching the data. Please reload the page.");
+      showErrorModal("Error while fetching the data. Please reload the page.");
     }
   };
 
@@ -837,6 +845,23 @@ const RecipesPage = () => {
             Copy recipe
           </SecondaryButton>
           <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
+        </ModalFooter>
+      </Modal>
+
+      {/* Modal for error messages */}
+      <Modal show={errorMessageModalShown} onHide={() => setErrorMessageModalShown(false)}>
+        <ModalHeader>
+          <ModalTitle>
+            Error
+          </ModalTitle>
+        </ModalHeader>
+        <ModalBody>
+          <SecondaryText>
+            {errorMessageModalText}
+          </SecondaryText>
+        </ModalBody>
+        <ModalFooter>
+          <SecondaryButton onClick={() => setErrorMessageModalShown(false)}>Ok</SecondaryButton>
         </ModalFooter>
       </Modal>
     </>

@@ -50,6 +50,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Tooltip } from "react-tooltip";
 import { NotFoundText } from "./App";
+import { ErrorModal } from "../components/ui/ErrorModal";
 
 const SessionsPage = () => {
   const { user } = useSelector((state: State) => state.app);
@@ -60,7 +61,7 @@ const SessionsPage = () => {
       setCurrentUserId(user.id);
       await fetchAllRecipes(user.id);
     } catch (e) {
-      alert("Error while fetching the user. Please reload the page.");
+      showErrorModal("Error while fetching the user. Please reload the page.");
     }
   };
 
@@ -98,7 +99,7 @@ const SessionsPage = () => {
       }
       setSessions(res);
     } catch (error) {
-      alert("Error while loading the sessions. Please try again.");
+      showErrorModal("Error while loading the sessions. Please try again.");
     }
   };
 
@@ -107,7 +108,7 @@ const SessionsPage = () => {
       await deleteSessionAPI(sessionId);
       await fetchSessions(pageView);
     } catch (error) {
-      alert("Error while deleting the session. Please try again.");
+      showErrorModal("Error while deleting the session. Please try again.");
     }
   };
 
@@ -119,7 +120,9 @@ const SessionsPage = () => {
 
       setSessionRequestsUser(res.userSessions);
     } catch (error) {
-      alert("Error while fetching the session requests. Please try again.");
+      showErrorModal(
+        "Error while fetching the session requests. Please try again.",
+      );
     }
   };
 
@@ -170,7 +173,7 @@ const SessionsPage = () => {
       await postSessionRequestAcceptAPI(Number(sessionId), body);
       await fetchSessionRequests(Number(sessionId));
     } catch (error) {
-      alert("Error while accepting the request. Please try again.");
+      showErrorModal("Error while accepting the request. Please try again.");
     }
   };
 
@@ -182,7 +185,7 @@ const SessionsPage = () => {
       await postSessionRequestDenyAPI(Number(sessionId), body);
       await fetchSessionRequests(Number(sessionId));
     } catch (error) {
-      alert("Error while denying the request. Please try again.");
+      showErrorModal("Error while denying the request. Please try again.");
     }
   };
 
@@ -191,7 +194,9 @@ const SessionsPage = () => {
       const res = await getSessionRequestsAPI(sessionId);
       setSessionRequests(res);
     } catch (error) {
-      alert("Error while fetching the session requests. Please try again.");
+      showErrorModal(
+        "Error while fetching the session requests. Please try again.",
+      );
     }
   };
 
@@ -212,7 +217,9 @@ const SessionsPage = () => {
         recipeTitles[recipe.id] = recipe.title;
       });
     } catch (e) {
-      alert("Error while fetching all recipes. Please reload the page.");
+      showErrorModal(
+        "Error while fetching all recipes. Please reload the page.",
+      );
     }
   };
 
@@ -260,7 +267,7 @@ const SessionsPage = () => {
       handleClose();
       await fetchSessions(pageView);
     } catch (error) {
-      alert("Error while saving the session. Please try again.");
+      showErrorModal("Error while saving the session. Please try again.");
     }
   };
 
@@ -277,7 +284,7 @@ const SessionsPage = () => {
         await fetchUserSessionRequests();
       });
     } catch (error: any) {
-      alert(error.response.data.split('"')[1]);
+      showErrorModal(error.response.data.split('"')[1]);
     }
     setCurrentLoadingSessionRequests(
       currentLoadingSessionRequests.filter((e) => e !== sessionId),
@@ -392,6 +399,47 @@ const SessionsPage = () => {
       )}
     </>
   );
+
+  // Check if the input is valid
+  const recipeIsValid = () => recipe && recipe !== 0 && recipe !== undefined;
+  const sessionNameIsValid = () => sessionName && sessionName !== "";
+  const startIsValid = () => start && start !== undefined;
+  const durationIsValid = () =>
+    duration &&
+    ENV.MIN_NUMBER_MINUTES_LENGTH <= duration &&
+    duration <= ENV.MAX_NUMBER_MINUTES_LENGTH;
+  const participantsIsValid = () =>
+    participants && 1 <= participants && participants <= 30;
+
+  const inputIsValid = () =>
+    recipeIsValid() &&
+    sessionNameIsValid() &&
+    startIsValid() &&
+    durationIsValid() &&
+    participantsIsValid();
+
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    let fragments = [];
+    if (!recipeIsValid()) fragments.push("Recipe is missing.");
+    if (!sessionNameIsValid()) fragments.push("Session name is missing.");
+    if (!startIsValid()) fragments.push("Start date is missing.");
+    if (!durationIsValid()) fragments.push("Duration is missing or invalid.");
+    if (!participantsIsValid())
+      fragments.push("Participants is missing or invalid.");
+    setSaveErrorMessage(fragments.join(" "));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipe, sessionName, start, duration, participants]);
+
+  // Error messages
+  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
+  const [errorMessageModalText, setErrorMessageModalText] = useState("");
+
+  const showErrorModal = (message: string) => {
+    setErrorMessageModalText(message);
+    setErrorMessageModalShown(true);
+  };
 
   // Return
   return (
@@ -745,21 +793,15 @@ const SessionsPage = () => {
         </ModalBody>
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
+          {!inputIsValid() && (
+            <Tooltip anchorSelect={".saveSessionButton"} place="top">
+              {saveErrorMessage}
+            </Tooltip>
+          )}
           <PrimaryButton
             onClick={saveNewSession}
-            disabled={
-              !(
-                recipe &&
-                sessionName &&
-                start &&
-                duration &&
-                ENV.MIN_NUMBER_MINUTES_LENGTH <= duration &&
-                duration <= ENV.MAX_NUMBER_MINUTES_LENGTH &&
-                participants &&
-                1 <= participants &&
-                participants <= 30
-              )
-            }
+            disabled={!inputIsValid()}
+            className="saveSessionButton"
           >
             Save
           </PrimaryButton>
@@ -825,6 +867,13 @@ const SessionsPage = () => {
           <SecondaryButton onClick={handleClose}>Close</SecondaryButton>
         </ModalFooter>
       </Modal>
+
+      {/* Modal for error messages */}
+      <ErrorModal
+        show={errorMessageModalShown}
+        onClose={() => setErrorMessageModalShown(false)}
+        error={errorMessageModalText}
+      />
     </>
   );
 };

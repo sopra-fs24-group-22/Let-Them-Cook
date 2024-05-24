@@ -5,7 +5,7 @@ import { RecipeTile, SessionTile } from "../components/ui/Dashboard";
 import {
   getOpenSessionsAPI,
   getRecipesAPI,
-  getSessionsAPI,
+  getSessionMeAPI,
 } from "../api/app.api";
 import { useSelector } from "react-redux";
 import { State } from "../features";
@@ -29,10 +29,7 @@ const AppPage = () => {
   const fetchUserAndSessions = async () => {
     try {
       // Sessions
-      const sessions = await getSessionsAPI({
-        hostId: user.id,
-        limit: 6,
-      });
+      const sessions = await getSessionMeAPI();
       setSessions(sessions);
 
       // Open Sessions (only the first 6 that arent shown in upcoming sessions already)

@@ -22,6 +22,10 @@ export const Input = styled.input`
     cursor: default;
     opacity: 0.7;
   }
+  &::placeholder {
+    font-style: italic;
+    color: #9a9a9a;
+  }
 `;
 
 export const Select = styled.select`

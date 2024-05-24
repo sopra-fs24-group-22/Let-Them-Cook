@@ -393,6 +393,38 @@ const SessionsPage = () => {
     </>
   );
 
+  // Check if the input is valid
+  const recipeIsValid = () => recipe && recipe !== 0 && recipe !== undefined;
+  const sessionNameIsValid = () => sessionName && sessionName !== "";
+  const startIsValid = () => start && start !== undefined;
+  const durationIsValid = () =>
+    duration &&
+    ENV.MIN_NUMBER_MINUTES_LENGTH <= duration &&
+    duration <= ENV.MAX_NUMBER_MINUTES_LENGTH;
+  const participantsIsValid = () =>
+    participants && 1 <= participants && participants <= 30;
+
+  const inputIsValid = () =>
+    recipeIsValid() &&
+    sessionNameIsValid() &&
+    startIsValid() &&
+    durationIsValid() &&
+    participantsIsValid();
+
+  const [saveErrorMessage, setSaveErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    let fragments = [];
+    if (!recipeIsValid()) fragments.push("Recipe is missing.");
+    if (!sessionNameIsValid()) fragments.push("Session name is missing.");
+    if (!startIsValid()) fragments.push("Start date is missing.");
+    if (!durationIsValid()) fragments.push("Duration is missing or invalid.");
+    if (!participantsIsValid())
+      fragments.push("Participants is missing or invalid.");
+    setSaveErrorMessage(fragments.join(" "));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipe, sessionName, start, duration, participants]);
+
   // Return
   return (
     <>
@@ -745,21 +777,15 @@ const SessionsPage = () => {
         </ModalBody>
         <ModalFooter>
           <SecondaryButton onClick={handleClose}>Cancel</SecondaryButton>
+          {!inputIsValid() && (
+            <Tooltip anchorSelect={".saveSessionButton"} place="top">
+              {saveErrorMessage}
+            </Tooltip>
+          )}
           <PrimaryButton
             onClick={saveNewSession}
-            disabled={
-              !(
-                recipe &&
-                sessionName &&
-                start &&
-                duration &&
-                ENV.MIN_NUMBER_MINUTES_LENGTH <= duration &&
-                duration <= ENV.MAX_NUMBER_MINUTES_LENGTH &&
-                participants &&
-                1 <= participants &&
-                participants <= 30
-              )
-            }
+            disabled={!inputIsValid()}
+            className="saveSessionButton"
           >
             Save
           </PrimaryButton>

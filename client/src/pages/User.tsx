@@ -13,6 +13,7 @@ import { Tooltip } from "react-tooltip";
 import { logout } from "../helpers/logout";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { ErrorModal } from "../components/ui/ErrorModal";
 
 const UserPage = () => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const UserPage = () => {
       setUsername(user.username);
       setEmail(user.email);
     } catch (e) {
-      alert("Error while fetching the data. Please reload the page.");
+      showErrorModal("Error while fetching the data. Please reload the page.");
     }
   };
 
@@ -69,7 +70,7 @@ const UserPage = () => {
       // reload user in Redux
       dispatch(loadAccessTokenAndUser());
     } catch (e) {
-      alert("Error while saving the userdata. Please try again.");
+      showErrorModal("Error while saving the userdata. Please try again.");
     }
     setUserdataIsLoading(false);
   };
@@ -94,7 +95,7 @@ const UserPage = () => {
         setPasswordIsSaved(false);
       }, 5000);
     } catch (e) {
-      alert("Error while saving the password. Please try again.");
+      showErrorModal("Error while saving the password. Please try again.");
     }
     setPasswordIsLoading(false);
   };
@@ -104,146 +105,168 @@ const UserPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Error messages
+  const [errorMessageModalShown, setErrorMessageModalShown] = useState(false);
+  const [errorMessageModalText, setErrorMessageModalText] = useState("");
+
+  const showErrorModal = (message: string) => {
+    setErrorMessageModalText(message);
+    setErrorMessageModalShown(true);
+  };
+
   return (
-    <Layout>
-      <Title>Change user settings</Title>
+    <>
+      <Layout>
+        <Title>Change user settings</Title>
 
-      <Label htmlFor="firstname" style={{ margin: "15px 0 5px 0" }}>
-        First name
-      </Label>
-      <Input
-        id="firstname"
-        type="text"
-        maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
-        style={{ margin: "0", width: "250px" }}
-        value={firstname ? firstname : ""}
-        onChange={(e) => setFirstname(e.target.value)}
-      />
+        <Label htmlFor="firstname" style={{ margin: "15px 0 5px 0" }}>
+          First name
+        </Label>
+        <Input
+          id="firstname"
+          type="text"
+          maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
+          style={{ margin: "0", width: "250px" }}
+          value={firstname ? firstname : ""}
+          onChange={(e) => setFirstname(e.target.value)}
+        />
 
-      <Label htmlFor="lastname" style={{ margin: "15px 0 5px 0" }}>
-        Last name
-      </Label>
-      <Input
-        id="lastname"
-        type="text"
-        maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
-        style={{ margin: "0", width: "250px" }}
-        value={lastname ? lastname : ""}
-        onChange={(e) => setLastname(e.target.value)}
-      />
+        <Label htmlFor="lastname" style={{ margin: "15px 0 5px 0" }}>
+          Last name
+        </Label>
+        <Input
+          id="lastname"
+          type="text"
+          maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
+          style={{ margin: "0", width: "250px" }}
+          value={lastname ? lastname : ""}
+          onChange={(e) => setLastname(e.target.value)}
+        />
 
-      <Label htmlFor="username" style={{ margin: "15px 0 5px 0" }}>
-        Username
-      </Label>
-      <Input
-        id="username"
-        type="text"
-        maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
-        style={{ margin: "0", width: "250px" }}
-        value={username ? username : ""}
-        disabled={!usernameIsChanged}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      {!usernameIsChanged && (
-        <>
-          <Tooltip anchorSelect={".changeUsername"} place="right">
-            If you change your username, you will be logged out after saving.
-          </Tooltip>
-          <FontAwesomeIcon
-            icon={faEdit}
-            onClick={() => setUsernameIsChanged(true)}
-            style={{ cursor: "pointer", marginLeft: "10px", color: "#867b77" }}
-            className="changeUsername"
-          />
-        </>
-      )}
-
-      <Label htmlFor="email" style={{ margin: "15px 0 5px 0" }}>
-        E-Mail
-      </Label>
-      <Input
-        id="email"
-        type="text"
-        maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
-        style={{
-          margin: "0",
-          width: "250px",
-          borderColor: !emailIsValid ? "#f00" : "",
-          color: !emailIsValid ? "#f00" : "#000",
-        }}
-        value={email ? email : ""}
-        onChange={(e) => {
-          setEmail(e.target.value);
-          setEmailIsValid(eMailIsValid(e.target.value));
-        }}
-      />
-
-      <br></br>
-
-      {userdataSaved && (
-        <p style={{ color: "green", margin: "10px 0" }}>
-          Userdata saved successfully.
-        </p>
-      )}
-
-      <PrimaryButton
-        disabled={!userdataIsValid() || !anyUserdataChanged()}
-        style={{ marginTop: userdataSaved ? "" : "20px" }}
-        onClick={saveUserdata}
-      >
-        {!userdataIsLoading ? (
-          "Save user data"
-        ) : (
-          <FontAwesomeIcon icon={faSpinner} spin={true} />
+        <Label htmlFor="username" style={{ margin: "15px 0 5px 0" }}>
+          Username
+        </Label>
+        <Input
+          id="username"
+          type="text"
+          maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
+          style={{ margin: "0", width: "250px" }}
+          value={username ? username : ""}
+          disabled={!usernameIsChanged}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        {!usernameIsChanged && (
+          <>
+            <Tooltip anchorSelect={".changeUsername"} place="right">
+              If you change your username, you will be logged out after saving.
+            </Tooltip>
+            <FontAwesomeIcon
+              icon={faEdit}
+              onClick={() => setUsernameIsChanged(true)}
+              style={{
+                cursor: "pointer",
+                marginLeft: "10px",
+                color: "#867b77",
+              }}
+              className="changeUsername"
+            />
+          </>
         )}
-      </PrimaryButton>
 
-      <Title style={{ marginTop: "30px" }}>Change password</Title>
+        <Label htmlFor="email" style={{ margin: "15px 0 5px 0" }}>
+          E-Mail
+        </Label>
+        <Input
+          id="email"
+          type="text"
+          maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
+          style={{
+            margin: "0",
+            width: "250px",
+            borderColor: !emailIsValid ? "#f00" : "",
+            color: !emailIsValid ? "#f00" : "#000",
+          }}
+          value={email ? email : ""}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setEmailIsValid(eMailIsValid(e.target.value));
+          }}
+        />
 
-      <Label htmlFor="newPassword" style={{ margin: "15px 0 5px 0" }}>
-        New password
-      </Label>
-      <Input
-        id="newPassword"
-        type="password"
-        maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
-        style={{ margin: "0", width: "250px" }}
-        value={newPassword ? newPassword : ""}
-        onChange={(e) => setNewPassword(e.target.value)}
-      />
+        <br></br>
 
-      <Label htmlFor="repeatNewPassword" style={{ margin: "15px 0 5px 0" }}>
-        Repeat new password
-      </Label>
-      <Input
-        id="repeatNewPassword"
-        type="password"
-        maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
-        style={{ margin: "0", width: "250px" }}
-        value={repeatNewPassword ? repeatNewPassword : ""}
-        onChange={(e) => setRepeatNewPassword(e.target.value)}
-      />
-
-      <br></br>
-
-      {passwordIsSaved && (
-        <p style={{ color: "green", margin: "10px 0" }}>
-          Password saved successfully.
-        </p>
-      )}
-
-      <PrimaryButton
-        disabled={!passwordIsValid()}
-        style={{ marginTop: passwordIsSaved ? "" : "20px" }}
-        onClick={saveNewPassword}
-      >
-        {!passwordIsLoading ? (
-          "Save password"
-        ) : (
-          <FontAwesomeIcon icon={faSpinner} spin={true} />
+        {userdataSaved && (
+          <p style={{ color: "green", margin: "10px 0" }}>
+            Userdata saved successfully.
+          </p>
         )}
-      </PrimaryButton>
-    </Layout>
+
+        <PrimaryButton
+          disabled={!userdataIsValid() || !anyUserdataChanged()}
+          style={{ marginTop: userdataSaved ? "" : "20px" }}
+          onClick={saveUserdata}
+        >
+          {!userdataIsLoading ? (
+            "Save user data"
+          ) : (
+            <FontAwesomeIcon icon={faSpinner} spin={true} />
+          )}
+        </PrimaryButton>
+
+        <Title style={{ marginTop: "30px" }}>Change password</Title>
+
+        <Label htmlFor="newPassword" style={{ margin: "15px 0 5px 0" }}>
+          New password
+        </Label>
+        <Input
+          id="newPassword"
+          type="password"
+          maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
+          style={{ margin: "0", width: "250px" }}
+          value={newPassword ? newPassword : ""}
+          onChange={(e) => setNewPassword(e.target.value)}
+        />
+
+        <Label htmlFor="repeatNewPassword" style={{ margin: "15px 0 5px 0" }}>
+          Repeat new password
+        </Label>
+        <Input
+          id="repeatNewPassword"
+          type="password"
+          maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
+          style={{ margin: "0", width: "250px" }}
+          value={repeatNewPassword ? repeatNewPassword : ""}
+          onChange={(e) => setRepeatNewPassword(e.target.value)}
+        />
+
+        <br></br>
+
+        {passwordIsSaved && (
+          <p style={{ color: "green", margin: "10px 0" }}>
+            Password saved successfully.
+          </p>
+        )}
+
+        <PrimaryButton
+          disabled={!passwordIsValid()}
+          style={{ marginTop: passwordIsSaved ? "" : "20px" }}
+          onClick={saveNewPassword}
+        >
+          {!passwordIsLoading ? (
+            "Save password"
+          ) : (
+            <FontAwesomeIcon icon={faSpinner} spin={true} />
+          )}
+        </PrimaryButton>
+      </Layout>
+
+      {/* Modal for error messages */}
+      <ErrorModal
+        show={errorMessageModalShown}
+        onClose={() => setErrorMessageModalShown(false)}
+        error={errorMessageModalText}
+      />
+    </>
   );
 };
 export default UserPage;

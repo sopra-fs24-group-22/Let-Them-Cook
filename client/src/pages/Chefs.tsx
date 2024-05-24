@@ -22,6 +22,7 @@ const ChefsPage = () => {
 
   useEffect(() => {
     fetchChefs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const rateChef = async (chefId: number, rating: number) => {

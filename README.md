@@ -4,11 +4,11 @@
 
 ## Introduction
 
-"Let Them Cook" is a user-friendly web application that connects people from around the globe, enabling them to share homemade recipes and cook together in real time from their own kitchens. This platform fosters a sense of community and collaboration, making cooking a shared, interactive experience.
+[Let Them Cook](https://let-them-cook.com) is a user-friendly web application that connects people from around the globe, enabling them to share homemade recipes and cook together in real time from their own kitchens. This platform fosters a sense of community and collaboration, making cooking a shared, interactive experience.
 
 The global pandemic has reshaped our lives, driving many of us into our homes and disrupting our dining experiences. In response to this, our team developed "Let Them Cook" to bring people together through cooking, whether during lockdowns or as a way for friends and influencers to connect over a meal, no matter the distance. We believe that people cook better together!
 
-On Let-Them-Cook.com, users—whom we call chefs—can create profiles to share their recipes or learn from others. Recipes and chefs are rated using a star system, making it easy to find promising cooking sessions. Distinct cooking steps are crucial for group cooking, ensuring a seamless experience compared to traditional plain-text recipes.
+On [Let-Them-Cook.com](https://let-them-cook.com), users—whom we call chefs—can create profiles to share their recipes or learn from others. Recipes and chefs are rated using a star system, making it easy to find promising cooking sessions. Distinct cooking steps are crucial for group cooking, ensuring a seamless experience compared to traditional plain-text recipes.
 
 When creating a recipe, chefs can detail each step, which is then stored in their personal online cookbook and made available for group cooking sessions. During a session, the host chef broadcasts live, guiding participants through each step. Participants can mark tasks as completed, allowing the host to adjust the pace for an optimal experience.
 
@@ -239,7 +239,7 @@ It would be helpful for users if they could receive notifications on the website
 
 ### Supervision
 
-- **Cedric Egon von Rauscher** - [Github](https://github.com/cedric-vr)
+- **Cedric von Rauscher** - [Github](https://github.com/cedric-vr)
 
 ## License
 

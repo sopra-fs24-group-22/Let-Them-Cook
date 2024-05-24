@@ -583,8 +583,7 @@ const SessionsPage = () => {
                       <div
                         style={{
                           display: "inline-block",
-                          marginTop: "10px",
-                          marginLeft: 10,
+                          margin: "10px 0 10px 10px",
                           fontSize: "1.6rem",
                           fontWeight: "500",
                           color: "#666",

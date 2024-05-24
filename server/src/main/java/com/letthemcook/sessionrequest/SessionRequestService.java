@@ -57,7 +57,7 @@ public class SessionRequestService {
     int maxParticipants = session.getMaxParticipantCount();
 
     if (participants >= maxParticipants) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "The session is full");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "The session is full.");
     }
 
     sessionRequest.getUserSessions().put(sessionId, QueueStatus.PENDING);
@@ -76,7 +76,7 @@ public class SessionRequestService {
 
     // Check if session is full
     if (session.getAcceptedParticipantCount() >= session.getMaxParticipantCount()) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "The session is full");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "The session is full.");
     }
 
     QueueStatus status = sessionRequest.getUserSessions().get(sessionId);

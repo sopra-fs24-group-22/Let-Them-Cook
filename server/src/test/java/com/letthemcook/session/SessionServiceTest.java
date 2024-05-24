@@ -79,6 +79,14 @@ public class SessionServiceTest {
     session.setSessionUserState(sessionUserState);
 
     lenient().when(sessionRepository.getById(1L)).thenReturn(session);
+
+    // Setup recipe
+    Recipe recipe = new Recipe();
+    ArrayList<String> checklist = new ArrayList<>();
+    checklist.add("Step 1");
+    recipe.setChecklist(checklist);
+    recipe.setId(1L);
+    lenient().when(recipeRepository.getById(1L)).thenReturn(recipe);
   }
 
   @AfterEach

@@ -6,7 +6,6 @@ import {
   getOpenSessionsAPI,
   getRecipesAPI,
   getSessionMeAPI,
-  getSessionsAPI,
 } from "../api/app.api";
 import { useSelector } from "react-redux";
 import { State } from "../features";

@@ -82,7 +82,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       </Main>
       {/*Modal for Logout confirmation*/}
       <Modal show={showLogoutBox} onHide={handleCloseLogoutBox}>
-        <ModalHeader style={{borderBottom: "none"}}>
+        <ModalHeader style={{ borderBottom: "none" }}>
           <ModalTitle>Are you sure you want to log out?</ModalTitle>
         </ModalHeader>
         <ModalFooter>

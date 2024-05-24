@@ -780,13 +780,20 @@ const SessionsPage = () => {
           />
 
           <Label htmlFor="participants">Max. number of participants</Label>
+          {editingSessionId !== 0 && (
+            <Tooltip anchorSelect={".participantsInput"} place="right">
+              This can't be changed after the session has been created.
+            </Tooltip>
+          )}
           <Input
             id="participants"
             type="number"
             min={1}
             max={30}
             placeholder="10"
+            disabled={editingSessionId !== 0}
             value={participants}
+            className="participantsInput"
             onChange={(e) => setParticipants(Number(e.target.value))}
           />
         </ModalBody>

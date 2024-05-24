@@ -166,7 +166,7 @@ public class SessionServiceTest {
     assertThrows(ResponseStatusException.class, () -> sessionService.getSession(1L));
   }
 
-  // ######################################### Get Session Tests #########################################
+  // ######################################### Delete Session Tests #########################################
 
   @Test
   public void deleteSessionSuccessfullyDeletesSession() {

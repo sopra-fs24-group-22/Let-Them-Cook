@@ -120,12 +120,16 @@ public class SessionService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Session not found");
     }
 
-    if (Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId())) {
-      sessionRepository.deleteById(sessionId);
-      return;
+    if (!Objects.equals(session.getHostId(), userRepository.getByUsername(username).getId())) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to delete this session");
     }
+    sessionRepository.deleteById(sessionId);
 
-    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You are not authorized to delete this session");
+    // Delete all sessionRequests for this session
+    for (SessionRequest sessionRequest : sessionRequestRepository.findAll()) {
+      sessionRequest.getUserSessions().remove(sessionId);
+      sessionRequestRepository.save(sessionRequest);
+    }
   }
 
   public List<Session> getSessions(Integer limit, Integer offset, Map<String, String> allParams) {

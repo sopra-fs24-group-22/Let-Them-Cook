@@ -610,6 +610,7 @@ const RecipesPage = () => {
             type="text"
             maxLength={ENV.MAX_TEXT_INPUT_LENGTH}
             value={dishName}
+            placeholder="Add name"
             style={{ width: "80%" }}
             onChange={(e) => setDishName(e.target.value)}
           />
@@ -651,7 +652,7 @@ const RecipesPage = () => {
                 value={input}
                 onChange={(event) => handleIngredientsInputChange(index, event)}
                 style={{ width: "80%", marginBottom: "0" }}
-                placeholder="Carrots"
+                placeholder="Add ingredient"
               />
               <SecondaryIconButton
                 icon={faCircleChevronDown}
@@ -700,7 +701,7 @@ const RecipesPage = () => {
                 value={input}
                 onChange={(event) => handleSingleStepsInputChange(index, event)}
                 style={{ width: "80%", marginBottom: "0" }}
-                placeholder="Chop the carrots"
+                placeholder="Add step"
               />
               <SecondaryIconButton
                 icon={faCircleChevronDown}

@@ -175,8 +175,9 @@ const SessionsPage = () => {
     try {
       await postSessionRequestAcceptAPI(Number(sessionId), body);
       await fetchSessionRequests(Number(sessionId));
-    } catch (error) {
-      showErrorModal("Error while accepting the request. Please try again.");
+    } catch (error: any) {
+      if(error.code && error.code === "ERR_BAD_REQUEST") showErrorModal("The session is already full.");
+      else showErrorModal("Error while accepting the request. Please try again.");
     }
   };
 
